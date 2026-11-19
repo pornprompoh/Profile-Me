@@ -1,0 +1,87 @@
+[data-hero] {
+  display: grid;
+  min-height: min(720px, calc(100svh - 4.5rem));
+  align-items: center;
+  grid-template-columns: minmax(0, 1.2fr) minmax(240px, 0.8fr);
+  gap: clamp(2rem, 7vw, 6rem);
+}
+
+.hero-content {
+  max-width: 44rem;
+}
+
+.hero-title {
+  margin: 0;
+  color: var(--md-sys-color-on-surface);
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  line-height: 1.18;
+  overflow-wrap: anywhere;
+}
+
+.hero-nickname {
+  margin: 0.6rem 0 0;
+  color: var(--md-sys-color-primary);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 700;
+}
+
+.hero-role {
+  margin: 0.5rem 0 0;
+  font-weight: 700;
+}
+
+.hero-description {
+  max-width: 38rem;
+  margin: 1rem 0 0;
+  color: var(--md-sys-color-outline);
+  font-size: 1.1rem;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.75rem;
+}
+
+.hero-visual {
+  display: grid;
+  place-items: center;
+}
+
+.hero-image-frame {
+  width: min(100%, 340px);
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: var(--md-sys-color-primary-container);
+  border: 10px solid var(--md-sys-color-surface-container-low);
+  border-radius: 38% 62% 55% 45% / 45% 42% 58% 55%;
+  box-shadow: var(--md-sys-elevation-2);
+}
+
+.hero-image,
+.hero-image-frame .image-placeholder {
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  object-fit: cover;
+}
+
+@media (max-width: 720px) {
+  [data-hero] {
+    min-height: auto;
+    grid-template-columns: 1fr;
+  }
+
+  .hero-content {
+    order: 1;
+  }
+
+  .hero-visual {
+    order: 0;
+  }
+
+  .hero-image-frame {
+    width: min(68vw, 260px);
+  }
+}

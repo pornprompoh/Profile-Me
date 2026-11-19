@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" role="img" aria-labelledby="title">
+  <title id="title">ภาพตัวอย่างโปรเจกต์ทดลอง</title>
+  <rect width="960" height="600" fill="#f0f4f9"/>
+  <circle cx="480" cy="300" r="218" fill="#d3e3fd"/>
+  <path d="M480 126l48 126 126 48-126 48-48 126-48-126-126-48 126-48z" fill="#0b57d0"/>
+  <circle cx="480" cy="300" r="60" fill="#fff"/>
+  <circle cx="480" cy="300" r="28" fill="#00639b"/>
+  <circle cx="690" cy="155" r="23" fill="#00639b"/>
+  <circle cx="270" cy="438" r="17" fill="#9bbcf2"/>
+  <circle cx="720" cy="436" r="14" fill="#9bbcf2"/>
+</svg>
