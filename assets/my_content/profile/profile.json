@@ -1,0 +1,26 @@
+{
+  "names": {"th": "สมชาย ใจดี", "en": "Somchai Jaidee"},
+  "roles": {"th": "นักพัฒนา Flutter และ UX Designer", "en": "Flutter Developer & UX Designer"},
+  "birthDate": "1998-05-18",
+  "email": "somchai@example.com",
+  "bio": {
+    "th": "นักพัฒนาที่สนใจสร้างผลิตภัณฑ์ดิจิทัลที่ใช้งานง่าย ควรค่า และออกแบบให้เข้าถึงได้ ด้วยประสบการณ์ด้าน Flutter, Web และการออกแบบส่วนติดต่อผู้ใช้",
+    "en": "A product-minded developer passionate about building accessible, useful and elegant digital experiences with Flutter, web technologies and user-centered design."
+  },
+  "education": [
+    {"period": "2016 - 2020", "institution": {"th": "มหาวิทยาลัยเทคโนโลยีไทย", "en": "Thai Technology University"}, "field": {"th": "วิศวกรรมซอฟต์แวร์", "en": "Software Engineering"}, "details": {"th": "เกียรตินิยมอันดับสอง", "en": "Second-class honors"}}
+  ],
+  "experience": [
+    {"period": "2022 - ปัจจุบัน", "role": {"th": "Senior Flutter Developer", "en": "Senior Flutter Developer"}, "organization": {"th": "Bright Digital", "en": "Bright Digital"}, "details": {"th": "พัฒนาแอปและเว็บข้ามแพลตฟอร์ม พร้อมดูแลคุณภาพโค้ดและระบบดีไซน์", "en": "Built cross-platform apps and websites, maintaining code quality and design systems"}},
+    {"period": "2020 - 2022", "role": {"th": "Mobile Developer", "en": "Mobile Developer"}, "organization": {"th": "Nimble Studio", "en": "Nimble Studio"}, "details": {"th": "ออกแบบและพัฒนาฟีเจอร์สำหรับอุปกรณ์มือถือ", "en": "Designed and implemented mobile product features"}}
+  ],
+  "skillGroups": [
+    {"title": {"th": "พัฒนา", "en": "Development"}, "skills": ["Flutter", "Dart", "Firebase", "REST API"]},
+    {"title": {"th": "เครื่องมือ", "en": "Tools"}, "skills": ["Git", "Figma", "CI/CD", "Docker"]}
+  ],
+  "languages": [
+    {"name": {"th": "ไทย", "en": "Thai"}, "level": {"th": "เจ้าของภาษา", "en": "Native"}},
+    {"name": {"th": "อังกฤษ", "en": "English"}, "level": {"th": "ทำงานได้", "en": "Professional working proficiency"}}
+  ],
+  "profileImage": "assets/my_content/images/profile/profile.png"
+}

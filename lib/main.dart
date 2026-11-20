@@ -1,0 +1,1521 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import 'core/state/app_state.dart';
+import 'core/storage/browser_storage.dart';
+import 'core/theme/app_theme.dart';
+import 'data/models/content_models.dart';
+import 'data/repositories/content_repository.dart';
+import 'services/pdf/resume_pdf_service.dart';
+
+void main() {
+  runApp(const PortfolioApp());
+}
+
+class PortfolioApp extends StatelessWidget {
+  const PortfolioApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final state = AppState(
+      locale: BrowserStorage.initialLocale(),
+      themeMode: BrowserStorage.initialThemeMode(),
+    );
+    return _StateScope(
+      state: state,
+      child: ValueListenableBuilder<ThemeMode>(
+        valueListenable: state.themeMode,
+        builder: (context, mode, _) => MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'Profile Portfolio',
+          theme: AppTheme.light(),
+          darkTheme: AppTheme.dark(),
+          themeMode: mode,
+          home: const PortfolioPage(),
+        ),
+      ),
+    );
+  }
+}
+
+class _StateScope extends InheritedWidget {
+  const _StateScope({required this.state, required super.child});
+  final AppState state;
+
+  static AppState of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<_StateScope>()!.state;
+
+  @override
+  bool updateShouldNotify(_StateScope oldWidget) => state != oldWidget.state;
+}
+
+class PortfolioPage extends StatefulWidget {
+  const PortfolioPage({super.key});
+
+  @override
+  State<PortfolioPage> createState() => _PortfolioPageState();
+}
+
+class _PortfolioPageState extends State<PortfolioPage> {
+  final repository = ContentRepository();
+  final scrollController = ScrollController();
+  final keys = {
+    AppSection.home: GlobalKey(),
+    AppSection.about: GlobalKey(),
+    AppSection.timeline: GlobalKey(),
+    AppSection.projects: GlobalKey(),
+    AppSection.contact: GlobalKey(),
+  };
+  Profile? profile;
+  List<Project> projects = [];
+  Links? links;
+  bool loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    scrollController.addListener(_scrollSpy);
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final loadedProfile = await repository.loadProfile();
+      final loadedProjects = await repository.loadProjects();
+      final loadedLinks = await repository.loadLinks();
+      if (!mounted) return;
+      setState(() {
+        profile = loadedProfile;
+        projects = loadedProjects;
+        links = loadedLinks;
+        loading = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => loading = false);
+    }
+  }
+
+  void _scrollSpy() {
+    final state = _StateScope.of(context);
+    state.showBackToTop.value = scrollController.offset > 350;
+    AppSection closest = AppSection.home;
+    var distance = double.infinity;
+    for (final entry in keys.entries) {
+      final box = entry.value.currentContext?.findRenderObject() as RenderBox?;
+      if (box == null) continue;
+      final position = box.localToGlobal(Offset.zero).dy;
+      final value = (position - 120).abs();
+      if (value < distance) {
+        distance = value;
+        closest = entry.key;
+      }
+    }
+    if (state.activeSection.value != closest) {
+      state.activeSection.value = closest;
+    }
+  }
+
+  Future<void> _scrollTo(AppSection section) async {
+    final key = keys[section];
+    if (key?.currentContext != null) {
+      await Scrollable.ensureVisible(
+        key!.currentContext!,
+        duration: const Duration(milliseconds: 650),
+        curve: Curves.easeInOutCubic,
+      );
+    }
+    if (mounted) Navigator.of(context).maybePop();
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final state = _StateScope.of(context);
+    if (loading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    if (profile == null || links == null) {
+      return Scaffold(
+        body: Center(
+          child: Text(
+            state.locale.value == AppLocale.th
+                ? 'ไม่สามารถโหลดข้อมูลได้'
+                : 'Unable to load content',
+          ),
+        ),
+      );
+    }
+    return ValueListenableBuilder<AppLocale>(
+      valueListenable: state.locale,
+      builder: (context, locale, _) => Scaffold(
+        endDrawer: _MobileDrawer(
+          state: state,
+          locale: locale,
+          onNavigate: _scrollTo,
+          onPdf: () => _downloadPdf(state, locale),
+        ),
+        body: Stack(
+          children: [
+            CustomScrollView(
+              controller: scrollController,
+              slivers: [
+                SliverPersistentHeader(
+                  pinned: true,
+                  delegate: _NavbarDelegate(
+                    minHeight: 72,
+                    maxHeight: 72,
+                    child: _Navbar(
+                      state: state,
+                      locale: locale,
+                      onNavigate: _scrollTo,
+                      onPdf: () => _downloadPdf(state, locale),
+                    ),
+                  ),
+                ),
+                SliverList(
+                  delegate: SliverChildListDelegate([
+                    _Section(
+                      key: keys[AppSection.home],
+                      child: _Hero(profile!, locale),
+                    ),
+                    _Section(
+                      key: keys[AppSection.about],
+                      child: _About(profile!, locale),
+                    ),
+                    _Section(
+                      key: keys[AppSection.timeline],
+                      child: _Timeline(profile!, locale),
+                    ),
+                    _Section(
+                      key: keys[AppSection.projects],
+                      child: _Projects(projects, links!, state, locale),
+                    ),
+                    _Section(
+                      key: keys[AppSection.contact],
+                      child: _Contact(profile!, links!, state, locale),
+                    ),
+                    _Footer(profile: profile!, locale: locale),
+                  ]),
+                ),
+              ],
+            ),
+            ValueListenableBuilder<bool>(
+              valueListenable: state.showBackToTop,
+              builder: (context, visible, _) => Positioned(
+                right: 24,
+                bottom: 24,
+                child: AnimatedOpacity(
+                  opacity: visible ? 1 : 0,
+                  duration: const Duration(milliseconds: 220),
+                  child: AnimatedScale(
+                    scale: visible ? 1 : .7,
+                    duration: const Duration(milliseconds: 220),
+                    child: _HoverWrapper(
+                      child: FloatingActionButton(
+                        onPressed: visible
+                            ? () => scrollController.animateTo(
+                                0,
+                                duration: const Duration(milliseconds: 700),
+                                curve: Curves.easeInOutCubic,
+                              )
+                            : null,
+                        tooltip: locale == AppLocale.th
+                            ? 'กลับขึ้นด้านบน'
+                            : 'Back to top',
+                        child: const Icon(Icons.keyboard_arrow_up),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _downloadPdf(AppState state, AppLocale locale) async {
+    if (profile == null || links == null) return;
+    state.isGeneratingPdf.value = true;
+    try {
+      await ResumePdfService().download(profile!, links!, projects, locale);
+    } finally {
+      state.isGeneratingPdf.value = false;
+    }
+  }
+}
+
+class _NavbarDelegate extends SliverPersistentHeaderDelegate {
+  _NavbarDelegate({
+    required this.minHeight,
+    required this.maxHeight,
+    required this.child,
+  });
+  final double minHeight;
+  final double maxHeight;
+  final Widget child;
+
+  @override
+  double get minExtent => minHeight;
+  @override
+  double get maxExtent => maxHeight;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) => Material(elevation: overlapsContent ? 4 : 0, child: child);
+
+  @override
+  bool shouldRebuild(covariant _NavbarDelegate oldDelegate) =>
+      oldDelegate.child != child;
+}
+
+class _Navbar extends StatelessWidget {
+  const _Navbar({
+    required this.state,
+    required this.locale,
+    required this.onNavigate,
+    required this.onPdf,
+  });
+  final AppState state;
+  final AppLocale locale;
+  final Future<void> Function(AppSection) onNavigate;
+  final Future<void> Function() onPdf;
+
+  @override
+  Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+    final labels = locale == AppLocale.th
+        ? const ['หน้าแรก', 'เกี่ยวกับฉัน', 'ประวัติ', 'ผลงาน', 'ติดต่อ']
+        : const ['Home', 'About', 'Timeline', 'Projects', 'Contact'];
+    final sections = AppSection.values;
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: width > 900 ? 48 : 16),
+      alignment: Alignment.center,
+      child: Row(
+        children: [
+          const Icon(Icons.blur_circular, color: AppTheme.primary),
+          const SizedBox(width: 8),
+          if (width > 560)
+            Text(
+              locale == AppLocale.th ? 'Portfolio' : 'Portfolio',
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+            ),
+          const Spacer(),
+          if (width > 780)
+            ValueListenableBuilder<AppSection>(
+              valueListenable: state.activeSection,
+              builder: (context, active, _) => Row(
+                children: [
+                  for (var i = 0; i < sections.length; i++)
+                    TextButton(
+                      onPressed: () => onNavigate(sections[i]),
+                      style: TextButton.styleFrom(
+                        foregroundColor: active == sections[i]
+                            ? AppTheme.primary
+                            : Theme.of(context).colorScheme.onSurface,
+                      ),
+                      child: Text(labels[i]),
+                    ),
+                ],
+              ),
+            ),
+          IconButton(
+            tooltip: locale == AppLocale.th ? 'เปลี่ยนภาษา' : 'Change language',
+            onPressed: () {
+              state.locale.value = locale == AppLocale.th
+                  ? AppLocale.en
+                  : AppLocale.th;
+              BrowserStorage.write(
+                'profile_locale',
+                state.locale.value == AppLocale.th ? 'th' : 'en',
+              );
+            },
+            icon: Text(
+              locale == AppLocale.th ? 'EN' : 'TH',
+              style: const TextStyle(fontWeight: FontWeight.w800),
+            ),
+          ),
+          IconButton(
+            tooltip: locale == AppLocale.th ? 'สลับธีม' : 'Toggle theme',
+            onPressed: () {
+              state.themeMode.value = state.themeMode.value == ThemeMode.dark
+                  ? ThemeMode.light
+                  : ThemeMode.dark;
+              BrowserStorage.write(
+                'profile_theme',
+                state.themeMode.value == ThemeMode.dark ? 'dark' : 'light',
+              );
+            },
+            icon: Icon(
+              state.themeMode.value == ThemeMode.dark
+                  ? Icons.light_mode
+                  : Icons.dark_mode,
+            ),
+          ),
+          if (width > 560)
+            ValueListenableBuilder<bool>(
+              valueListenable: state.isGeneratingPdf,
+              builder: (context, generating, _) => FilledButton.icon(
+                onPressed: generating ? null : onPdf,
+                icon: generating
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.download),
+                label: Text(locale == AppLocale.th ? 'Resume' : 'Resume'),
+              ),
+            ),
+          if (width <= 780)
+            Builder(
+              builder: (context) => IconButton(
+                onPressed: Scaffold.of(context).openEndDrawer,
+                icon: const Icon(Icons.menu),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MobileDrawer extends StatelessWidget {
+  const _MobileDrawer({
+    required this.state,
+    required this.locale,
+    required this.onNavigate,
+    required this.onPdf,
+  });
+  final AppState state;
+  final AppLocale locale;
+  final Future<void> Function(AppSection) onNavigate;
+  final Future<void> Function() onPdf;
+
+  @override
+  Widget build(BuildContext context) {
+    final labels = locale == AppLocale.th
+        ? const ['หน้าแรก', 'เกี่ยวกับฉัน', 'ประวัติ', 'ผลงาน', 'ติดต่อ']
+        : const ['Home', 'About', 'Timeline', 'Projects', 'Contact'];
+    return Drawer(
+      child: SafeArea(
+        child: ListView(
+          children: [
+            for (var i = 0; i < AppSection.values.length; i++)
+              ListTile(
+                title: Text(labels[i]),
+                onTap: () => onNavigate(AppSection.values[i]),
+              ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.download),
+              title: const Text('Resume PDF'),
+              onTap: onPdf,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Section extends StatelessWidget {
+  const _Section({super.key, required this.child});
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => ConstrainedBox(
+    constraints: const BoxConstraints(minHeight: 220),
+    child: child,
+  );
+}
+
+class _ScrollReveal extends StatefulWidget {
+  const _ScrollReveal({required this.child, this.delay = Duration.zero});
+  final Widget child;
+  final Duration delay;
+
+  @override
+  State<_ScrollReveal> createState() => _ScrollRevealState();
+}
+
+class _ScrollRevealState extends State<_ScrollReveal>
+    with SingleTickerProviderStateMixin {
+  late final controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 700),
+  );
+  late final animation = CurvedAnimation(
+    parent: controller,
+    curve: Curves.easeOutCubic,
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(widget.delay, () {
+      if (mounted) controller.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AnimatedBuilder(
+    animation: animation,
+    builder: (context, child) => Opacity(
+      opacity: animation.value,
+      child: Transform.translate(
+        offset: Offset(0, 28 * (1 - animation.value)),
+        child: child,
+      ),
+    ),
+    child: widget.child,
+  );
+}
+
+class _HoverWrapper extends StatefulWidget {
+  const _HoverWrapper({required this.child, this.lift = 6});
+  final Widget child;
+  final double lift;
+
+  @override
+  State<_HoverWrapper> createState() => _HoverWrapperState();
+}
+
+class _HoverWrapperState extends State<_HoverWrapper> {
+  bool hovered = false;
+
+  @override
+  Widget build(BuildContext context) => MouseRegion(
+    onEnter: (_) => setState(() => hovered = true),
+    onExit: (_) => setState(() => hovered = false),
+    child: AnimatedScale(
+      scale: hovered ? 1.02 : 1,
+      duration: const Duration(milliseconds: 180),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        transform: Matrix4.translationValues(0, hovered ? -widget.lift : 0, 0),
+        child: widget.child,
+      ),
+    ),
+  );
+}
+
+class _ProfileImage extends StatelessWidget {
+  const _ProfileImage(this.path, {required this.size, required this.onTap});
+  final String path;
+  final double size;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => InkWell(
+    onTap: path.isEmpty
+        ? null
+        : () => showDialog<void>(
+            context: context,
+            barrierDismissible: true,
+            builder: (_) => _Lightbox(images: [path]),
+          ),
+    borderRadius: BorderRadius.circular(size / 2),
+    child: Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: AppTheme.sky, width: 8),
+      ),
+      child: ClipOval(
+        child: path.isNotEmpty
+            ? Image.asset(
+                path,
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) =>
+                    const ColoredBox(color: AppTheme.sky),
+              )
+            : const ColoredBox(color: AppTheme.sky),
+      ),
+    ),
+  );
+}
+
+class _Hero extends StatelessWidget {
+  const _Hero(this.profile, this.locale);
+  final Profile profile;
+  final AppLocale locale;
+
+  @override
+  Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+    final name = locale == AppLocale.th ? profile.names.th : profile.names.en;
+    final role = locale == AppLocale.th ? profile.roles.th : profile.roles.en;
+    final bio = locale == AppLocale.th ? profile.bio.th : profile.bio.en;
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(
+        horizontal: width > 900 ? 72 : 24,
+        vertical: 72,
+      ),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Theme.of(
+              context,
+            ).colorScheme.primaryContainer.withValues(alpha: .32),
+            Theme.of(context).scaffoldBackgroundColor,
+          ],
+        ),
+      ),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1180),
+          child: Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            runSpacing: 40,
+            spacing: 48,
+            children: [
+              SizedBox(
+                width: width > 900 ? 620 : width - 48,
+                child: _ScrollReveal(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        locale == AppLocale.th ? 'สวัสดี ผมคือ' : 'Hello, I am',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        name,
+                        style: Theme.of(context).textTheme.displaySmall
+                            ?.copyWith(fontWeight: FontWeight.w800),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        role,
+                        style: Theme.of(context).textTheme.headlineSmall
+                            ?.copyWith(color: AppTheme.primary),
+                      ),
+                      const SizedBox(height: 18),
+                      Text(bio, style: Theme.of(context).textTheme.titleMedium),
+                    ],
+                  ),
+                ),
+              ),
+              _ScrollReveal(
+                delay: const Duration(milliseconds: 120),
+                child: _HoverWrapper(
+                  lift: 8,
+                  child: _ProfileImage(
+                    profile.profileImage,
+                    size: 260,
+                    onTap: () {},
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _About extends StatelessWidget {
+  const _About(this.profile, this.locale);
+  final Profile profile;
+  final AppLocale locale;
+
+  @override
+  Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(
+        horizontal: width > 900 ? 72 : 24,
+        vertical: 72,
+      ),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1180),
+          child: _ScrollReveal(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _SectionTitle(
+                  locale == AppLocale.th ? 'เกี่ยวกับฉัน' : 'About Me',
+                  locale == AppLocale.th
+                      ? 'ประวัติและจุดสนใจ'
+                      : 'Background and interests',
+                ),
+                const SizedBox(height: 24),
+                Wrap(
+                  spacing: 36,
+                  runSpacing: 24,
+                  children: [
+                    SizedBox(
+                      width: width > 800 ? 600 : width - 48,
+                      child: Text(
+                        locale == AppLocale.th
+                            ? profile.bio.th
+                            : profile.bio.en,
+                        style: Theme.of(
+                          context,
+                        ).textTheme.titleMedium?.copyWith(height: 1.8),
+                      ),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${locale == AppLocale.th ? 'อายุ' : 'Age'}: ${profile.age}',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          profile.email,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 32),
+                for (final group in profile.skillGroups)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          locale == AppLocale.th
+                              ? group.title.th
+                              : group.title.en,
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w700),
+                        ),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            for (final skill in group.skills)
+                              Chip(
+                                label: Text(skill),
+                                visualDensity: VisualDensity.compact,
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SectionTitle extends StatelessWidget {
+  const _SectionTitle(this.title, this.subtitle);
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Container(width: 52, height: 4, color: AppTheme.primary),
+      const SizedBox(height: 12),
+      Text(
+        title,
+        style: Theme.of(
+          context,
+        ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w800),
+      ),
+      const SizedBox(height: 4),
+      Text(subtitle, style: Theme.of(context).textTheme.titleMedium),
+    ],
+  );
+}
+
+class _Timeline extends StatelessWidget {
+  const _Timeline(this.profile, this.locale);
+  final Profile profile;
+  final AppLocale locale;
+
+  @override
+  Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+    return Container(
+      width: double.infinity,
+      color: Theme.of(
+        context,
+      ).colorScheme.primaryContainer.withValues(alpha: .12),
+      padding: EdgeInsets.symmetric(
+        horizontal: width > 900 ? 72 : 24,
+        vertical: 72,
+      ),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1180),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _SectionTitle(
+                locale == AppLocale.th
+                    ? 'ประวัติและประสบการณ์'
+                    : 'Education & Experience',
+                locale == AppLocale.th
+                    ? 'เส้นทางการเรียนรู้และการทำงาน'
+                    : 'Learning and career journey',
+              ),
+              const SizedBox(height: 32),
+              for (var i = 0; i < profile.education.length; i++)
+                _TimelineItem(
+                  period: profile.education[i].period,
+                  title: locale == AppLocale.th
+                      ? profile.education[i].field.th
+                      : profile.education[i].field.en,
+                  organization: locale == AppLocale.th
+                      ? profile.education[i].institution.th
+                      : profile.education[i].institution.en,
+                  details: locale == AppLocale.th
+                      ? profile.education[i].details.th
+                      : profile.education[i].details.en,
+                  education: true,
+                  delay: Duration(milliseconds: i * 80),
+                ),
+              for (var i = 0; i < profile.experience.length; i++)
+                _TimelineItem(
+                  period: profile.experience[i].period,
+                  title: locale == AppLocale.th
+                      ? profile.experience[i].role.th
+                      : profile.experience[i].role.en,
+                  organization: locale == AppLocale.th
+                      ? profile.experience[i].organization.th
+                      : profile.experience[i].organization.en,
+                  details: locale == AppLocale.th
+                      ? profile.experience[i].details.th
+                      : profile.experience[i].details.en,
+                  education: false,
+                  delay: Duration(
+                    milliseconds: (i + profile.education.length) * 80,
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _TimelineItem extends StatelessWidget {
+  const _TimelineItem({
+    required this.period,
+    required this.title,
+    required this.organization,
+    required this.details,
+    required this.education,
+    required this.delay,
+  });
+  final String period;
+  final String title;
+  final String organization;
+  final String details;
+  final bool education;
+  final Duration delay;
+
+  @override
+  Widget build(BuildContext context) => _ScrollReveal(
+    delay: delay,
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 36,
+          child: Column(
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                decoration: const BoxDecoration(
+                  color: AppTheme.primary,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  education ? Icons.school : Icons.work,
+                  size: 17,
+                  color: Colors.white,
+                ),
+              ),
+              Container(width: 3, height: 120, color: AppTheme.sky),
+            ],
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: _HoverWrapper(
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(18),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (period.isNotEmpty)
+                      Chip(
+                        label: Text(period),
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.primaryContainer,
+                      ),
+                    if (title.isNotEmpty)
+                      Text(
+                        title,
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    if (organization.isNotEmpty)
+                      Text(
+                        organization,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(color: AppTheme.primary),
+                      ),
+                    if (details.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Text(details),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+class _Projects extends StatefulWidget {
+  const _Projects(this.projects, this.links, this.state, this.locale);
+  final List<Project> projects;
+  final Links links;
+  final AppState state;
+  final AppLocale locale;
+
+  @override
+  State<_Projects> createState() => _ProjectsState();
+}
+
+class _ProjectsState extends State<_Projects> {
+  @override
+  Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+    final categories = {
+      for (final project in widget.projects)
+        widget.locale == AppLocale.th
+            ? project.category.th
+            : project.category.en,
+    }.where((category) => category.isNotEmpty).toList();
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: width > 900 ? 72 : 24,
+        vertical: 72,
+      ),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1180),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _SectionTitle(
+                widget.locale == AppLocale.th ? 'ผลงาน' : 'Projects',
+                widget.locale == AppLocale.th
+                    ? 'เลือกดูผลงานตามหมวดหมู่'
+                    : 'Browse selected work',
+              ),
+              const SizedBox(height: 24),
+              ValueListenableBuilder<String>(
+                valueListenable: widget.state.selectedCategory,
+                builder: (context, selected, _) => Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    ChoiceChip(
+                      label: Text(
+                        widget.locale == AppLocale.th ? 'ทั้งหมด' : 'All',
+                      ),
+                      selected: selected == 'all',
+                      onSelected: (_) =>
+                          widget.state.selectedCategory.value = 'all',
+                    ),
+                    for (final category in categories)
+                      ChoiceChip(
+                        label: Text(category),
+                        selected: selected == category,
+                        onSelected: (_) =>
+                            widget.state.selectedCategory.value = category,
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+              ValueListenableBuilder<String>(
+                valueListenable: widget.state.selectedCategory,
+                builder: (context, selected, _) {
+                  final filtered = widget.projects.where((project) {
+                    final category = widget.locale == AppLocale.th
+                        ? project.category.th
+                        : project.category.en;
+                    return selected == 'all' || category == selected;
+                  }).toList();
+                  final cardWidth = width > 900
+                      ? 350.0
+                      : width > 620
+                      ? (width - 72) / 2
+                      : width - 48;
+                  return Wrap(
+                    spacing: 18,
+                    runSpacing: 18,
+                    children: [
+                      for (var i = 0; i < filtered.length; i++)
+                        SizedBox(
+                          width: cardWidth,
+                          child: _ScrollReveal(
+                            delay: Duration(milliseconds: i * 70),
+                            child: _ProjectCard(
+                              project: filtered[i],
+                              links: widget.links,
+                              locale: widget.locale,
+                            ),
+                          ),
+                        ),
+                    ],
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ProjectCard extends StatelessWidget {
+  const _ProjectCard({
+    required this.project,
+    required this.links,
+    required this.locale,
+  });
+  final Project project;
+  final Links links;
+  final AppLocale locale;
+
+  @override
+  Widget build(BuildContext context) => _HoverWrapper(
+    child: Card(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => showDialog<void>(
+          context: context,
+          barrierDismissible: true,
+          builder: (_) =>
+              _ProjectModal(project: project, links: links, locale: locale),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AspectRatio(
+              aspectRatio: 16 / 9,
+              child: project.images.isNotEmpty
+                  ? Image.asset(project.images.first, fit: BoxFit.cover)
+                  : const ColoredBox(color: AppTheme.sky),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    locale == AppLocale.th
+                        ? project.category.th
+                        : project.category.en,
+                    style: Theme.of(
+                      context,
+                    ).textTheme.labelLarge?.copyWith(color: AppTheme.primary),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    locale == AppLocale.th
+                        ? project.title.th
+                        : project.title.en,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    locale == AppLocale.th
+                        ? project.summary.th
+                        : project.summary.en,
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [
+                      for (final tag in project.tags.take(4))
+                        Chip(
+                          label: Text(tag),
+                          visualDensity: VisualDensity.compact,
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+class _ProjectModal extends StatefulWidget {
+  const _ProjectModal({
+    required this.project,
+    required this.links,
+    required this.locale,
+  });
+  final Project project;
+  final Links links;
+  final AppLocale locale;
+
+  @override
+  State<_ProjectModal> createState() => _ProjectModalState();
+}
+
+class _ProjectModalState extends State<_ProjectModal> {
+  final pageController = PageController();
+  var index = 0;
+
+  @override
+  void dispose() {
+    pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final images = widget.project.images;
+    final projectLinks = widget.links.projectLinks
+        .where((link) => link.projectId == widget.project.id)
+        .toList();
+    return Dialog(
+      insetPadding: const EdgeInsets.all(16),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 980, maxHeight: 760),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(28),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Text(
+                          widget.locale == AppLocale.th
+                              ? widget.project.title.th
+                              : widget.project.title.en,
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.close),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (images.isNotEmpty)
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(18),
+                          child: Stack(
+                            alignment: Alignment.bottomCenter,
+                            children: [
+                              AspectRatio(
+                                aspectRatio: 16 / 9,
+                                child: PageView.builder(
+                                  controller: pageController,
+                                  itemCount: images.length,
+                                  onPageChanged: (value) =>
+                                      setState(() => index = value),
+                                  itemBuilder: (context, i) => InkWell(
+                                    onTap: () => showDialog<void>(
+                                      context: context,
+                                      barrierDismissible: true,
+                                      builder: (_) => _Lightbox(
+                                        images: images,
+                                        initialIndex: i,
+                                      ),
+                                    ),
+                                    child: Image.asset(
+                                      images[i],
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (_, _, _) =>
+                                          const ColoredBox(color: AppTheme.sky),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              if (MediaQuery.sizeOf(context).width > 700)
+                                Positioned(
+                                  left: 8,
+                                  child: IconButton.filledTonal(
+                                    onPressed: () =>
+                                        pageController.previousPage(
+                                          duration: const Duration(
+                                            milliseconds: 300,
+                                          ),
+                                          curve: Curves.easeInOut,
+                                        ),
+                                    icon: const Icon(Icons.chevron_left),
+                                  ),
+                                ),
+                              if (MediaQuery.sizeOf(context).width > 700)
+                                Positioned(
+                                  right: 8,
+                                  child: IconButton.filledTonal(
+                                    onPressed: () => pageController.nextPage(
+                                      duration: const Duration(
+                                        milliseconds: 300,
+                                      ),
+                                      curve: Curves.easeInOut,
+                                    ),
+                                    icon: const Icon(Icons.chevron_right),
+                                  ),
+                                ),
+                              Positioned(
+                                bottom: 8,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black54,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Text(
+                                    '${index + 1} / ${images.length}',
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      const SizedBox(height: 20),
+                      Text(
+                        widget.locale == AppLocale.th
+                            ? widget.project.description.th
+                            : widget.project.description.en,
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        widget.locale == AppLocale.th
+                            ? 'จุดเด่น'
+                            : 'Highlights',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      for (final highlight in widget.project.highlights)
+                        ListTile(
+                          dense: true,
+                          leading: const Icon(Icons.check_circle_outline),
+                          title: Text(
+                            widget.locale == AppLocale.th
+                                ? highlight.th
+                                : highlight.en,
+                          ),
+                        ),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          for (final tag in widget.project.tags)
+                            Chip(label: Text(tag)),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          for (final link in projectLinks)
+                            FilledButton.tonal(
+                              onPressed: () => launchUrl(
+                                Uri.parse(link.url),
+                                mode: LaunchMode.externalApplication,
+                              ),
+                              child: Text(
+                                widget.locale == AppLocale.th
+                                    ? link.label.th
+                                    : link.label.en,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _Lightbox extends StatefulWidget {
+  const _Lightbox({required this.images, this.initialIndex = 0});
+  final List<String> images;
+  final int initialIndex;
+
+  @override
+  State<_Lightbox> createState() => _LightboxState();
+}
+
+class _LightboxState extends State<_Lightbox> {
+  late final controller = PageController(initialPage: widget.initialIndex);
+  late var index = widget.initialIndex;
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Dialog(
+    backgroundColor: Colors.transparent,
+    insetPadding: EdgeInsets.zero,
+    child: GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => Navigator.pop(context),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Container(color: const Color(0xE0000000)),
+          GestureDetector(
+            onTap: () {},
+            child: PageView.builder(
+              controller: controller,
+              itemCount: widget.images.length,
+              onPageChanged: (value) => setState(() => index = value),
+              itemBuilder: (context, i) => InteractiveViewer(
+                minScale: .5,
+                maxScale: 5,
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Image.asset(widget.images[i], fit: BoxFit.contain),
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            top: 24,
+            right: 24,
+            child: IconButton.filled(
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(Icons.close),
+            ),
+          ),
+          if (widget.images.length > 1) ...[
+            Positioned(
+              left: 24,
+              top: 0,
+              bottom: 0,
+              child: IconButton.filledTonal(
+                onPressed: () => controller.previousPage(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                ),
+                icon: const Icon(Icons.chevron_left),
+              ),
+            ),
+            Positioned(
+              right: 24,
+              top: 0,
+              bottom: 0,
+              child: IconButton.filledTonal(
+                onPressed: () => controller.nextPage(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                ),
+                icon: const Icon(Icons.chevron_right),
+              ),
+            ),
+          ],
+          Positioned(
+            bottom: 24,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Text(
+                '${index + 1} / ${widget.images.length}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+class _Contact extends StatelessWidget {
+  const _Contact(this.profile, this.links, this.state, this.locale);
+  final Profile profile;
+  final Links links;
+  final AppState state;
+  final AppLocale locale;
+
+  Future<void> _copyEmail(BuildContext context) async {
+    await Clipboard.setData(ClipboardData(text: profile.email));
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          locale == AppLocale.th
+              ? 'คัดลอกอีเมลแล้ว'
+              : 'Email copied to clipboard',
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(
+        horizontal: width > 900 ? 72 : 24,
+        vertical: 72,
+      ),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1180),
+          child: _ScrollReveal(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _SectionTitle(
+                  locale == AppLocale.th ? 'ติดต่อ' : 'Contact',
+                  locale == AppLocale.th
+                      ? 'ช่องทางสำหรับพูดคุยและทำงานร่วมกัน'
+                      : 'Let us connect and build together',
+                ),
+                const SizedBox(height: 24),
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: [
+                    if (profile.email.isNotEmpty)
+                      FilledButton.icon(
+                        onPressed: () => _copyEmail(context),
+                        icon: const Icon(Icons.copy),
+                        label: Text(profile.email),
+                      ),
+                    for (final link in links.socialLinks)
+                      OutlinedButton.icon(
+                        onPressed: () => launchUrl(
+                          Uri.parse(link.url),
+                          mode: LaunchMode.externalApplication,
+                        ),
+                        icon: Icon(
+                          link.icon.toLowerCase().contains('github')
+                              ? Icons.code
+                              : link.icon.toLowerCase().contains('linkedin')
+                              ? Icons.work
+                              : Icons.link,
+                        ),
+                        label: Text(link.label),
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _Footer extends StatelessWidget {
+  const _Footer({required this.profile, required this.locale});
+  final Profile profile;
+  final AppLocale locale;
+
+  @override
+  Widget build(BuildContext context) {
+    final name = locale == AppLocale.th ? profile.names.th : profile.names.en;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 18),
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
+        ),
+      ),
+      child: Text(
+        '© ${DateTime.now().year} $name. ${locale == AppLocale.th ? 'สงวนลิขสิทธิ์' : 'All rights reserved.'}',
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+}
