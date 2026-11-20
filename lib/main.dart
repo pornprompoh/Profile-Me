@@ -126,23 +126,23 @@ class _PortfolioPageState extends State<PortfolioPage> {
   Future<void> _scrollTo(AppSection section) async {
     final state = _StateScope.of(context);
     state.activeSection.value = section;
-    final key = keys[section];
-    if (key?.currentContext != null) {
-      final targetContext = key!.currentContext!;
-      final box = targetContext.findRenderObject() as RenderBox?;
-      if (box != null) {
-        final top =
-            box.localToGlobal(Offset.zero).dy +
-            scrollController.offset -
-            LayoutTokens.navbarHeight -
-            8;
-        final maxScroll = scrollController.position.maxScrollExtent;
-        await scrollController.animateTo(
-          top.clamp(0.0, maxScroll),
-          duration: const Duration(milliseconds: 500),
-          curve: Curves.easeOutCubic,
-        );
-      }
+    await WidgetsBinding.instance.endOfFrame;
+    if (!mounted) return;
+
+    final targetContext = keys[section]?.currentContext;
+    final box = targetContext?.findRenderObject() as RenderBox?;
+    if (box != null && scrollController.hasClients) {
+      final top =
+          box.localToGlobal(Offset.zero).dy +
+          scrollController.offset -
+          LayoutTokens.navbarHeight -
+          8;
+      final maxScroll = scrollController.position.maxScrollExtent;
+      await scrollController.animateTo(
+        top.clamp(0.0, maxScroll),
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeOutCubic,
+      );
     }
     if (mounted) Navigator.of(context).maybePop();
   }
@@ -204,8 +204,12 @@ class _PortfolioPageState extends State<PortfolioPage> {
                       child: _Hero(
                         profile!,
                         locale,
-                        onProjects: () => _scrollTo(AppSection.projects),
-                        onContact: () => _scrollTo(AppSection.contact),
+                        onProjects: () {
+                          _scrollTo(AppSection.projects);
+                        },
+                        onContact: () {
+                          _scrollTo(AppSection.contact);
+                        },
                       ),
                     ),
                     _Section(
@@ -729,8 +733,8 @@ class _Hero extends StatelessWidget {
   });
   final Profile profile;
   final AppLocale locale;
-  final Future<void> Function() onProjects;
-  final Future<void> Function() onContact;
+  final VoidCallback onProjects;
+  final VoidCallback onContact;
 
   @override
   Widget build(BuildContext context) {
@@ -779,7 +783,7 @@ class _Hero extends StatelessWidget {
             runSpacing: 12,
             children: [
               FilledButton.icon(
-                onPressed: () async => onProjects(),
+                onPressed: onProjects,
                 icon: const Icon(Icons.grid_view_rounded),
                 style: FilledButton.styleFrom(
                   minimumSize: const Size(0, LayoutTokens.touchTarget),
@@ -798,7 +802,7 @@ class _Hero extends StatelessWidget {
                 ),
               ),
               OutlinedButton.icon(
-                onPressed: () async => onContact(),
+                onPressed: onContact,
                 icon: const Icon(Icons.mail_outline),
                 style: OutlinedButton.styleFrom(
                   minimumSize: const Size(0, LayoutTokens.touchTarget),
