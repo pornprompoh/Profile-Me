@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/state/app_state.dart';
+import '../../core/theme/layout_tokens.dart';
 import '../../data/models/content_models.dart';
 
 typedef ProjectCardBuilder = Widget Function(Project project);
@@ -48,15 +49,15 @@ class _AllProjectsModalState extends State<AllProjectsModal> {
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
     final isMobile = size.width < 600;
-    final categories = widget.projects
-        .map(
-          (project) =>
-              _isThai ? project.category.th : project.category.en,
-        )
-        .where((category) => category.isNotEmpty)
-        .toSet()
-        .toList()
-      ..sort();
+    final categories =
+        widget.projects
+            .map(
+              (project) => _isThai ? project.category.th : project.category.en,
+            )
+            .where((category) => category.isNotEmpty)
+            .toSet()
+            .toList()
+          ..sort();
 
     return ValueListenableBuilder<String>(
       valueListenable: _selectedCategory,
@@ -76,12 +77,16 @@ class _AllProjectsModalState extends State<AllProjectsModal> {
               : const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
           clipBehavior: Clip.antiAlias,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(isMobile ? 0 : 28),
+            borderRadius: BorderRadius.circular(
+              isMobile ? 0 : LayoutTokens.modalRadius,
+            ),
           ),
           child: SizedBox(
             width: isMobile
                 ? size.width
-                : (size.width - 64).clamp(0.0, 1150.0).toDouble(),
+                : (size.width - 64)
+                      .clamp(0.0, LayoutTokens.maxContentWidth)
+                      .toDouble(),
             height: isMobile
                 ? size.height
                 : (size.height - 48).clamp(0.0, 850.0).toDouble(),
@@ -97,8 +102,7 @@ class _AllProjectsModalState extends State<AllProjectsModal> {
                           onPressed: () => Navigator.pop(context),
                           icon: const Icon(Icons.arrow_back),
                         ),
-                        if (size.width >= 460)
-                          Text(_isThai ? 'กลับ' : 'Back'),
+                        if (size.width >= 460) Text(_isThai ? 'กลับ' : 'Back'),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Column(
@@ -160,14 +164,20 @@ class _AllProjectsModalState extends State<AllProjectsModal> {
                   Expanded(
                     child: GridView.builder(
                       controller: _scrollController,
-                      padding: const EdgeInsets.fromLTRB(24, 16, 24, 28),
-                      gridDelegate:
-                          const SliverGridDelegateWithMaxCrossAxisExtent(
-                            maxCrossAxisExtent: 370,
-                            mainAxisExtent: 460,
-                            crossAxisSpacing: 18,
-                            mainAxisSpacing: 18,
-                          ),
+                      padding: EdgeInsets.fromLTRB(
+                        isMobile ? 12 : 24,
+                        16,
+                        isMobile ? 12 : 24,
+                        28,
+                      ),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: LayoutTokens.projectColumnCount(
+                          size.width,
+                        ),
+                        mainAxisExtent: isMobile ? 560 : 540,
+                        crossAxisSpacing: 18,
+                        mainAxisSpacing: 18,
+                      ),
                       itemCount: filtered.length,
                       itemBuilder: (context, index) =>
                           widget.projectCardBuilder(filtered[index]),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class AppTheme {
   static const primary = Color(0xFF2563EB);
   static const sky = Color(0xFF38BDF8);
+  static const darkAccent = Color(0xFF7DD3FC);
 
   static ThemeData light() => ThemeData(
     useMaterial3: true,
@@ -24,7 +25,7 @@ class AppTheme {
       seedColor: sky,
       brightness: Brightness.dark,
       surface: const Color(0xFF0F172A),
-    ),
+    ).copyWith(primary: darkAccent),
     scaffoldBackgroundColor: const Color(0xFF07111F),
   );
 }

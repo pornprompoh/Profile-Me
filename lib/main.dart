@@ -10,6 +10,9 @@ import 'core/theme/app_theme.dart';
 import 'data/models/content_models.dart';
 import 'data/repositories/content_repository.dart';
 import 'presentation/modals/all_projects_modal.dart';
+import 'core/theme/layout_tokens.dart';
+import 'presentation/widgets/section_widgets.dart';
+import 'presentation/widgets/project_link_button.dart';
 import 'services/pdf/resume_pdf_service.dart';
 
 void main() {
@@ -121,13 +124,25 @@ class _PortfolioPageState extends State<PortfolioPage> {
   }
 
   Future<void> _scrollTo(AppSection section) async {
+    final state = _StateScope.of(context);
+    state.activeSection.value = section;
     final key = keys[section];
     if (key?.currentContext != null) {
-      await Scrollable.ensureVisible(
-        key!.currentContext!,
-        duration: const Duration(milliseconds: 650),
-        curve: Curves.easeInOutCubic,
-      );
+      final targetContext = key!.currentContext!;
+      final box = targetContext.findRenderObject() as RenderBox?;
+      if (box != null) {
+        final top =
+            box.localToGlobal(Offset.zero).dy +
+            scrollController.offset -
+            LayoutTokens.navbarHeight -
+            8;
+        final maxScroll = scrollController.position.maxScrollExtent;
+        await scrollController.animateTo(
+          top.clamp(0.0, maxScroll),
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeOutCubic,
+        );
+      }
     }
     if (mounted) Navigator.of(context).maybePop();
   }
@@ -186,7 +201,12 @@ class _PortfolioPageState extends State<PortfolioPage> {
                   delegate: SliverChildListDelegate([
                     _Section(
                       key: keys[AppSection.home],
-                      child: _Hero(profile!, locale),
+                      child: _Hero(
+                        profile!,
+                        locale,
+                        onProjects: () => _scrollTo(AppSection.projects),
+                        onContact: () => _scrollTo(AppSection.contact),
+                      ),
                     ),
                     _Section(
                       key: keys[AppSection.about],
@@ -276,7 +296,21 @@ class _NavbarDelegate extends SliverPersistentHeaderDelegate {
     BuildContext context,
     double shrinkOffset,
     bool overlapsContent,
-  ) => Material(elevation: overlapsContent ? 4 : 0, child: child);
+  ) => Material(
+    elevation: 0,
+    color: Theme.of(context).scaffoldBackgroundColor,
+    child: DecoratedBox(
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: Theme.of(context).colorScheme.outlineVariant,
+            width: 1,
+          ),
+        ),
+      ),
+      child: child,
+    ),
+  );
 
   @override
   bool shouldRebuild(covariant _NavbarDelegate oldDelegate) =>
@@ -298,99 +332,119 @@ class _Navbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
+    final isMobile = width < LayoutTokens.mobileBreakpoint;
     final labels = locale == AppLocale.th
         ? const ['หน้าแรก', 'เกี่ยวกับฉัน', 'ประวัติ', 'ผลงาน', 'ติดต่อ']
         : const ['Home', 'About', 'Timeline', 'Projects', 'Contact'];
     final sections = AppSection.values;
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: width > 900 ? 48 : 16),
-      alignment: Alignment.center,
-      child: Row(
-        children: [
-          const Icon(Icons.blur_circular, color: AppTheme.primary),
-          const SizedBox(width: 8),
-          if (width > 560)
-            Text(
-              locale == AppLocale.th ? 'Portfolio' : 'Portfolio',
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+    return SizedBox(
+      height: LayoutTokens.navbarHeight,
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxWidth: LayoutTokens.maxContentWidth,
+          ),
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: LayoutTokens.horizontalPadding(context),
             ),
-          const Spacer(),
-          if (width > 780)
-            ValueListenableBuilder<AppSection>(
-              valueListenable: state.activeSection,
-              builder: (context, active, _) => Row(
-                children: [
-                  for (var i = 0; i < sections.length; i++)
-                    TextButton(
-                      onPressed: () => onNavigate(sections[i]),
-                      style: TextButton.styleFrom(
-                        foregroundColor: active == sections[i]
-                            ? AppTheme.primary
-                            : Theme.of(context).colorScheme.onSurface,
-                      ),
-                      child: Text(labels[i]),
+            child: Row(
+              children: [
+                const Icon(Icons.blur_circular, color: AppTheme.primary),
+                const SizedBox(width: 8),
+                if (!isMobile)
+                  Text(
+                    'Portfolio',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
                     ),
-                ],
-              ),
-            ),
-          IconButton(
-            tooltip: locale == AppLocale.th ? 'เปลี่ยนภาษา' : 'Change language',
-            onPressed: () {
-              state.locale.value = locale == AppLocale.th
-                  ? AppLocale.en
-                  : AppLocale.th;
-              BrowserStorage.write(
-                'profile_locale',
-                state.locale.value == AppLocale.th ? 'th' : 'en',
-              );
-            },
-            icon: Text(
-              locale == AppLocale.th ? 'EN' : 'TH',
-              style: const TextStyle(fontWeight: FontWeight.w800),
+                  ),
+                const Spacer(),
+                if (width > 780)
+                  ValueListenableBuilder<AppSection>(
+                    valueListenable: state.activeSection,
+                    builder: (context, active, _) => Row(
+                      children: [
+                        for (var i = 0; i < sections.length; i++)
+                          TextButton(
+                            onPressed: () => onNavigate(sections[i]),
+                            style: TextButton.styleFrom(
+                              foregroundColor: active == sections[i]
+                                  ? (Theme.of(context).brightness ==
+                                            Brightness.dark
+                                        ? AppTheme.darkAccent
+                                        : AppTheme.primary)
+                                  : Theme.of(context).colorScheme.onSurface,
+                            ),
+                            child: Text(labels[i]),
+                          ),
+                      ],
+                    ),
+                  ),
+                IconButton(
+                  tooltip: locale == AppLocale.th
+                      ? 'เปลี่ยนภาษา'
+                      : 'Change language',
+                  onPressed: () {
+                    state.locale.value = locale == AppLocale.th
+                        ? AppLocale.en
+                        : AppLocale.th;
+                    BrowserStorage.write(
+                      'profile_locale',
+                      state.locale.value == AppLocale.th ? 'th' : 'en',
+                    );
+                  },
+                  icon: Text(
+                    locale == AppLocale.th ? 'EN' : 'TH',
+                    style: const TextStyle(fontWeight: FontWeight.w800),
+                  ),
+                ),
+                IconButton(
+                  tooltip: locale == AppLocale.th ? 'สลับธีม' : 'Toggle theme',
+                  onPressed: () {
+                    state.themeMode.value =
+                        state.themeMode.value == ThemeMode.dark
+                        ? ThemeMode.light
+                        : ThemeMode.dark;
+                    BrowserStorage.write(
+                      'profile_theme',
+                      state.themeMode.value == ThemeMode.dark
+                          ? 'dark'
+                          : 'light',
+                    );
+                  },
+                  icon: Icon(
+                    state.themeMode.value == ThemeMode.dark
+                        ? Icons.light_mode
+                        : Icons.dark_mode,
+                  ),
+                ),
+                if (width >= 640)
+                  ValueListenableBuilder<bool>(
+                    valueListenable: state.isGeneratingPdf,
+                    builder: (context, generating, _) => FilledButton.icon(
+                      onPressed: generating ? null : onPdf,
+                      icon: generating
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.download),
+                      label: Text(locale == AppLocale.th ? 'Resume' : 'Resume'),
+                    ),
+                  ),
+                if (width <= 780)
+                  Builder(
+                    builder: (context) => IconButton(
+                      onPressed: Scaffold.of(context).openEndDrawer,
+                      icon: const Icon(Icons.menu),
+                    ),
+                  ),
+              ],
             ),
           ),
-          IconButton(
-            tooltip: locale == AppLocale.th ? 'สลับธีม' : 'Toggle theme',
-            onPressed: () {
-              state.themeMode.value = state.themeMode.value == ThemeMode.dark
-                  ? ThemeMode.light
-                  : ThemeMode.dark;
-              BrowserStorage.write(
-                'profile_theme',
-                state.themeMode.value == ThemeMode.dark ? 'dark' : 'light',
-              );
-            },
-            icon: Icon(
-              state.themeMode.value == ThemeMode.dark
-                  ? Icons.light_mode
-                  : Icons.dark_mode,
-            ),
-          ),
-          if (width > 560)
-            ValueListenableBuilder<bool>(
-              valueListenable: state.isGeneratingPdf,
-              builder: (context, generating, _) => FilledButton.icon(
-                onPressed: generating ? null : onPdf,
-                icon: generating
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.download),
-                label: Text(locale == AppLocale.th ? 'Resume' : 'Resume'),
-              ),
-            ),
-          if (width <= 780)
-            Builder(
-              builder: (context) => IconButton(
-                onPressed: Scaffold.of(context).openEndDrawer,
-                icon: const Icon(Icons.menu),
-              ),
-            ),
-        ],
+        ),
       ),
     );
   }
@@ -414,21 +468,130 @@ class _MobileDrawer extends StatelessWidget {
         ? const ['หน้าแรก', 'เกี่ยวกับฉัน', 'ประวัติ', 'ผลงาน', 'ติดต่อ']
         : const ['Home', 'About', 'Timeline', 'Projects', 'Contact'];
     return Drawer(
+      width: 320,
       child: SafeArea(
-        child: ListView(
-          children: [
-            for (var i = 0; i < AppSection.values.length; i++)
-              ListTile(
-                title: Text(labels[i]),
-                onTap: () => onNavigate(AppSection.values[i]),
+        child: Padding(
+          padding: const EdgeInsets.all(LayoutTokens.drawerPadding),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                child: Row(
+                  children: [
+                    Icon(Icons.blur_circular, color: AppTheme.primary),
+                    SizedBox(width: 8),
+                    Text(
+                      'Portfolio',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            const Divider(),
-            ListTile(
-              leading: const Icon(Icons.download),
-              title: const Text('Resume PDF'),
-              onTap: onPdf,
-            ),
-          ],
+              const SizedBox(height: 12),
+              Expanded(
+                child: ValueListenableBuilder<AppSection>(
+                  valueListenable: state.activeSection,
+                  builder: (context, active, _) => ListView(
+                    children: [
+                      for (var i = 0; i < AppSection.values.length; i++)
+                        ListTile(
+                          minTileHeight: LayoutTokens.touchTarget,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              LayoutTokens.controlRadius,
+                            ),
+                          ),
+                          selected: active == AppSection.values[i],
+                          selectedTileColor: Theme.of(
+                            context,
+                          ).colorScheme.primaryContainer.withValues(alpha: .45),
+                          title: Text(
+                            labels[i],
+                            style: TextStyle(
+                              color: active == AppSection.values[i]
+                                  ? (Theme.of(context).brightness ==
+                                            Brightness.dark
+                                        ? AppTheme.darkAccent
+                                        : AppTheme.primary)
+                                  : Theme.of(context).colorScheme.onSurface,
+                              fontWeight: active == AppSection.values[i]
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
+                            ),
+                          ),
+                          onTap: () => onNavigate(AppSection.values[i]),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+              const Divider(),
+              Row(
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      state.locale.value = locale == AppLocale.th
+                          ? AppLocale.en
+                          : AppLocale.th;
+                      BrowserStorage.write(
+                        'profile_locale',
+                        state.locale.value == AppLocale.th ? 'th' : 'en',
+                      );
+                    },
+                    icon: Text(
+                      locale == AppLocale.th ? 'EN' : 'TH',
+                      style: const TextStyle(fontWeight: FontWeight.w800),
+                    ),
+                    constraints: const BoxConstraints(
+                      minWidth: LayoutTokens.touchTarget,
+                      minHeight: LayoutTokens.touchTarget,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      state.themeMode.value =
+                          state.themeMode.value == ThemeMode.dark
+                          ? ThemeMode.light
+                          : ThemeMode.dark;
+                      BrowserStorage.write(
+                        'profile_theme',
+                        state.themeMode.value == ThemeMode.dark
+                            ? 'dark'
+                            : 'light',
+                      );
+                    },
+                    icon: Icon(
+                      state.themeMode.value == ThemeMode.dark
+                          ? Icons.light_mode
+                          : Icons.dark_mode,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: ValueListenableBuilder<bool>(
+                  valueListenable: state.isGeneratingPdf,
+                  builder: (context, generating, _) => FilledButton.icon(
+                    onPressed: generating ? null : onPdf,
+                    icon: generating
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.download),
+                    label: const Text('Resume PDF'),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -440,10 +603,8 @@ class _Section extends StatelessWidget {
   final Widget child;
 
   @override
-  Widget build(BuildContext context) => ConstrainedBox(
-    constraints: const BoxConstraints(minHeight: 220),
-    child: child,
-  );
+  Widget build(BuildContext context) =>
+      SizedBox(width: double.infinity, child: child);
 }
 
 class _ScrollReveal extends StatefulWidget {
@@ -459,7 +620,7 @@ class _ScrollRevealState extends State<_ScrollReveal>
     with SingleTickerProviderStateMixin {
   late final controller = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 700),
+    duration: const Duration(milliseconds: 480),
   );
   late final animation = CurvedAnimation(
     parent: controller,
@@ -486,7 +647,7 @@ class _ScrollRevealState extends State<_ScrollReveal>
     builder: (context, child) => Opacity(
       opacity: animation.value,
       child: Transform.translate(
-        offset: Offset(0, 28 * (1 - animation.value)),
+        offset: Offset(0, 18 * (1 - animation.value)),
         child: child,
       ),
     ),
@@ -560,86 +721,151 @@ class _ProfileImage extends StatelessWidget {
 }
 
 class _Hero extends StatelessWidget {
-  const _Hero(this.profile, this.locale);
+  const _Hero(
+    this.profile,
+    this.locale, {
+    required this.onProjects,
+    required this.onContact,
+  });
   final Profile profile;
   final AppLocale locale;
+  final Future<void> Function() onProjects;
+  final Future<void> Function() onContact;
 
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
+    final isMobile = width < LayoutTokens.mobileBreakpoint;
     final name = locale == AppLocale.th ? profile.names.th : profile.names.en;
     final role = locale == AppLocale.th ? profile.roles.th : profile.roles.en;
-    final bio = locale == AppLocale.th ? profile.bio.th : profile.bio.en;
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(
-        horizontal: width > 900 ? 72 : 24,
-        vertical: 72,
-      ),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Theme.of(
-              context,
-            ).colorScheme.primaryContainer.withValues(alpha: .32),
-            Theme.of(context).scaffoldBackgroundColor,
-          ],
-        ),
-      ),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1180),
-          child: Wrap(
-            alignment: WrapAlignment.spaceBetween,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            runSpacing: 40,
-            spacing: 48,
+    final identity = _ScrollReveal(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: isMobile
+            ? CrossAxisAlignment.center
+            : CrossAxisAlignment.start,
+        children: [
+          Text(
+            locale == AppLocale.th ? 'สวัสดี ผมคือ' : 'Hello, I am',
+            style: Theme.of(context).textTheme.titleLarge,
+            textAlign: isMobile ? TextAlign.center : TextAlign.start,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            name,
+            style: Theme.of(context).textTheme.displaySmall?.copyWith(
+              fontSize: LayoutTokens.heroNameSize(context),
+              height: 1.12,
+              fontWeight: FontWeight.w800,
+            ),
+            textAlign: isMobile ? TextAlign.center : TextAlign.start,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            role,
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              fontSize: LayoutTokens.heroRoleSize(context),
+              height: 1.35,
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? AppTheme.darkAccent
+                  : AppTheme.primary,
+            ),
+            textAlign: isMobile ? TextAlign.center : TextAlign.start,
+          ),
+          const SizedBox(height: 22),
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 12,
+            runSpacing: 12,
             children: [
-              SizedBox(
-                width: width > 900 ? 620 : width - 48,
-                child: _ScrollReveal(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        locale == AppLocale.th ? 'สวัสดี ผมคือ' : 'Hello, I am',
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        name,
-                        style: Theme.of(context).textTheme.displaySmall
-                            ?.copyWith(fontWeight: FontWeight.w800),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        role,
-                        style: Theme.of(context).textTheme.headlineSmall
-                            ?.copyWith(color: AppTheme.primary),
-                      ),
-                      const SizedBox(height: 18),
-                      Text(bio, style: Theme.of(context).textTheme.titleMedium),
-                    ],
+              FilledButton.icon(
+                onPressed: () async => onProjects(),
+                icon: const Icon(Icons.grid_view_rounded),
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size(0, LayoutTokens.touchTarget),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                      LayoutTokens.controlRadius,
+                    ),
                   ),
                 ),
+                label: Text(
+                  locale == AppLocale.th ? 'ดูผลงาน' : 'View Projects',
+                ),
               ),
-              _ScrollReveal(
-                delay: const Duration(milliseconds: 120),
-                child: _HoverWrapper(
-                  lift: 8,
-                  child: _ProfileImage(
-                    profile.profileImage,
-                    size: 260,
-                    onTap: () {},
+              OutlinedButton.icon(
+                onPressed: () async => onContact(),
+                icon: const Icon(Icons.mail_outline),
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(0, LayoutTokens.touchTarget),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 12,
                   ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                      LayoutTokens.controlRadius,
+                    ),
+                  ),
+                ),
+                label: Text(
+                  locale == AppLocale.th ? 'ติดต่อฉัน' : 'Contact Me',
                 ),
               ),
             ],
           ),
+        ],
+      ),
+    );
+    final image = _ScrollReveal(
+      delay: const Duration(milliseconds: 120),
+      child: _HoverWrapper(
+        lift: 8,
+        child: _ProfileImage(
+          profile.profileImage,
+          size: isMobile ? 220 : 280,
+          onTap: () {},
         ),
       ),
+    );
+    return SectionContainer(
+      verticalPadding: isMobile ? 44 : LayoutTokens.sectionPadding(context),
+      background: IgnorePointer(
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              stops: const [0, .72, 1],
+              colors: [
+                Theme.of(
+                  context,
+                ).colorScheme.primaryContainer.withValues(alpha: .30),
+                Theme.of(
+                  context,
+                ).scaffoldBackgroundColor.withValues(alpha: .45),
+                Colors.transparent,
+              ],
+            ),
+          ),
+        ),
+      ),
+      child: isMobile
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [image, const SizedBox(height: 24), identity],
+            )
+          : Row(
+              children: [
+                Expanded(child: identity),
+                const SizedBox(width: 48),
+                Expanded(child: Center(child: image)),
+              ],
+            ),
     );
   }
 }
@@ -652,90 +878,140 @@ class _About extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(
-        horizontal: width > 900 ? 72 : 24,
-        vertical: 72,
-      ),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1180),
-          child: _ScrollReveal(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _SectionTitle(
-                  locale == AppLocale.th ? 'เกี่ยวกับฉัน' : 'About Me',
-                  locale == AppLocale.th
-                      ? 'ประวัติและจุดสนใจ'
-                      : 'Background and interests',
-                ),
-                const SizedBox(height: 24),
-                Wrap(
-                  spacing: 36,
-                  runSpacing: 24,
-                  children: [
-                    SizedBox(
-                      width: width > 800 ? 600 : width - 48,
-                      child: Text(
-                        locale == AppLocale.th
-                            ? profile.bio.th
-                            : profile.bio.en,
-                        style: Theme.of(
-                          context,
-                        ).textTheme.titleMedium?.copyWith(height: 1.8),
-                      ),
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '${locale == AppLocale.th ? 'อายุ' : 'Age'}: ${profile.age}',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          profile.email,
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 32),
-                for (final group in profile.skillGroups)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: Column(
+    final isMobile = width < LayoutTokens.mobileBreakpoint;
+    return SectionContainer(
+      child: _ScrollReveal(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SectionHeader(
+              title: locale == AppLocale.th ? 'เกี่ยวกับฉัน' : 'About Me',
+              subtitle: locale == AppLocale.th
+                  ? 'ประวัติและจุดสนใจ'
+                  : 'Background and interests',
+            ),
+            const SizedBox(height: 24),
+            LayoutBuilder(
+              builder: (context, constraints) => isMobile
+                  ? Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           locale == AppLocale.th
-                              ? group.title.th
-                              : group.title.en,
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.w700),
+                              ? profile.bio.th
+                              : profile.bio.en,
+                          style: Theme.of(
+                            context,
+                          ).textTheme.titleMedium?.copyWith(height: 1.75),
                         ),
-                        const SizedBox(height: 8),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: [
-                            for (final skill in group.skills)
-                              Chip(
-                                label: Text(skill),
-                                visualDensity: VisualDensity.compact,
-                              ),
-                          ],
+                        const SizedBox(height: 20),
+                        _AboutFacts(profile: profile, locale: locale),
+                      ],
+                    )
+                  : Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 3,
+                          child: Text(
+                            locale == AppLocale.th
+                                ? profile.bio.th
+                                : profile.bio.en,
+                            style: Theme.of(
+                              context,
+                            ).textTheme.titleMedium?.copyWith(height: 1.75),
+                          ),
+                        ),
+                        const SizedBox(width: 36),
+                        Expanded(
+                          flex: 2,
+                          child: _AboutFacts(profile: profile, locale: locale),
                         ),
                       ],
                     ),
-                  ),
-              ],
             ),
-          ),
+            const SizedBox(height: 32),
+            for (final group in profile.skillGroups)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      locale == AppLocale.th ? group.title.th : group.title.en,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        for (final skill in group.skills)
+                          Chip(
+                            label: Text(skill),
+                            visualDensity: VisualDensity.compact,
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+          ],
         ),
+      ),
+    );
+  }
+}
+
+class _AboutFacts extends StatelessWidget {
+  const _AboutFacts({required this.profile, required this.locale});
+  final Profile profile;
+  final AppLocale locale;
+
+  @override
+  Widget build(BuildContext context) {
+    final surface = Theme.of(context).colorScheme.primaryContainer.withValues(
+      alpha: Theme.of(context).brightness == Brightness.dark ? .28 : .55,
+    );
+    return Container(
+      padding: const EdgeInsets.all(LayoutTokens.cardPadding),
+      decoration: BoxDecoration(
+        color: surface,
+        borderRadius: BorderRadius.circular(LayoutTokens.cardRadius),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.cake_outlined),
+              const SizedBox(width: 10),
+              Text(
+                '${locale == AppLocale.th ? 'อายุ' : 'Age'} ${profile.age}',
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.mail_outline),
+              const SizedBox(width: 10),
+              Expanded(
+                child: SelectableText(
+                  profile.email,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -747,21 +1023,8 @@ class _SectionTitle extends StatelessWidget {
   final String subtitle;
 
   @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Container(width: 52, height: 4, color: AppTheme.primary),
-      const SizedBox(height: 12),
-      Text(
-        title,
-        style: Theme.of(
-          context,
-        ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w800),
-      ),
-      const SizedBox(height: 4),
-      Text(subtitle, style: Theme.of(context).textTheme.titleMedium),
-    ],
-  );
+  Widget build(BuildContext context) =>
+      SectionHeader(title: title, subtitle: subtitle);
 }
 
 class _Timeline extends StatelessWidget {
@@ -771,66 +1034,52 @@ class _Timeline extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.sizeOf(context).width;
-    return Container(
-      width: double.infinity,
-      color: Theme.of(
-        context,
-      ).colorScheme.primaryContainer.withValues(alpha: .12),
-      padding: EdgeInsets.symmetric(
-        horizontal: width > 900 ? 72 : 24,
-        vertical: 72,
-      ),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1180),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _SectionTitle(
-                locale == AppLocale.th
-                    ? 'ประวัติและประสบการณ์'
-                    : 'Education & Experience',
-                locale == AppLocale.th
-                    ? 'เส้นทางการเรียนรู้และการทำงาน'
-                    : 'Learning and career journey',
-              ),
-              const SizedBox(height: 32),
-              for (var i = 0; i < profile.education.length; i++)
-                _TimelineItem(
-                  period: profile.education[i].period,
-                  title: locale == AppLocale.th
-                      ? profile.education[i].field.th
-                      : profile.education[i].field.en,
-                  organization: locale == AppLocale.th
-                      ? profile.education[i].institution.th
-                      : profile.education[i].institution.en,
-                  details: locale == AppLocale.th
-                      ? profile.education[i].details.th
-                      : profile.education[i].details.en,
-                  education: true,
-                  delay: Duration(milliseconds: i * 80),
-                ),
-              for (var i = 0; i < profile.experience.length; i++)
-                _TimelineItem(
-                  period: profile.experience[i].period,
-                  title: locale == AppLocale.th
-                      ? profile.experience[i].role.th
-                      : profile.experience[i].role.en,
-                  organization: locale == AppLocale.th
-                      ? profile.experience[i].organization.th
-                      : profile.experience[i].organization.en,
-                  details: locale == AppLocale.th
-                      ? profile.experience[i].details.th
-                      : profile.experience[i].details.en,
-                  education: false,
-                  delay: Duration(
-                    milliseconds: (i + profile.education.length) * 80,
-                  ),
-                ),
-            ],
+    return SectionContainer(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SectionHeader(
+            title: locale == AppLocale.th
+                ? 'ประวัติและประสบการณ์'
+                : 'Education & Experience',
+            subtitle: locale == AppLocale.th
+                ? 'เส้นทางการเรียนรู้และการทำงาน'
+                : 'Learning and career journey',
           ),
-        ),
+          const SizedBox(height: 32),
+          for (var i = 0; i < profile.education.length; i++)
+            _TimelineItem(
+              period: profile.education[i].period,
+              title: locale == AppLocale.th
+                  ? profile.education[i].field.th
+                  : profile.education[i].field.en,
+              organization: locale == AppLocale.th
+                  ? profile.education[i].institution.th
+                  : profile.education[i].institution.en,
+              details: locale == AppLocale.th
+                  ? profile.education[i].details.th
+                  : profile.education[i].details.en,
+              education: true,
+              delay: Duration(milliseconds: i * 80),
+            ),
+          for (var i = 0; i < profile.experience.length; i++)
+            _TimelineItem(
+              period: profile.experience[i].period,
+              title: locale == AppLocale.th
+                  ? profile.experience[i].role.th
+                  : profile.experience[i].role.en,
+              organization: locale == AppLocale.th
+                  ? profile.experience[i].organization.th
+                  : profile.experience[i].organization.en,
+              details: locale == AppLocale.th
+                  ? profile.experience[i].details.th
+                  : profile.experience[i].details.en,
+              education: false,
+              delay: Duration(
+                milliseconds: (i + profile.education.length) * 80,
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -950,106 +1199,115 @@ class _ProjectsState extends State<_Projects> {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.sizeOf(context).width;
-    final categories =
-        {
-          for (final project in widget.projects)
-            widget.locale == AppLocale.th
-                ? project.category.th
-                : project.category.en,
-        }.where((category) => category.isNotEmpty).toList()
-          ..sort();
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: width > 900 ? 72 : 24,
-        vertical: 72,
-      ),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1180),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _SectionTitle(
-                widget.locale == AppLocale.th ? 'ผลงาน' : 'Projects',
-                widget.locale == AppLocale.th
-                    ? 'เลือกดูผลงานตามหมวดหมู่'
-                    : 'Browse selected work',
-              ),
-              const SizedBox(height: 24),
-              ValueListenableBuilder<String>(
-                valueListenable: widget.state.selectedCategory,
-                builder: (context, selected, _) {
-                  final currentSelection =
-                      _categoryInCurrentLocale(selected);
-                  return Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      ChoiceChip(
-                        label: Text(
-                          widget.locale == AppLocale.th ? 'ทั้งหมด' : 'All',
+    final categories = {
+      for (final project in widget.projects)
+        widget.locale == AppLocale.th
+            ? project.category.th
+            : project.category.en,
+    }.where((category) => category.isNotEmpty).toList()..sort();
+    return SectionContainer(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SectionHeader(
+            title: widget.locale == AppLocale.th ? 'ผลงาน' : 'Projects',
+            subtitle: widget.locale == AppLocale.th
+                ? 'เลือกดูผลงานตามหมวดหมู่'
+                : 'Browse selected work',
+          ),
+          const SizedBox(height: 24),
+          ValueListenableBuilder<String>(
+            valueListenable: widget.state.selectedCategory,
+            builder: (context, selected, _) {
+              final currentSelection = _categoryInCurrentLocale(selected);
+              return Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  ChoiceChip(
+                    label: Text(
+                      widget.locale == AppLocale.th ? 'ทั้งหมด' : 'All',
+                    ),
+                    selected: currentSelection == 'all',
+                    onSelected: (_) =>
+                        widget.state.selectedCategory.value = 'all',
+                  ),
+                  for (final category in categories)
+                    ChoiceChip(
+                      label: Text(category),
+                      selected: currentSelection == category,
+                      onSelected: (_) =>
+                          widget.state.selectedCategory.value = category,
+                    ),
+                ],
+              );
+            },
+          ),
+          const SizedBox(height: 24),
+          ValueListenableBuilder<String>(
+            valueListenable: widget.state.selectedCategory,
+            builder: (context, selected, _) {
+              final currentSelection = _categoryInCurrentLocale(selected);
+              final filtered = sortProjectsByFeaturedAndUpdated(
+                widget.projects.where((project) {
+                  final category = widget.locale == AppLocale.th
+                      ? project.category.th
+                      : project.category.en;
+                  return currentSelection == 'all' ||
+                      category == currentSelection;
+                }),
+              );
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final width = constraints.maxWidth;
+                      final columns = LayoutTokens.projectColumnCount(width);
+                      final visibleLimit = LayoutTokens.projectVisibleLimit(
+                        width,
+                      );
+                      final visibleProjects = filtered
+                          .take(visibleLimit)
+                          .toList();
+                      final cardHeight = width < LayoutTokens.mobileBreakpoint
+                          ? 560.0
+                          : (width <= LayoutTokens.tabletBreakpoint
+                                ? 560.0
+                                : 540.0);
+                      return GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: columns,
+                          mainAxisSpacing: 18,
+                          crossAxisSpacing: 18,
+                          mainAxisExtent: cardHeight,
                         ),
-                        selected: currentSelection == 'all',
-                        onSelected: (_) =>
-                            widget.state.selectedCategory.value = 'all',
-                      ),
-                      for (final category in categories)
-                        ChoiceChip(
-                          label: Text(category),
-                          selected: currentSelection == category,
-                          onSelected: (_) =>
-                              widget.state.selectedCategory.value = category,
+                        itemCount: visibleProjects.length,
+                        itemBuilder: (context, i) => _ScrollReveal(
+                          delay: Duration(milliseconds: i * 70),
+                          child: _ProjectCard(
+                            project: visibleProjects[i],
+                            links: widget.links,
+                            locale: widget.locale,
+                          ),
                         ),
-                    ],
-                  );
-                },
-              ),
-              const SizedBox(height: 24),
-              ValueListenableBuilder<String>(
-                valueListenable: widget.state.selectedCategory,
-                builder: (context, selected, _) {
-                  final currentSelection =
-                      _categoryInCurrentLocale(selected);
-                  final filtered = sortProjectsByFeaturedAndUpdated(
-                    widget.projects.where((project) {
-                      final category = widget.locale == AppLocale.th
-                          ? project.category.th
-                          : project.category.en;
-                      return currentSelection == 'all' ||
-                          category == currentSelection;
-                    }),
-                  );
-                  final visibleProjects = filtered.take(4).toList();
-                  final cardWidth = width > 900
-                      ? 350.0
-                      : width > 620
-                      ? (width - 72) / 2
-                      : width - 48;
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Wrap(
-                        spacing: 18,
-                        runSpacing: 18,
-                        children: [
-                          for (var i = 0; i < visibleProjects.length; i++)
-                            SizedBox(
-                              width: cardWidth,
-                              child: _ScrollReveal(
-                                delay: Duration(milliseconds: i * 70),
-                                child: _ProjectCard(
-                                  project: visibleProjects[i],
-                                  links: widget.links,
-                                  locale: widget.locale,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                      if (filtered.length >= 4) ...[
-                        const SizedBox(height: 28),
-                        Center(
+                      );
+                    },
+                  ),
+                  Builder(
+                    builder: (context) {
+                      final width = MediaQuery.sizeOf(context).width;
+                      final visibleLimit = LayoutTokens.projectVisibleLimit(
+                        width,
+                      );
+                      if (filtered.length < visibleLimit) {
+                        return const SizedBox.shrink();
+                      }
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 28),
+                        child: Center(
                           child: FilledButton.icon(
                             onPressed: () => showGeneralDialog<void>(
                               context: context,
@@ -1058,8 +1316,9 @@ class _ProjectsState extends State<_Projects> {
                                 context,
                               ).modalBarrierDismissLabel,
                               barrierColor: Colors.black54,
-                              transitionDuration:
-                                  const Duration(milliseconds: 240),
+                              transitionDuration: const Duration(
+                                milliseconds: 240,
+                              ),
                               pageBuilder: (context, animation, secondary) =>
                                   AllProjectsModal(
                                     projects: sortProjectsByFeaturedAndUpdated(
@@ -1085,7 +1344,7 @@ class _ProjectsState extends State<_Projects> {
                                       opacity: curve,
                                       child: ScaleTransition(
                                         scale: Tween<double>(
-                                          begin: 0.96,
+                                          begin: .96,
                                           end: 1,
                                         ).animate(curve),
                                         child: child,
@@ -1101,14 +1360,14 @@ class _ProjectsState extends State<_Projects> {
                             ),
                           ),
                         ),
-                      ],
-                    ],
-                  );
-                },
-              ),
-            ],
+                      );
+                    },
+                  ),
+                ],
+              );
+            },
           ),
-        ),
+        ],
       ),
     );
   }
@@ -1125,78 +1384,113 @@ class _ProjectCard extends StatelessWidget {
   final AppLocale locale;
 
   @override
-  Widget build(BuildContext context) => _HoverWrapper(
-    child: Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () => showDialog<void>(
-          context: context,
-          barrierDismissible: true,
-          builder: (_) =>
-              _ProjectModal(project: project, links: links, locale: locale),
+  Widget build(BuildContext context) {
+    final githubLink = links.projectLinks.cast<ProjectLink?>().firstWhere(
+      (link) =>
+          link != null &&
+          link.projectId == project.id &&
+          link.type.toLowerCase() == 'github',
+      orElse: () => null,
+    );
+    final accent = Theme.of(context).brightness == Brightness.dark
+        ? AppTheme.darkAccent
+        : AppTheme.primary;
+    return _HoverWrapper(
+      child: Card(
+        clipBehavior: Clip.antiAlias,
+        margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(LayoutTokens.cardRadius),
+          side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            AspectRatio(
-              aspectRatio: 16 / 9,
-              child: project.images.isNotEmpty
-                  ? Image.asset(
-                      project.images.first,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, _, _) =>
-                          const ColoredBox(color: AppTheme.sky),
-                    )
-                  : const ColoredBox(color: AppTheme.sky),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    locale == AppLocale.th
-                        ? project.category.th
-                        : project.category.en,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.labelLarge?.copyWith(color: AppTheme.primary),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    locale == AppLocale.th
-                        ? project.title.th
-                        : project.title.en,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    locale == AppLocale.th
-                        ? project.summary.th
-                        : project.summary.en,
-                  ),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
+        child: InkWell(
+          onTap: () => showDialog<void>(
+            context: context,
+            barrierDismissible: true,
+            builder: (_) =>
+                _ProjectModal(project: project, links: links, locale: locale),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AspectRatio(
+                aspectRatio: 16 / 9,
+                child: project.images.isNotEmpty
+                    ? Image.asset(
+                        project.images.first,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, _, _) =>
+                            const ColoredBox(color: AppTheme.sky),
+                      )
+                    : const ColoredBox(color: AppTheme.sky),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(LayoutTokens.cardPadding),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      for (final tag in project.tags.take(4))
-                        Chip(
-                          label: Text(tag),
-                          visualDensity: VisualDensity.compact,
+                      Text(
+                        locale == AppLocale.th
+                            ? project.category.th
+                            : project.category.en,
+                        style: Theme.of(
+                          context,
+                        ).textTheme.labelLarge?.copyWith(color: accent),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        locale == AppLocale.th
+                            ? project.title.th
+                            : project.title.en,
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontSize: LayoutTokens.cardTitleSize(context),
+                          fontWeight: FontWeight.w700,
+                          height: 1.25,
                         ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        locale == AppLocale.th
+                            ? project.summary.th
+                            : project.summary.en,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: [
+                          for (final tag in project.tags.take(4))
+                            Chip(
+                              label: Text(tag),
+                              visualDensity: VisualDensity.compact,
+                            ),
+                        ],
+                      ),
+                      if (githubLink != null) ...[
+                        const SizedBox(height: 10),
+                        ProjectLinkButton(
+                          link: githubLink,
+                          locale: locale,
+                          compact: true,
+                        ),
+                      ],
                     ],
                   ),
-                ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 class _ProjectModal extends StatefulWidget {
@@ -1231,6 +1525,9 @@ class _ProjectModalState extends State<_ProjectModal> {
         .toList();
     return Dialog(
       insetPadding: const EdgeInsets.all(16),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(LayoutTokens.modalRadius),
+      ),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 980, maxHeight: 760),
         child: ClipRRect(
@@ -1381,16 +1678,9 @@ class _ProjectModalState extends State<_ProjectModal> {
                         runSpacing: 8,
                         children: [
                           for (final link in projectLinks)
-                            FilledButton.tonal(
-                              onPressed: () => launchUrl(
-                                Uri.parse(link.url),
-                                mode: LaunchMode.externalApplication,
-                              ),
-                              child: Text(
-                                widget.locale == AppLocale.th
-                                    ? link.label.th
-                                    : link.label.en,
-                              ),
+                            ProjectLinkButton(
+                              link: link,
+                              locale: widget.locale,
                             ),
                         ],
                       ),
@@ -1529,57 +1819,46 @@ class _Contact extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.sizeOf(context).width;
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(
-        horizontal: width > 900 ? 72 : 24,
-        vertical: 72,
-      ),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1180),
-          child: _ScrollReveal(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return SectionContainer(
+      child: _ScrollReveal(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _SectionTitle(
+              locale == AppLocale.th ? 'ติดต่อ' : 'Contact',
+              locale == AppLocale.th
+                  ? 'ช่องทางสำหรับพูดคุยและทำงานร่วมกัน'
+                  : 'Let us connect and build together',
+            ),
+            const SizedBox(height: 24),
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
               children: [
-                _SectionTitle(
-                  locale == AppLocale.th ? 'ติดต่อ' : 'Contact',
-                  locale == AppLocale.th
-                      ? 'ช่องทางสำหรับพูดคุยและทำงานร่วมกัน'
-                      : 'Let us connect and build together',
-                ),
-                const SizedBox(height: 24),
-                Wrap(
-                  spacing: 10,
-                  runSpacing: 10,
-                  children: [
-                    if (profile.email.isNotEmpty)
-                      FilledButton.icon(
-                        onPressed: () => _copyEmail(context),
-                        icon: const Icon(Icons.copy),
-                        label: Text(profile.email),
-                      ),
-                    for (final link in links.socialLinks)
-                      OutlinedButton.icon(
-                        onPressed: () => launchUrl(
-                          Uri.parse(link.url),
-                          mode: LaunchMode.externalApplication,
-                        ),
-                        icon: Icon(
-                          link.icon.toLowerCase().contains('github')
-                              ? Icons.code
-                              : link.icon.toLowerCase().contains('linkedin')
-                              ? Icons.work
-                              : Icons.link,
-                        ),
-                        label: Text(link.label),
-                      ),
-                  ],
-                ),
+                if (profile.email.isNotEmpty)
+                  FilledButton.icon(
+                    onPressed: () => _copyEmail(context),
+                    icon: const Icon(Icons.copy),
+                    label: Text(profile.email),
+                  ),
+                for (final link in links.socialLinks)
+                  OutlinedButton.icon(
+                    onPressed: () => launchUrl(
+                      Uri.parse(link.url),
+                      mode: LaunchMode.externalApplication,
+                    ),
+                    icon: Icon(
+                      link.icon.toLowerCase().contains('github')
+                          ? Icons.code
+                          : link.icon.toLowerCase().contains('linkedin')
+                          ? Icons.work
+                          : Icons.link,
+                    ),
+                    label: Text(link.label),
+                  ),
               ],
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -1594,17 +1873,22 @@ class _Footer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final name = locale == AppLocale.th ? profile.names.th : profile.names.en;
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 18),
-      decoration: BoxDecoration(
-        border: Border(
-          top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
+    return SectionContainer(
+      verticalPadding: 18,
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(
+              color: Theme.of(context).colorScheme.outlineVariant,
+            ),
+          ),
         ),
-      ),
-      child: Text(
-        '© ${DateTime.now().year} $name. ${locale == AppLocale.th ? 'สงวนลิขสิทธิ์' : 'All rights reserved.'}',
-        textAlign: TextAlign.center,
+        padding: const EdgeInsets.only(top: 18),
+        child: Text(
+          '© ${DateTime.now().year} $name. ${locale == AppLocale.th ? 'สงวนลิขสิทธิ์' : 'All rights reserved.'}',
+          textAlign: TextAlign.center,
+        ),
       ),
     );
   }
