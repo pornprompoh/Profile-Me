@@ -1,16 +1,15 @@
 {
   "socialLinks": [
-    {"label":"GitHub","url":"https://github.com/pornprompoh","icon":"github"},
-    {"label":"LinkedIn","url":"https://www.linkedin.com","icon":"linkedin"},
-    {"label":"Facebook","url":"https://www.facebook.com","icon":"facebook"}
+    {
+      "label": "GitHub",
+      "url": "https://github.com/pornprompoh",
+      "icon": "github"
+    },
+    {
+      "label": "Facebook",
+      "url": "https://www.facebook.com/poh1.ppp?locale=th_TH",
+      "icon": "facebook"
+    }
   ],
-  "projectLinks": [
-    {"projectId":"smart-care","type":"github","label":{"th":"โค้ดบน GitHub","en":"GitHub Code"},"url":"https://github.com/pornprompoh"},
-    {"projectId":"smart-care","type":"demo","label":{"th":"ทดลองใช้งาน","en":"Live Demo"},"url":"https://example.com/smart-care"},
-    {"projectId":"market-mobile","type":"github","label":{"th":"โค้ดบน GitHub","en":"GitHub Code"},"url":"https://github.com/pornprompoh"},
-    {"projectId":"iot-garden","type":"video","label":{"th":"ดูวิดีโอ","en":"Watch Video"},"url":"https://example.com/iot-garden"},
-    {"projectId":"brand-portal","type":"demo","label":{"th":"ทดลองใช้งาน","en":"Live Demo"},"url":"https://example.com/brand-portal"},
-    {"projectId":"learning-space","type":"github","label":{"th":"โค้ดบน GitHub","en":"GitHub Code"},"url":"https://github.com/pornprompoh"},
-    {"projectId":"route-guide","type":"docs","label":{"th":"เอกสาร","en":"Documentation"},"url":"https://example.com/route-guide"}
-  ]
+  "projectLinks": []
 }

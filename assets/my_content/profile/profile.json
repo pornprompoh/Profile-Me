@@ -1,26 +1,59 @@
 {
-  "names": {"th": "สมชาย ใจดี", "en": "Somchai Jaidee"},
-  "roles": {"th": "นักพัฒนา Flutter และ UX Designer", "en": "Flutter Developer & UX Designer"},
-  "birthDate": "1998-05-18",
-  "email": "somchai@example.com",
+  "names": {
+    "th": "พรพรม สุขใจมิตร",
+    "en": "Pornprom Sukjainit"
+  },
+  "roles": {
+    "th": "นักศึกษา",
+    "en": "Student"
+  },
+  "birthDate": "2006-04-17",
+  "email": "poh17449@gmail.com",
   "bio": {
-    "th": "นักพัฒนาที่สนใจสร้างผลิตภัณฑ์ดิจิทัลที่ใช้งานง่าย ควรค่า และออกแบบให้เข้าถึงได้ ด้วยประสบการณ์ด้าน Flutter, Web และการออกแบบส่วนติดต่อผู้ใช้",
-    "en": "A product-minded developer passionate about building accessible, useful and elegant digital experiences with Flutter, web technologies and user-centered design."
+    "th": "สวัสดีครับ ผมชื่อ ป๋อ กำลังศึกษาที่สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหาร ลาดกระบัง ผมชอบค้นคว้าและทดลองสิ่งใหม่ ๆ เรียนรู้ทักษะใหม่ ๆ และสนุกกับการใช้งาน AI โดยเฉพาะการเขียน Prompt",
+    "en": "Hello, my name is Po. I am studying at King Mongkut's Institute of Technology Ladkrabang. I enjoy exploring new ideas, learning new skills, and using AI, especially crafting prompts."
   },
   "education": [
-    {"period": "2016 - 2020", "institution": {"th": "มหาวิทยาลัยเทคโนโลยีไทย", "en": "Thai Technology University"}, "field": {"th": "วิศวกรรมซอฟต์แวร์", "en": "Software Engineering"}, "details": {"th": "เกียรตินิยมอันดับสอง", "en": "Second-class honors"}}
+    {
+      "period": "2024 - ปัจจุบัน",
+      "institution": {
+        "th": "สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหาร ลาดกระบัง",
+        "en": "King Mongkut's Institute of Technology Ladkrabang"
+      },
+      "field": {
+        "th": "คณะครุศาสตร์อุตสาหกรรมและเทคโนโลยี สาขาเทคโนโลยีคอมพิวเตอร์",
+        "en": "Faculty of Industrial Education and Technology, Department of Computer Technology"
+      },
+      "details": {
+        "th": "",
+        "en": ""
+      }
+    }
   ],
-  "experience": [
-    {"period": "2022 - ปัจจุบัน", "role": {"th": "Senior Flutter Developer", "en": "Senior Flutter Developer"}, "organization": {"th": "Bright Digital", "en": "Bright Digital"}, "details": {"th": "พัฒนาแอปและเว็บข้ามแพลตฟอร์ม พร้อมดูแลคุณภาพโค้ดและระบบดีไซน์", "en": "Built cross-platform apps and websites, maintaining code quality and design systems"}},
-    {"period": "2020 - 2022", "role": {"th": "Mobile Developer", "en": "Mobile Developer"}, "organization": {"th": "Nimble Studio", "en": "Nimble Studio"}, "details": {"th": "ออกแบบและพัฒนาฟีเจอร์สำหรับอุปกรณ์มือถือ", "en": "Designed and implemented mobile product features"}}
-  ],
+  "experience": [],
   "skillGroups": [
-    {"title": {"th": "พัฒนา", "en": "Development"}, "skills": ["Flutter", "Dart", "Firebase", "REST API"]},
-    {"title": {"th": "เครื่องมือ", "en": "Tools"}, "skills": ["Git", "Figma", "CI/CD", "Docker"]}
+    {
+      "title": {
+        "th": "ภาษาโปรแกรม",
+        "en": "Programming Languages"
+      },
+      "skills": ["Dart", "JavaScript", "HTML", "CSS"]
+    },
+    {
+      "title": {
+        "th": "Framework และเครื่องมือ",
+        "en": "Frameworks and Tools"
+      },
+      "skills": ["Flutter", "Firebase", "Supabase"]
+    },
+    {
+      "title": {
+        "th": "ทักษะอื่น ๆ",
+        "en": "Other Skills"
+      },
+      "skills": ["Teamwork", "Communication", "Strong Work Ethic"]
+    }
   ],
-  "languages": [
-    {"name": {"th": "ไทย", "en": "Thai"}, "level": {"th": "เจ้าของภาษา", "en": "Native"}},
-    {"name": {"th": "อังกฤษ", "en": "English"}, "level": {"th": "ทำงานได้", "en": "Professional working proficiency"}}
-  ],
-  "profileImage": "assets/my_content/images/profile/profile.png"
+  "languages": [],
+  "profileImage": "assets/my_content/images/profile/profile.jpg"
 }

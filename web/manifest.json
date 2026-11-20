@@ -1,11 +1,11 @@
 {
-    "name": "Somchai Jaidee Portfolio",
+    "name": "Pornprom Sukjainit Portfolio",
     "short_name": "Portfolio",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#F7FAFF",
     "theme_color": "#2563EB",
-    "description": "Portfolio of a Flutter and web developer.",
+    "description": "Portfolio of Pornprom Sukjainit, a Computer Technology student interested in web and application development.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
