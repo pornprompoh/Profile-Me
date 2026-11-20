@@ -1,9 +1,12 @@
+// หน้าที่หลัก: อ่านและเขียนการตั้งค่าแอปผ่าน browser localStorage
 import 'package:flutter/material.dart';
 import 'package:web/web.dart' as web;
 
 import '../state/app_state.dart';
 
-class BrowserStorage {
+class LocalStorageService {
+  const LocalStorageService._();
+
   static String? read(String key) {
     try {
       return web.window.localStorage.getItem(key);
