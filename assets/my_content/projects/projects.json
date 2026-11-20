@@ -1,1 +1,338 @@
-[]
+[
+  {
+    "id": "profile-me",
+    "title": { "th": "Profile-Me", "en": "Profile-Me" },
+    "category": { "th": "เว็บแอป", "en": "Web App" },
+    "summary": {
+      "th": "พอร์ตโฟลิโอแสดงประวัติ ทักษะ และผลงาน รองรับภาษาไทยและอังกฤษ พร้อมสร้าง Resume PDF",
+      "en": "A portfolio presenting profile, skills, and projects in Thai and English, with Resume PDF export."
+    },
+    "description": {
+      "th": "เว็บไซต์พอร์ตโฟลิโอที่อ่านข้อมูลประวัติ การศึกษา ประสบการณ์ และผลงานจากไฟล์เนื้อหาแยกจาก UI รองรับธีมสว่าง/มืด การเปิดลิงก์ และการสร้าง Resume PDF",
+      "en": "A portfolio website that loads profile, education, experience, and project content separately from the UI. It supports light and dark themes, external links, and Resume PDF export."
+    },
+    "highlights": [
+      { "th": "รองรับเนื้อหาภาษาไทยและอังกฤษ", "en": "Supports Thai and English content." },
+      { "th": "สร้าง Resume PDF และเปิดลิงก์ภายนอกได้", "en": "Exports a Resume PDF and opens external links." }
+    ],
+    "tags": ["Flutter", "Dart", "url_launcher", "pdf", "printing", "web"],
+    "images": ["assets/my_content/images/projects/placeholder_web.png"],
+    "featured": false,
+    "updatedAt": "2026-11-20"
+  },
+  {
+    "id": "snap2bill",
+    "title": { "th": "Snap2bill", "en": "Snap2bill" },
+    "category": { "th": "แอปมือถือ", "en": "Mobile App" },
+    "summary": {
+      "th": "สแกนใบเสร็จ แบ่งรายการอาหารกับเพื่อน และสรุปยอดที่แต่ละคนต้องชำระ",
+      "en": "Scan receipts, split food items with friends, and calculate each person's share."
+    },
+    "description": {
+      "th": "แอป Flutter สำหรับสแกนใบเสร็จและแบ่งรายการอาหารกับเพื่อน พร้อมสรุปยอดชำระ ใช้ Supabase สำหรับบัญชีผู้ใช้และข้อมูล รวมถึงมีการจัดเก็บข้อมูลในเครื่อง",
+      "en": "A Flutter app for scanning receipts, splitting food items with friends, and calculating the amount each person owes. It uses Supabase for accounts and data, with local storage support."
+    },
+    "highlights": [
+      { "th": "ใช้ OCR ช่วยอ่านข้อความจากใบเสร็จ", "en": "Uses OCR to help read receipt text." },
+      { "th": "จัดการบัญชีและข้อมูลผ่าน Supabase", "en": "Manages accounts and data with Supabase." },
+      { "th": "รองรับการจัดเก็บข้อมูลในเครื่อง", "en": "Supports local data storage." }
+    ],
+    "tags": ["Flutter", "Dart", "Supabase", "Google ML Kit", "Google Generative AI", "Drift", "SQLite", "Hive"],
+    "images": ["assets/my_content/images/projects/placeholder_mobile.png"],
+    "featured": true,
+    "updatedAt": "2026-11-05"
+  },
+  {
+    "id": "ai-trading-bot",
+    "title": { "th": "ai-trading-bot", "en": "ai-trading-bot" },
+    "category": { "th": "AI / ระบบอัตโนมัติ", "en": "AI / Automation" },
+    "summary": {
+      "th": "บอทเชื่อมต่อ MetaTrader 5 เพื่อประเมินสัญญาณ จัดการคำสั่ง และติดตามความเสี่ยง",
+      "en": "A MetaTrader 5 bot that evaluates signals, manages orders, and monitors risk."
+    },
+    "description": {
+      "th": "ระบบ Python สำหรับสแกนตลาดผ่าน MetaTrader 5 ประเมินสัญญาณและจัดการคำสั่งซื้อขายด้วยกฎความเสี่ยง ใช้ Gemini ช่วยตรวจสัญญาณและซิงก์ข้อมูลบัญชี/รายการซื้อขายกับ Supabase",
+      "en": "A Python system that scans markets through MetaTrader 5, evaluates signals, and manages orders with risk rules. Gemini helps review signals, while account and trade data syncs with Supabase."
+    },
+    "highlights": [
+      { "th": "ประเมินสัญญาณและความเสี่ยงก่อนส่งคำสั่ง", "en": "Evaluates signals and risk before placing orders." },
+      { "th": "ใช้ Gemini ช่วยตรวจยืนยันสัญญาณ", "en": "Uses Gemini to help validate signals." },
+      { "th": "มีแดชบอร์ด React สำหรับแสดงข้อมูล", "en": "Includes a React dashboard for data display." }
+    ],
+    "tags": ["Python", "MetaTrader5", "pandas", "Google Gemini API", "Supabase", "React", "Vite", "Recharts"],
+    "images": ["assets/my_content/images/projects/placeholder_ai.png"],
+    "featured": true,
+    "updatedAt": "2026-10-31"
+  },
+  {
+    "id": "exam-website",
+    "title": { "th": "Exam_website", "en": "Exam_website" },
+    "category": { "th": "เว็บแอป", "en": "Web App" },
+    "summary": {
+      "th": "คลังข้อสอบและระบบสอบออนไลน์ พร้อมจับเวลา ดูสถิติ และทบทวนข้อที่ตอบผิด",
+      "en": "An online exam bank with timed tests, analytics, and review of incorrect answers."
+    },
+    "description": {
+      "th": "เว็บแอปสำหรับจัดการคลังข้อสอบและทำแบบทดสอบออนไลน์ ผู้เรียนเลือกวิชา ทำข้อสอบแบบจับเวลา และดูผล/สถิติได้ ผู้ดูแลจัดการข้อสอบ และมีเครื่องมือช่วยสร้างข้อสอบจาก PDF หรือ TXT ด้วย AI",
+      "en": "A web app for managing an exam bank and taking online tests. Learners can choose subjects, take timed exams, and review results and analytics. Administrators manage questions, with AI-assisted question creation from PDF or TXT files."
+    },
+    "highlights": [
+      { "th": "สุ่มข้อสอบและตัวเลือก พร้อมจับเวลา", "en": "Randomizes questions and choices with timed tests." },
+      { "th": "แสดงคะแนน สถิติ และคลังข้อผิดพลาด", "en": "Shows scores, analytics, and a mistake bank." },
+      { "th": "ช่วยสร้างข้อสอบจากไฟล์ PDF/TXT", "en": "Assists in creating questions from PDF/TXT files." }
+    ],
+    "tags": ["React", "JavaScript", "Vite", "Supabase", "PDF.js", "Tailwind CSS"],
+    "images": ["assets/my_content/images/projects/placeholder_web.png"],
+    "featured": true,
+    "updatedAt": "2026-10-29"
+  },
+  {
+    "id": "car-by-esp32",
+    "title": { "th": "car_by_esp32", "en": "car_by_esp32" },
+    "category": { "th": "IoT / ฮาร์ดแวร์", "en": "IoT / Hardware" },
+    "summary": {
+      "th": "รถหุ่นยนต์ ESP32 ควบคุมผ่านเว็บบนมือถือ รองรับมัลติทัชและปุ่มเร่งความเร็ว",
+      "en": "An ESP32 robot car controlled through a mobile web gamepad with multitouch and boost."
+    },
+    "description": {
+      "th": "รถบังคับ 2WD ใช้ ESP32 และไดรเวอร์ L298N ควบคุมทิศทางผ่านหน้าเว็บที่ออกแบบสำหรับมือถือแนวนอน มีระบบควบคุมแบบกดค้างและหยุดเมื่อปล่อยนิ้ว",
+      "en": "A 2WD robot car using ESP32 and an L298N driver, controlled through a landscape mobile web interface. Controls respond while pressed and stop when released."
+    },
+    "highlights": [
+      { "th": "หน้าเว็บควบคุมรองรับมัลติทัช", "en": "The web controller supports multitouch." },
+      { "th": "มีปุ่ม BOOST และระบบเลี้ยวแยกซ้าย/ขวา", "en": "Includes BOOST and differential steering." }
+    ],
+    "tags": ["C++", "ESP32", "Arduino", "PlatformIO", "Wi-Fi", "L298N"],
+    "images": ["assets/my_content/images/projects/placeholder_iot.png"],
+    "featured": false,
+    "updatedAt": "2026-08-28"
+  },
+  {
+    "id": "project-drone01",
+    "title": { "th": "project_drone01", "en": "project_drone01" },
+    "category": { "th": "IoT / ฮาร์ดแวร์", "en": "IoT / Hardware" },
+    "summary": {
+      "th": "Flight Controller บน ESP32 พร้อมหน้าเว็บสำหรับปรับค่า PID ผ่าน Wi-Fi",
+      "en": "An ESP32 flight controller with a web interface for Wi-Fi PID tuning."
+    },
+    "description": {
+      "th": "โครงการ Flight Controller ที่เขียนและคอมไพล์ด้วย PlatformIO มีหน้าเว็บสำหรับปรับจูน PID และใช้ไลบรารีสำหรับสื่อสารเครือข่ายกับควบคุมเซอร์โว",
+      "en": "A Flight Controller project built with PlatformIO, with a web interface for PID tuning and libraries for network communication and servo control."
+    },
+    "highlights": [
+      { "th": "ปรับค่า PID ผ่านเว็บเซิร์ฟเวอร์บน ESP32", "en": "Tunes PID values through an ESP32 web server." },
+      { "th": "ใช้ AsyncTCP, ESPAsyncWebServer และ ESP32Servo", "en": "Uses AsyncTCP, ESPAsyncWebServer, and ESP32Servo." }
+    ],
+    "tags": ["C++", "ESP32", "Arduino", "PlatformIO", "AsyncTCP", "ESPAsyncWebServer", "ESP32Servo"],
+    "images": ["assets/my_content/images/projects/placeholder_iot.png"],
+    "featured": false,
+    "updatedAt": "2026-08-27"
+  },
+  {
+    "id": "project-drone",
+    "title": { "th": "project_drone", "en": "project_drone" },
+    "category": { "th": "IoT / ฮาร์ดแวร์", "en": "IoT / Hardware" },
+    "summary": {
+      "th": "ต้นแบบ Flight Controller ESP32 ที่ใช้เซนเซอร์และ PID พร้อมแนวทางจูนผ่านเว็บ",
+      "en": "An ESP32 flight-controller prototype using sensors and PID, with web-based tuning."
+    },
+    "description": {
+      "th": "โครงการ Flight Controller สำหรับ ESP32 ใช้ข้อมูลไจโรและ accelerometer ร่วมกับแนวคิด PID เพื่อควบคุมการทรงตัว README กล่าวถึงการเชื่อมต่อ Wi-Fi/BLE และการปรับจูนผ่านเว็บเซิร์ฟเวอร์",
+      "en": "An ESP32 Flight Controller project using gyroscope and accelerometer data with PID concepts for stabilization. The README describes Wi-Fi/BLE connectivity and tuning through a web server."
+    },
+    "highlights": [
+      { "th": "ใช้ข้อมูลจากไจโรและ accelerometer", "en": "Uses gyroscope and accelerometer data." },
+      { "th": "มีตัวอย่างการปรับจูน PID ผ่านเว็บ", "en": "Includes an example of web-based PID tuning." }
+    ],
+    "tags": ["C++", "Arduino", "ESP32", "Gyroscope", "Accelerometer", "PID"],
+    "images": ["assets/my_content/images/projects/placeholder_iot.png"],
+    "featured": false,
+    "updatedAt": "2026-08-27"
+  },
+  {
+    "id": "money-flow",
+    "title": { "th": "Money_Flow", "en": "Money_Flow" },
+    "category": { "th": "เว็บแอป", "en": "Web App" },
+    "summary": {
+      "th": "เว็บแอปบันทึกรายรับ-รายจ่าย พร้อมแดชบอร์ด ประวัติ และงบประมาณตามหมวดหมู่",
+      "en": "An income and expense tracker with a dashboard, history, and category budgets."
+    },
+    "description": {
+      "th": "เว็บแอปจัดการธุรกรรมการเงิน มีหน้าบันทึกรายรับ/รายจ่าย แดชบอร์ด ประวัติรายการ และตั้งงบประมาณตามหมวดหมู่ เชื่อมต่อ Supabase สำหรับข้อมูลและบัญชีผู้ใช้",
+      "en": "A finance web app with income/expense entry, a dashboard, transaction history, and category budgets. It connects to Supabase for data and user authentication."
+    },
+    "highlights": [
+      { "th": "จัดหมวดหมู่และบันทึกรายการการเงิน", "en": "Categorizes and records financial transactions." },
+      { "th": "ดูประวัติและติดตามงบประมาณรายหมวด", "en": "Reviews history and tracks category budgets." }
+    ],
+    "tags": ["TypeScript", "Next.js", "React", "Supabase", "Zustand", "Tailwind CSS"],
+    "images": ["assets/my_content/images/projects/placeholder_web.png"],
+    "featured": false,
+    "updatedAt": "2026-07-07"
+  },
+  {
+    "id": "drive-record",
+    "title": { "th": "Drive_Record", "en": "Drive_Record" },
+    "category": { "th": "เว็บแอป", "en": "Web App" },
+    "summary": {
+      "th": "เว็บบันทึกรายรับ รายจ่าย และค่าน้ำมันสำหรับผู้ขับแพลตฟอร์ม พร้อมแดชบอร์ดรายวัน",
+      "en": "A driver-focused income, expense, and fuel log with a daily dashboard."
+    },
+    "description": {
+      "th": "เว็บแอปสำหรับผู้ขับแพลตฟอร์มงานรับส่งเพื่อบันทึกรายรับ รายจ่าย และค่าเติมน้ำมัน มีหน้าเข้าสู่ระบบและแดชบอร์ด โดยเอกสารโครงการระบุแนวทางประวัติและสถิติ",
+      "en": "A web app for ride-platform drivers to record income, expenses, and fuel costs. It includes a login page and dashboard, while project documentation outlines history and statistics."
+    },
+    "highlights": [
+      { "th": "แดชบอร์ดสรุปข้อมูลการทำงานรายวัน", "en": "Provides a dashboard for daily work data." },
+      { "th": "มีหน้าเข้าสู่ระบบและเอกสารกำหนดฟีเจอร์", "en": "Includes a login page and feature documentation." }
+    ],
+    "tags": ["TypeScript", "Next.js", "React", "Supabase", "Zustand", "Recharts", "Tailwind CSS"],
+    "images": ["assets/my_content/images/projects/placeholder_web.png"],
+    "featured": false,
+    "updatedAt": "2026-07-04"
+  },
+  {
+    "id": "react-lab",
+    "title": { "th": "React_LAB", "en": "React_LAB" },
+    "category": { "th": "IoT / เว็บแอป", "en": "IoT / Web App" },
+    "summary": {
+      "th": "โครงงานเว็บ React และ Node.js ที่มีโมดูลผู้ใช้ การตั้งค่า และข้อมูลอุปกรณ์/ประวัติ",
+      "en": "A React and Node.js web project with user, preference, device, and history modules."
+    },
+    "description": {
+      "th": "README มีเพียงชื่อโปรเจกต์ แต่โครงสร้างโค้ดพบ React frontend และ Node/Express backend พร้อม routes สำหรับผู้ใช้และการตั้งค่า รวมถึง schema อุปกรณ์และประวัติที่เชื่อมผ่าน gRPC กับ MongoDB",
+      "en": "The README only names the project. Its code structure contains a React frontend and Node/Express backend, user and preference routes, and device/history schemas connected through gRPC and MongoDB."
+    },
+    "highlights": [
+      { "th": "มีโมดูล routes สำหรับผู้ใช้และการตั้งค่า", "en": "Contains routes for users and preferences." },
+      { "th": "โครงสร้างข้อมูลมีอุปกรณ์และประวัติ", "en": "Data schemas include devices and history." }
+    ],
+    "tags": ["JavaScript", "React", "Node.js", "Express", "gRPC", "MongoDB", "Mongoose"],
+    "images": ["assets/my_content/images/projects/placeholder_iot.png"],
+    "featured": false,
+    "updatedAt": "2026-02-17"
+  },
+  {
+    "id": "valentineday-mook",
+    "title": { "th": "ValentineDay_Mook", "en": "ValentineDay_Mook" },
+    "category": { "th": "ต้นแบบ / ข้อมูลจำกัด", "en": "Prototype" },
+    "summary": {
+      "th": "มี README ระบุชื่อโปรเจกต์ แต่ไม่พบโค้ดหรือรายละเอียดฟังก์ชัน",
+      "en": "The README names the project, but no source code or feature details were found."
+    },
+    "description": {
+      "th": "Repository มีเพียง README ที่ระบุชื่อโปรเจกต์ จึงยังไม่สามารถยืนยันประเภทแอปหรือความสามารถจากไฟล์ที่พบได้",
+      "en": "The repository contains only a README naming the project, so its application type and capabilities cannot be verified from the available files."
+    },
+    "highlights": [],
+    "tags": [],
+    "images": ["assets/my_content/images/projects/placeholder_prototype.png"],
+    "featured": false,
+    "updatedAt": "2026-02-14"
+  },
+  {
+    "id": "lalalalalala",
+    "title": { "th": "lalalalalala", "en": "lalalalalala" },
+    "category": { "th": "เว็บแอป", "en": "Web App" },
+    "summary": {
+      "th": "เว็บไซต์ข้อมูลเกี่ยวกับดาวเคราะห์แก๊ส สร้างจากหน้า HTML พร้อม CSS และรูปภาพ",
+      "en": "An informational gas-giants website built from HTML pages with CSS and images."
+    },
+    "description": {
+      "th": "หน้าเว็บให้ข้อมูลเบื้องต้นเกี่ยวกับดาวเคราะห์แก๊ส มีหน้า HTML ในโฟลเดอร์ Lab01 พร้อมไฟล์ CSS และรูปภาพประกอบ README มีเพียงชื่อ Repository",
+      "en": "An informational website about gas-giant planets, with HTML pages in the Lab01 folder plus CSS and images. The README only names the repository."
+    },
+    "highlights": [
+      { "th": "นำเสนอข้อมูลดาวเคราะห์ผ่านหน้าเว็บแบบสถิต", "en": "Presents planet information through static web pages." }
+    ],
+    "tags": ["HTML", "CSS"],
+    "images": ["assets/my_content/images/projects/placeholder_web.png"],
+    "featured": false,
+    "updatedAt": "2025-12-04"
+  },
+  {
+    "id": "detectivegame-python",
+    "title": { "th": "DetectiveGame_Python", "en": "DetectiveGame_Python" },
+    "category": { "th": "เกม 2 มิติ", "en": "Game / 2D" },
+    "summary": {
+      "th": "เกมสืบสวนไข่ทองคำ ให้เดินสำรวจ คุยกับ NPC เลือกบทสนทนา และเก็บหลักฐาน",
+      "en": "A golden-egg mystery game with exploration, NPC dialogue choices, and evidence collection."
+    },
+    "description": {
+      "th": "เกม 2 มิติที่ให้ผู้เล่นเดินสำรวจฉาก พูดคุยกับตัวละคร เลือกบทสนทนา และเก็บวัตถุหลักฐาน มีระบบสถานะเกมและ inventory ที่เชื่อมกับการดำเนินเรื่อง",
+      "en": "A 2D game where players explore a scene, talk to characters, choose dialogue, and collect evidence. Game state and inventory are connected to the story progression."
+    },
+    "highlights": [
+      { "th": "มีตัวละครและบทสนทนาแบบเลือกทาง", "en": "Includes characters and branching dialogue choices." },
+      { "th": "เก็บหลักฐานเพื่อดำเนินเรื่องต่อ", "en": "Collects evidence to progress through the story." }
+    ],
+    "tags": ["Python", "Pygame"],
+    "images": ["assets/my_content/images/projects/placeholder_game.png"],
+    "featured": false,
+    "updatedAt": "2025-11-26"
+  },
+  {
+    "id": "birth-day-my-girlfriend",
+    "title": { "th": "Birth_Day_My_Girlfriend", "en": "Birth_Day_My_Girlfriend" },
+    "category": { "th": "เว็บแอป", "en": "Web App" },
+    "summary": {
+      "th": "เว็บเซอร์ไพรส์วันเกิดแบบโต้ตอบ พร้อมหน้าเปิดต้อนรับและกล่องของขวัญ",
+      "en": "An interactive birthday surprise website with a welcome screen and gift boxes."
+    },
+    "description": {
+      "th": "เว็บหน้าเดียวที่แสดงข้อความต้อนรับและกล่องของขวัญให้เลือกเปิด ใช้ Flask route สำหรับแสดงหน้า template และไฟล์ static ประกอบ",
+      "en": "A single-page experience with a welcome message and selectable gift boxes. A Flask route renders the template with supporting static assets."
+    },
+    "highlights": [
+      { "th": "นำเสนอของขวัญผ่านส่วนติดต่อแบบโต้ตอบ", "en": "Presents gifts through an interactive interface." },
+      { "th": "ใช้ Flask และ Jinja template แสดงหน้าเว็บ", "en": "Uses Flask and Jinja templates to render the page." }
+    ],
+    "tags": ["Python", "Flask", "Jinja2", "HTML", "CSS"],
+    "images": ["assets/my_content/images/projects/placeholder_web.png"],
+    "featured": false,
+    "updatedAt": "2025-11-10"
+  },
+  {
+    "id": "loy-krathong-project",
+    "title": { "th": "loy_krathong_project", "en": "loy_krathong_project" },
+    "category": { "th": "เว็บแอป", "en": "Web App" },
+    "summary": {
+      "th": "เว็บกิจกรรมลอยกระทง ให้กรอกชื่อ เลือกแบบกระทง และเขียนคำอธิษฐาน",
+      "en": "A Loy Krathong web experience for entering a name, choosing a krathong, and writing a wish."
+    },
+    "description": {
+      "th": "เว็บกิจกรรมแบบหลายขั้นตอน เริ่มจากกรอกชื่อแล้วไปเลือก/ประกอบกระทงและเขียนคำอธิษฐาน มีการบันทึกข้อมูลรายการผ่าน Flask-SQLAlchemy",
+      "en": "A multi-step web experience that starts with a name, then lets the user choose/build a krathong and write a wish. Entries are stored with Flask-SQLAlchemy."
+    },
+    "highlights": [
+      { "th": "ดำเนินกิจกรรมผ่านหน้าสร้างและหน้าลอยกระทง", "en": "Guides users through krathong creation and launch screens." },
+      { "th": "จัดเก็บชื่อ แบบกระทง และคำอธิษฐาน", "en": "Stores a name, krathong design, and wish." }
+    ],
+    "tags": ["Python", "Flask", "Flask-SQLAlchemy", "Flask-Migrate", "SQLite", "Jinja2"],
+    "images": ["assets/my_content/images/projects/placeholder_web.png"],
+    "featured": false,
+    "updatedAt": "2025-11-05"
+  },
+  {
+    "id": "finddominitorykmitl-deploy-web-test",
+    "title": { "th": "FindDominitoryKMITL_Deploy_Web_Test", "en": "FindDominitoryKMITL_Deploy_Web_Test" },
+    "category": { "th": "เว็บแอป", "en": "Web App" },
+    "summary": {
+      "th": "เว็บค้นหาและประกาศหอพักใกล้ KMITL พร้อมตัวกรองและแยกบทบาทผู้ใช้",
+      "en": "A dorm search and listing site near KMITL with filters and separate user roles."
+    },
+    "description": {
+      "th": "ระบบค้นหาและประกาศหอพักรอบ KMITL ค้นหาตามราคา ประเภทห้อง สิ่งอำนวยความสะดวก และตำแหน่งได้ เจ้าของจัดการประกาศ/รูปภาพ และมีส่วนผู้ดูแลจัดการคิวอนุมัติ",
+      "en": "A dorm search and listing system near KMITL, with filters for price, room type, amenities, and location. Owners manage listings and images, while an admin area handles the approval queue."
+    },
+    "highlights": [
+      { "th": "ค้นหาและกรองประกาศหอพักหลายเงื่อนไข", "en": "Searches and filters dorm listings using multiple criteria." },
+      { "th": "เจ้าของจัดการประกาศและรูปภาพได้", "en": "Allows owners to manage listings and photos." },
+      { "th": "แยกชั้น routes, services, repositories และ models", "en": "Separates routes, services, repositories, and models." }
+    ],
+    "tags": ["Python", "Flask", "SQLAlchemy", "SQLite", "WTForms", "Flask-Login", "Flask-Migrate", "Bootstrap"],
+    "images": ["assets/my_content/images/projects/placeholder_web.png"],
+    "featured": true,
+    "updatedAt": "2025-10-14"
+  }
+]

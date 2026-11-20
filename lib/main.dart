@@ -9,6 +9,7 @@ import 'core/storage/browser_storage.dart';
 import 'core/theme/app_theme.dart';
 import 'data/models/content_models.dart';
 import 'data/repositories/content_repository.dart';
+import 'presentation/modals/all_projects_modal.dart';
 import 'services/pdf/resume_pdf_service.dart';
 
 void main() {
@@ -935,15 +936,29 @@ class _Projects extends StatefulWidget {
 }
 
 class _ProjectsState extends State<_Projects> {
+  String _categoryInCurrentLocale(String selected) {
+    if (selected == 'all') return selected;
+    for (final project in widget.projects) {
+      if (project.category.th == selected || project.category.en == selected) {
+        return widget.locale == AppLocale.th
+            ? project.category.th
+            : project.category.en;
+      }
+    }
+    return 'all';
+  }
+
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
-    final categories = {
-      for (final project in widget.projects)
-        widget.locale == AppLocale.th
-            ? project.category.th
-            : project.category.en,
-    }.where((category) => category.isNotEmpty).toList();
+    final categories =
+        {
+          for (final project in widget.projects)
+            widget.locale == AppLocale.th
+                ? project.category.th
+                : project.category.en,
+        }.where((category) => category.isNotEmpty).toList()
+          ..sort();
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: width > 900 ? 72 : 24,
@@ -964,59 +979,129 @@ class _ProjectsState extends State<_Projects> {
               const SizedBox(height: 24),
               ValueListenableBuilder<String>(
                 valueListenable: widget.state.selectedCategory,
-                builder: (context, selected, _) => Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    ChoiceChip(
-                      label: Text(
-                        widget.locale == AppLocale.th ? 'ทั้งหมด' : 'All',
-                      ),
-                      selected: selected == 'all',
-                      onSelected: (_) =>
-                          widget.state.selectedCategory.value = 'all',
-                    ),
-                    for (final category in categories)
+                builder: (context, selected, _) {
+                  final currentSelection =
+                      _categoryInCurrentLocale(selected);
+                  return Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
                       ChoiceChip(
-                        label: Text(category),
-                        selected: selected == category,
+                        label: Text(
+                          widget.locale == AppLocale.th ? 'ทั้งหมด' : 'All',
+                        ),
+                        selected: currentSelection == 'all',
                         onSelected: (_) =>
-                            widget.state.selectedCategory.value = category,
+                            widget.state.selectedCategory.value = 'all',
                       ),
-                  ],
-                ),
+                      for (final category in categories)
+                        ChoiceChip(
+                          label: Text(category),
+                          selected: currentSelection == category,
+                          onSelected: (_) =>
+                              widget.state.selectedCategory.value = category,
+                        ),
+                    ],
+                  );
+                },
               ),
               const SizedBox(height: 24),
               ValueListenableBuilder<String>(
                 valueListenable: widget.state.selectedCategory,
                 builder: (context, selected, _) {
-                  final filtered = widget.projects.where((project) {
-                    final category = widget.locale == AppLocale.th
-                        ? project.category.th
-                        : project.category.en;
-                    return selected == 'all' || category == selected;
-                  }).toList();
+                  final currentSelection =
+                      _categoryInCurrentLocale(selected);
+                  final filtered = sortProjectsByFeaturedAndUpdated(
+                    widget.projects.where((project) {
+                      final category = widget.locale == AppLocale.th
+                          ? project.category.th
+                          : project.category.en;
+                      return currentSelection == 'all' ||
+                          category == currentSelection;
+                    }),
+                  );
+                  final visibleProjects = filtered.take(4).toList();
                   final cardWidth = width > 900
                       ? 350.0
                       : width > 620
                       ? (width - 72) / 2
                       : width - 48;
-                  return Wrap(
-                    spacing: 18,
-                    runSpacing: 18,
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      for (var i = 0; i < filtered.length; i++)
-                        SizedBox(
-                          width: cardWidth,
-                          child: _ScrollReveal(
-                            delay: Duration(milliseconds: i * 70),
-                            child: _ProjectCard(
-                              project: filtered[i],
-                              links: widget.links,
-                              locale: widget.locale,
+                      Wrap(
+                        spacing: 18,
+                        runSpacing: 18,
+                        children: [
+                          for (var i = 0; i < visibleProjects.length; i++)
+                            SizedBox(
+                              width: cardWidth,
+                              child: _ScrollReveal(
+                                delay: Duration(milliseconds: i * 70),
+                                child: _ProjectCard(
+                                  project: visibleProjects[i],
+                                  links: widget.links,
+                                  locale: widget.locale,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                      if (filtered.length >= 4) ...[
+                        const SizedBox(height: 28),
+                        Center(
+                          child: FilledButton.icon(
+                            onPressed: () => showGeneralDialog<void>(
+                              context: context,
+                              barrierDismissible: true,
+                              barrierLabel: MaterialLocalizations.of(
+                                context,
+                              ).modalBarrierDismissLabel,
+                              barrierColor: Colors.black54,
+                              transitionDuration:
+                                  const Duration(milliseconds: 240),
+                              pageBuilder: (context, animation, secondary) =>
+                                  AllProjectsModal(
+                                    projects: sortProjectsByFeaturedAndUpdated(
+                                      widget.projects,
+                                    ),
+                                    initialCategory: currentSelection,
+                                    locale: widget.locale,
+                                    projectCardBuilder: (project) =>
+                                        _ProjectCard(
+                                          project: project,
+                                          links: widget.links,
+                                          locale: widget.locale,
+                                        ),
+                                  ),
+                              transitionBuilder:
+                                  (context, animation, secondary, child) {
+                                    final curve = CurvedAnimation(
+                                      parent: animation,
+                                      curve: Curves.easeOutCubic,
+                                      reverseCurve: Curves.easeInCubic,
+                                    );
+                                    return FadeTransition(
+                                      opacity: curve,
+                                      child: ScaleTransition(
+                                        scale: Tween<double>(
+                                          begin: 0.96,
+                                          end: 1,
+                                        ).animate(curve),
+                                        child: child,
+                                      ),
+                                    );
+                                  },
+                            ),
+                            icon: const Icon(Icons.grid_view_rounded),
+                            label: Text(
+                              widget.locale == AppLocale.th
+                                  ? 'ดูผลงานทั้งหมด (${filtered.length} ผลงาน)'
+                                  : 'View All Projects (${filtered.length})',
                             ),
                           ),
                         ),
+                      ],
                     ],
                   );
                 },
@@ -1056,7 +1141,12 @@ class _ProjectCard extends StatelessWidget {
             AspectRatio(
               aspectRatio: 16 / 9,
               child: project.images.isNotEmpty
-                  ? Image.asset(project.images.first, fit: BoxFit.cover)
+                  ? Image.asset(
+                      project.images.first,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, _, _) =>
+                          const ColoredBox(color: AppTheme.sky),
+                    )
                   : const ColoredBox(color: AppTheme.sky),
             ),
             Padding(

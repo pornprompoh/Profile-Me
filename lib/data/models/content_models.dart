@@ -137,6 +137,7 @@ class Project {
     required this.tags,
     required this.images,
     required this.featured,
+    this.updatedAt,
   });
   final String id;
   final LocalizedText title;
@@ -147,6 +148,7 @@ class Project {
   final List<String> tags;
   final List<String> images;
   final bool featured;
+  final DateTime? updatedAt;
 
   factory Project.fromJson(Map<String, dynamic> json) => Project(
     id: json['id'] as String? ?? '',
@@ -164,7 +166,32 @@ class Project {
         .whereType<String>()
         .toList(),
     featured: json['featured'] as bool? ?? false,
+    updatedAt: DateTime.tryParse(json['updatedAt'] as String? ?? ''),
   );
+}
+
+List<Project> sortProjectsByFeaturedAndUpdated(Iterable<Project> projects) {
+  final indexed = projects.toList().asMap().entries.toList();
+  indexed.sort((first, second) {
+    if (first.value.featured != second.value.featured) {
+      return first.value.featured ? -1 : 1;
+    }
+
+    final firstUpdatedAt = first.value.updatedAt;
+    final secondUpdatedAt = second.value.updatedAt;
+    if (firstUpdatedAt != null && secondUpdatedAt != null) {
+      final updatedOrder = secondUpdatedAt.compareTo(firstUpdatedAt);
+      if (updatedOrder != 0) return updatedOrder;
+    } else if (firstUpdatedAt != null) {
+      return -1;
+    } else if (secondUpdatedAt != null) {
+      return 1;
+    }
+
+    // หากวันที่เท่ากันให้คงลำดับเดิมจากไฟล์ข้อมูล
+    return first.key.compareTo(second.key);
+  });
+  return indexed.map((entry) => entry.value).toList();
 }
 
 class SocialLink {

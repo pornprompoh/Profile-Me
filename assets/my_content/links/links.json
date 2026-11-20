@@ -11,5 +11,102 @@
       "icon": "facebook"
     }
   ],
-  "projectLinks": []
+  "projectLinks": [
+    {
+      "projectId": "profile-me",
+      "type": "github",
+      "label": { "th": "GitHub", "en": "GitHub" },
+      "url": "https://github.com/pornprompoh/Profile-Me"
+    },
+    {
+      "projectId": "snap2bill",
+      "type": "github",
+      "label": { "th": "GitHub", "en": "GitHub" },
+      "url": "https://github.com/pornprompoh/Snap2bill"
+    },
+    {
+      "projectId": "ai-trading-bot",
+      "type": "github",
+      "label": { "th": "GitHub", "en": "GitHub" },
+      "url": "https://github.com/pornprompoh/ai-trading-bot"
+    },
+    {
+      "projectId": "exam-website",
+      "type": "github",
+      "label": { "th": "GitHub", "en": "GitHub" },
+      "url": "https://github.com/pornprompoh/Exam_website"
+    },
+    {
+      "projectId": "car-by-esp32",
+      "type": "github",
+      "label": { "th": "GitHub", "en": "GitHub" },
+      "url": "https://github.com/pornprompoh/car_by_esp32"
+    },
+    {
+      "projectId": "project-drone01",
+      "type": "github",
+      "label": { "th": "GitHub", "en": "GitHub" },
+      "url": "https://github.com/pornprompoh/project_drone01"
+    },
+    {
+      "projectId": "project-drone",
+      "type": "github",
+      "label": { "th": "GitHub", "en": "GitHub" },
+      "url": "https://github.com/pornprompoh/project_drone"
+    },
+    {
+      "projectId": "money-flow",
+      "type": "github",
+      "label": { "th": "GitHub", "en": "GitHub" },
+      "url": "https://github.com/pornprompoh/Money_Flow"
+    },
+    {
+      "projectId": "drive-record",
+      "type": "github",
+      "label": { "th": "GitHub", "en": "GitHub" },
+      "url": "https://github.com/pornprompoh/Drive_Record"
+    },
+    {
+      "projectId": "react-lab",
+      "type": "github",
+      "label": { "th": "GitHub", "en": "GitHub" },
+      "url": "https://github.com/pornprompoh/React_LAB"
+    },
+    {
+      "projectId": "valentineday-mook",
+      "type": "github",
+      "label": { "th": "GitHub", "en": "GitHub" },
+      "url": "https://github.com/pornprompoh/ValentineDay_Mook"
+    },
+    {
+      "projectId": "lalalalalala",
+      "type": "github",
+      "label": { "th": "GitHub", "en": "GitHub" },
+      "url": "https://github.com/pornprompoh/lalalalalala"
+    },
+    {
+      "projectId": "detectivegame-python",
+      "type": "github",
+      "label": { "th": "GitHub", "en": "GitHub" },
+      "url": "https://github.com/pornprompoh/DetectiveGame_Python"
+    },
+    {
+      "projectId": "birth-day-my-girlfriend",
+      "type": "github",
+      "label": { "th": "GitHub", "en": "GitHub" },
+      "url": "https://github.com/pornprompoh/Birth_Day_My_Girlfriend"
+    },
+    {
+      "projectId": "loy-krathong-project",
+      "type": "github",
+      "label": { "th": "GitHub", "en": "GitHub" },
+      "url": "https://github.com/pornprompoh/loy_krathong_project"
+    },
+    {
+      "projectId": "finddominitorykmitl-deploy-web-test",
+      "type": "github",
+      "label": { "th": "GitHub", "en": "GitHub" },
+      "url": "https://github.com/pornprompoh/FindDominitoryKMITL_Deploy_Web_Test"
+    }
+  ]
 }

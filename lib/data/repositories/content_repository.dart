@@ -17,11 +17,12 @@ class ContentRepository {
       'assets/my_content/projects/projects.json',
     );
     final list = jsonDecode(json) as List<dynamic>;
-    return list
-        .whereType<Map<String, dynamic>>()
-        .map(Project.fromJson)
-        .where((project) => project.id.isNotEmpty)
-        .toList();
+    return sortProjectsByFeaturedAndUpdated(
+      list
+          .whereType<Map<String, dynamic>>()
+          .map(Project.fromJson)
+          .where((project) => project.id.isNotEmpty),
+    );
   }
 
   Future<Links> loadLinks() async {
