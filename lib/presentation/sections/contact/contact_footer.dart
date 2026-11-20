@@ -52,13 +52,7 @@ class _Contact extends StatelessWidget {
                       Uri.parse(link.url),
                       mode: LaunchMode.externalApplication,
                     ),
-                    icon: Icon(
-                      link.icon.toLowerCase().contains('github')
-                          ? Icons.code
-                          : link.icon.toLowerCase().contains('linkedin')
-                          ? Icons.work
-                          : Icons.link,
-                    ),
+                    icon: BrandIcon(name: link.icon),
                     label: Text(link.label),
                   ),
               ],

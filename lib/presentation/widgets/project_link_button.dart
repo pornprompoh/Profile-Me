@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../core/theme/layout_tokens.dart';
 import '../../core/state/app_state.dart';
 import '../../data/models/content_models.dart';
+import 'brand_icon.dart';
 
 class ProjectLinkButton extends StatelessWidget {
   const ProjectLinkButton({
@@ -17,10 +18,8 @@ class ProjectLinkButton extends StatelessWidget {
   final AppLocale locale;
   final bool compact;
 
-  Future<void> _openLink() => launchUrl(
-    Uri.parse(link.url),
-    mode: LaunchMode.externalApplication,
-  );
+  Future<void> _openLink() =>
+      launchUrl(Uri.parse(link.url), mode: LaunchMode.externalApplication);
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +40,9 @@ class ProjectLinkButton extends StatelessWidget {
             ? const Color(0xFF7DD3FC)
             : Theme.of(context).colorScheme.primary,
       ),
-      icon: Icon(isGithub ? Icons.code_rounded : Icons.open_in_new_rounded),
+      icon: isGithub
+          ? BrandIcon(name: 'github')
+          : const Icon(Icons.open_in_new_rounded),
       label: Text(label.isEmpty ? (isGithub ? 'GitHub' : 'Open') : label),
     );
   }

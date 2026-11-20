@@ -142,6 +142,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
                       state: state,
                       locale: locale,
                       onNavigate: _scrollTo,
+                      socialLinks: links!.socialLinks,
                     ),
                   ),
                 ),

@@ -21,21 +21,23 @@ class _NavbarDelegate extends SliverPersistentHeaderDelegate {
     BuildContext context,
     double shrinkOffset,
     bool overlapsContent,
-  ) => Material(
-    elevation: 0,
-    color: Theme.of(context).scaffoldBackgroundColor,
-    child: DecoratedBox(
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: Theme.of(context).colorScheme.outlineVariant,
-            width: 1,
+  ) {
+    final brightness = Theme.of(context).brightness;
+    final accent = AppTheme.navbarAccent(brightness);
+    return Material(
+      elevation: 0,
+      color: AppTheme.navbarSurface(brightness),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(color: accent.withValues(alpha: .72), width: 2),
+            bottom: BorderSide(color: accent.withValues(alpha: .24), width: 1),
           ),
         ),
+        child: child,
       ),
-      child: child,
-    ),
-  );
+    );
+  }
 
   @override
   bool shouldRebuild(covariant _NavbarDelegate oldDelegate) =>
@@ -47,16 +49,20 @@ class _Navbar extends StatelessWidget {
     required this.state,
     required this.locale,
     required this.onNavigate,
+    required this.socialLinks,
   });
   final AppState state;
   final AppLocale locale;
   final Future<void> Function(AppSection) onNavigate;
+  final List<SocialLink> socialLinks;
 
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
     final isMobile = width < LayoutTokens.mobileBreakpoint;
     final showFullNavigation = width >= 900;
+    final showSocialLinks = width >= 1100;
+    final accent = AppTheme.navbarAccent(Theme.of(context).brightness);
     final labels = locale == AppLocale.th
         ? const ['หน้าแรก', 'เกี่ยวกับฉัน', 'ประวัติ', 'ผลงาน', 'ติดต่อ']
         : const ['Home', 'About', 'Timeline', 'Projects', 'Contact'];
@@ -74,37 +80,77 @@ class _Navbar extends StatelessWidget {
             ),
             child: Row(
               children: [
-                const Icon(Icons.blur_circular, color: AppTheme.primary),
-                const SizedBox(width: 8),
-                if (!isMobile)
+                Icon(Icons.blur_circular, color: accent),
+                if (!isMobile) ...[
+                  const SizedBox(width: 8),
                   Text(
-                    'Portfolio',
+                    'PORTFOLIO',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.2,
                     ),
                   ),
-                const Spacer(),
+                ],
+                if (showFullNavigation) const SizedBox(width: 18),
                 if (showFullNavigation)
-                  ValueListenableBuilder<AppSection>(
-                    valueListenable: state.activeSection,
-                    builder: (context, active, _) => Row(
-                      children: [
-                        for (var i = 0; i < sections.length; i++)
-                          TextButton(
-                            onPressed: () => onNavigate(sections[i]),
-                            style: TextButton.styleFrom(
-                              foregroundColor: active == sections[i]
-                                  ? (Theme.of(context).brightness ==
-                                            Brightness.dark
-                                        ? AppTheme.darkAccent
-                                        : AppTheme.primary)
-                                  : Theme.of(context).colorScheme.onSurface,
-                            ),
-                            child: Text(labels[i]),
-                          ),
-                      ],
+                  Expanded(
+                    child: Center(
+                      child: ValueListenableBuilder<AppSection>(
+                        valueListenable: state.activeSection,
+                        builder: (context, active, _) => Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            for (var i = 0; i < sections.length; i++)
+                              TextButton(
+                                onPressed: () => onNavigate(sections[i]),
+                                style: TextButton.styleFrom(
+                                  minimumSize: const Size(0, 44),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 9,
+                                  ),
+                                  foregroundColor: active == sections[i]
+                                      ? (Theme.of(context).brightness ==
+                                                Brightness.dark
+                                            ? AppTheme.darkAccent
+                                            : AppTheme.primary)
+                                      : Theme.of(context).colorScheme.onSurface,
+                                ),
+                                child: Text(
+                                  locale == AppLocale.en
+                                      ? labels[i].toUpperCase()
+                                      : labels[i],
+                                  style: TextStyle(
+                                    fontSize: locale == AppLocale.en ? 11 : 13,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: locale == AppLocale.en
+                                        ? 1
+                                        : 0,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
+                if (!showFullNavigation) const Spacer(),
+                if (showSocialLinks)
+                  for (final link in socialLinks)
+                    IconButton(
+                      tooltip: link.label,
+                      onPressed: () async {
+                        await launchUrl(
+                          Uri.parse(link.url),
+                          mode: LaunchMode.externalApplication,
+                        );
+                      },
+                      icon: BrandIcon(name: link.icon, size: 20),
+                      constraints: const BoxConstraints.tightFor(
+                        width: LayoutTokens.touchTarget,
+                        height: LayoutTokens.touchTarget,
+                      ),
+                    ),
                 IconButton(
                   tooltip: locale == AppLocale.th
                       ? 'เปลี่ยนภาษา'

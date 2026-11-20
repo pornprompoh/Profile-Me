@@ -13,6 +13,7 @@ import 'presentation/modals/all_projects_modal.dart';
 import 'core/theme/layout_tokens.dart';
 import 'presentation/widgets/section_widgets.dart';
 import 'presentation/widgets/project_link_button.dart';
+import 'presentation/widgets/brand_icon.dart';
 import 'services/pdf/resume_pdf_service.dart';
 import 'app/app_bootstrap.dart';
 

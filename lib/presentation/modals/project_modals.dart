@@ -234,18 +234,20 @@ class _LightboxState extends State<_Lightbox> {
         fit: StackFit.expand,
         children: [
           Container(color: const Color(0xE0000000)),
-          GestureDetector(
-            onTap: () {},
-            child: PageView.builder(
-              controller: controller,
-              itemCount: widget.images.length,
-              onPageChanged: (value) => setState(() => index = value),
-              itemBuilder: (context, i) => InteractiveViewer(
-                minScale: .5,
-                maxScale: 5,
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Image.asset(widget.images[i], fit: BoxFit.contain),
+          PageView.builder(
+            controller: controller,
+            itemCount: widget.images.length,
+            onPageChanged: (value) => setState(() => index = value),
+            itemBuilder: (context, i) => InteractiveViewer(
+              minScale: .5,
+              maxScale: 5,
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Center(
+                  child: GestureDetector(
+                    onTap: () {},
+                    child: Image.asset(widget.images[i], fit: BoxFit.contain),
+                  ),
                 ),
               ),
             ),
@@ -303,4 +305,3 @@ class _LightboxState extends State<_Lightbox> {
     ),
   );
 }
-
