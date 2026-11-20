@@ -47,17 +47,16 @@ class _Navbar extends StatelessWidget {
     required this.state,
     required this.locale,
     required this.onNavigate,
-    required this.onPdf,
   });
   final AppState state;
   final AppLocale locale;
   final Future<void> Function(AppSection) onNavigate;
-  final Future<void> Function() onPdf;
 
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
     final isMobile = width < LayoutTokens.mobileBreakpoint;
+    final showFullNavigation = width >= 900;
     final labels = locale == AppLocale.th
         ? const ['หน้าแรก', 'เกี่ยวกับฉัน', 'ประวัติ', 'ผลงาน', 'ติดต่อ']
         : const ['Home', 'About', 'Timeline', 'Projects', 'Contact'];
@@ -85,7 +84,7 @@ class _Navbar extends StatelessWidget {
                     ),
                   ),
                 const Spacer(),
-                if (width > 780)
+                if (showFullNavigation)
                   ValueListenableBuilder<AppSection>(
                     valueListenable: state.activeSection,
                     builder: (context, active, _) => Row(
@@ -144,22 +143,7 @@ class _Navbar extends StatelessWidget {
                         : Icons.dark_mode,
                   ),
                 ),
-                if (width >= 640)
-                  ValueListenableBuilder<bool>(
-                    valueListenable: state.isGeneratingPdf,
-                    builder: (context, generating, _) => FilledButton.icon(
-                      onPressed: generating ? null : onPdf,
-                      icon: generating
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.download),
-                      label: Text(locale == AppLocale.th ? 'Resume' : 'Resume'),
-                    ),
-                  ),
-                if (width <= 780)
+                if (!showFullNavigation)
                   Builder(
                     builder: (context) => IconButton(
                       onPressed: Scaffold.of(context).openEndDrawer,
@@ -322,4 +306,3 @@ class _MobileDrawer extends StatelessWidget {
     );
   }
 }
-

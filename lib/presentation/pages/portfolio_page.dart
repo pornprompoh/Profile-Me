@@ -11,6 +11,7 @@ class PortfolioPage extends StatefulWidget {
 class _PortfolioPageState extends State<PortfolioPage> {
   final repository = ContentRepository();
   final scrollController = ScrollController();
+  final scaffoldKey = GlobalKey<ScaffoldState>();
   final keys = {
     AppSection.home: GlobalKey(),
     AppSection.about: GlobalKey(),
@@ -89,7 +90,9 @@ class _PortfolioPageState extends State<PortfolioPage> {
         curve: Curves.easeOutCubic,
       );
     }
-    if (mounted) Navigator.of(context).maybePop();
+    if (scaffoldKey.currentState?.isEndDrawerOpen ?? false) {
+      scaffoldKey.currentState?.closeEndDrawer();
+    }
   }
 
   @override
@@ -118,6 +121,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
     return ValueListenableBuilder<AppLocale>(
       valueListenable: state.locale,
       builder: (context, locale, _) => Scaffold(
+        key: scaffoldKey,
         endDrawer: _MobileDrawer(
           state: state,
           locale: locale,
@@ -138,43 +142,44 @@ class _PortfolioPageState extends State<PortfolioPage> {
                       state: state,
                       locale: locale,
                       onNavigate: _scrollTo,
-                      onPdf: () => _downloadPdf(state, locale),
                     ),
                   ),
                 ),
-                SliverList(
-                  delegate: SliverChildListDelegate([
-                    _Section(
-                      key: keys[AppSection.home],
-                      child: _Hero(
-                        profile!,
-                        locale,
-                        onProjects: () {
-                          _scrollTo(AppSection.projects);
-                        },
-                        onContact: () {
-                          _scrollTo(AppSection.contact);
-                        },
+                SliverToBoxAdapter(
+                  child: Column(
+                    children: [
+                      _Section(
+                        key: keys[AppSection.home],
+                        child: _Hero(
+                          profile!,
+                          locale,
+                          onProjects: () {
+                            _scrollTo(AppSection.projects);
+                          },
+                          onContact: () {
+                            _scrollTo(AppSection.contact);
+                          },
+                        ),
                       ),
-                    ),
-                    _Section(
-                      key: keys[AppSection.about],
-                      child: _About(profile!, locale),
-                    ),
-                    _Section(
-                      key: keys[AppSection.timeline],
-                      child: _Timeline(profile!, locale),
-                    ),
-                    _Section(
-                      key: keys[AppSection.projects],
-                      child: _Projects(projects, links!, state, locale),
-                    ),
-                    _Section(
-                      key: keys[AppSection.contact],
-                      child: _Contact(profile!, links!, state, locale),
-                    ),
-                    _Footer(profile: profile!, locale: locale),
-                  ]),
+                      _Section(
+                        key: keys[AppSection.about],
+                        child: _About(profile!, locale),
+                      ),
+                      _Section(
+                        key: keys[AppSection.timeline],
+                        child: _Timeline(profile!, locale),
+                      ),
+                      _Section(
+                        key: keys[AppSection.projects],
+                        child: _Projects(projects, links!, state, locale),
+                      ),
+                      _Section(
+                        key: keys[AppSection.contact],
+                        child: _Contact(profile!, links!, state, locale),
+                      ),
+                      _Footer(profile: profile!, locale: locale),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -224,4 +229,3 @@ class _PortfolioPageState extends State<PortfolioPage> {
     }
   }
 }
-
