@@ -15,6 +15,36 @@
   },
   "education": [
     {
+      "period": "2018 - 2020",
+      "institution": {
+        "th": "โรงเรียนเตรียมอุดมศึกษาน้อมเกล้า สมุทรปราการ",
+        "en": "Triam Udom Suksa Nomklao Samut Prakan School"
+      },
+      "field": {
+        "th": "มัธยมศึกษาตอนต้น",
+        "en": "Lower Secondary Education"
+      },
+      "details": {
+        "th": "",
+        "en": ""
+      }
+    },
+    {
+      "period": "2021 - 2023",
+      "institution": {
+        "th": "โรงเรียนเตรียมอุดมศึกษาน้อมเกล้า สมุทรปราการ",
+        "en": "Triam Udom Suksa Nomklao Samut Prakan School"
+      },
+      "field": {
+        "th": "มัธยมศึกษาตอนปลาย",
+        "en": "Upper Secondary Education"
+      },
+      "details": {
+        "th": "",
+        "en": ""
+      }
+    },
+    {
       "period": "2024 - ปัจจุบัน",
       "institution": {
         "th": "สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหาร ลาดกระบัง",
@@ -25,8 +55,8 @@
         "en": "Faculty of Industrial Education and Technology, Department of Computer Technology"
       },
       "details": {
-        "th": "",
-        "en": ""
+        "th": "กำลังศึกษาระดับปริญญาตรี ชั้นปีที่ 3",
+        "en": "Currently pursuing a bachelor's degree, Year 3"
       }
     }
   ],
