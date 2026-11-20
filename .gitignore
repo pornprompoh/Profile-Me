@@ -33,6 +33,9 @@ migrate_working_dir/
 /build/
 /coverage/
 
+# Local draft for personal portfolio info
+FILL_MY_INFO.md
+
 # Symbolication related
 app.*.symbols
 
