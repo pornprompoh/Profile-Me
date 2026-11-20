@@ -130,59 +130,62 @@ class _PortfolioPageState extends State<PortfolioPage> {
         ),
         body: Stack(
           children: [
-            CustomScrollView(
+            _ScrollRevealScope(
               controller: scrollController,
-              slivers: [
-                SliverPersistentHeader(
-                  pinned: true,
-                  delegate: _NavbarDelegate(
-                    minHeight: 72,
-                    maxHeight: 72,
-                    child: _Navbar(
-                      state: state,
-                      locale: locale,
-                      onNavigate: _scrollTo,
-                      socialLinks: links!.socialLinks,
+              child: CustomScrollView(
+                controller: scrollController,
+                slivers: [
+                  SliverPersistentHeader(
+                    pinned: true,
+                    delegate: _NavbarDelegate(
+                      minHeight: 72,
+                      maxHeight: 72,
+                      child: _Navbar(
+                        state: state,
+                        locale: locale,
+                        onNavigate: _scrollTo,
+                        socialLinks: links!.socialLinks,
+                      ),
                     ),
                   ),
-                ),
-                SliverToBoxAdapter(
-                  child: Column(
-                    children: [
-                      _Section(
-                        key: keys[AppSection.home],
-                        child: _Hero(
-                          profile!,
-                          locale,
-                          onProjects: () {
-                            _scrollTo(AppSection.projects);
-                          },
-                          onContact: () {
-                            _scrollTo(AppSection.contact);
-                          },
+                  SliverToBoxAdapter(
+                    child: Column(
+                      children: [
+                        _Section(
+                          key: keys[AppSection.home],
+                          child: _Hero(
+                            profile!,
+                            locale,
+                            onProjects: () {
+                              _scrollTo(AppSection.projects);
+                            },
+                            onContact: () {
+                              _scrollTo(AppSection.contact);
+                            },
+                          ),
                         ),
-                      ),
-                      _Section(
-                        key: keys[AppSection.about],
-                        child: _About(profile!, locale),
-                      ),
-                      _Section(
-                        key: keys[AppSection.timeline],
-                        child: _Timeline(profile!, locale),
-                      ),
-                      _Section(
-                        key: keys[AppSection.projects],
-                        child: _Projects(projects, links!, state, locale),
-                      ),
-                      _Section(
-                        key: keys[AppSection.contact],
-                        child: _Contact(profile!, links!, state, locale),
-                      ),
-                      _Footer(profile: profile!, locale: locale),
-                    ],
+                        _Section(
+                          key: keys[AppSection.about],
+                          child: _About(profile!, locale),
+                        ),
+                        _Section(
+                          key: keys[AppSection.timeline],
+                          child: _Timeline(profile!, locale),
+                        ),
+                        _Section(
+                          key: keys[AppSection.projects],
+                          child: _Projects(projects, links!, state, locale),
+                        ),
+                        _Section(
+                          key: keys[AppSection.contact],
+                          child: _Contact(profile!, links!, state, locale),
+                        ),
+                        _Footer(profile: profile!, locale: locale),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             ValueListenableBuilder<bool>(
               valueListenable: state.showBackToTop,

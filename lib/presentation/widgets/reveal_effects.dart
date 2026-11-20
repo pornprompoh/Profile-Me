@@ -10,6 +10,16 @@ class _Section extends StatelessWidget {
       SizedBox(width: double.infinity, child: child);
 }
 
+class _ScrollRevealScope extends InheritedWidget {
+  const _ScrollRevealScope({required this.controller, required super.child});
+
+  final ScrollController controller;
+
+  @override
+  bool updateShouldNotify(_ScrollRevealScope oldWidget) =>
+      oldWidget.controller != controller;
+}
+
 class _ScrollReveal extends StatefulWidget {
   const _ScrollReveal({required this.child, this.delay = Duration.zero});
   final Widget child;
@@ -29,17 +39,48 @@ class _ScrollRevealState extends State<_ScrollReveal>
     parent: controller,
     curve: Curves.easeOutCubic,
   );
+  ScrollController? _scrollController;
+  late double _viewportHeight;
+  bool _started = false;
 
   @override
   void initState() {
     super.initState();
-    Future.delayed(widget.delay, () {
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _viewportHeight = MediaQuery.sizeOf(context).height;
+    final controller = context
+        .dependOnInheritedWidgetOfExactType<_ScrollRevealScope>()
+        ?.controller;
+    if (!identical(controller, _scrollController)) {
+      _scrollController?.removeListener(_startWhenVisible);
+      _scrollController = controller;
+      _scrollController?.addListener(_startWhenVisible);
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) => _startWhenVisible());
+  }
+
+  void _startWhenVisible() {
+    if (_started || !mounted) return;
+    final renderObject = context.findRenderObject();
+    if (renderObject is! RenderBox || !renderObject.hasSize) return;
+    final top = renderObject.localToGlobal(Offset.zero).dy;
+    final bottom = top + renderObject.size.height;
+    if (bottom <= LayoutTokens.navbarHeight || top >= _viewportHeight) return;
+
+    _started = true;
+    _scrollController?.removeListener(_startWhenVisible);
+    Future<void>.delayed(widget.delay, () {
       if (mounted) controller.forward();
     });
   }
 
   @override
   void dispose() {
+    _scrollController?.removeListener(_startWhenVisible);
     controller.dispose();
     super.dispose();
   }
@@ -122,4 +163,3 @@ class _ProfileImage extends StatelessWidget {
     ),
   );
 }
-

@@ -17,19 +17,21 @@ class _Hero extends StatelessWidget {
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
     final isMobile = width < LayoutTokens.mobileBreakpoint;
+    final isStacked = width < 720;
+    final isCompact = width < 900;
     final name = locale == AppLocale.th ? profile.names.th : profile.names.en;
     final role = locale == AppLocale.th ? profile.roles.th : profile.roles.en;
     final identity = _ScrollReveal(
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: isMobile
+        crossAxisAlignment: isStacked
             ? CrossAxisAlignment.center
             : CrossAxisAlignment.start,
         children: [
           Text(
             locale == AppLocale.th ? 'สวัสดีครับ ผมชื่อ' : 'Hello, I am',
             style: Theme.of(context).textTheme.titleLarge,
-            textAlign: isMobile ? TextAlign.center : TextAlign.start,
+            textAlign: isStacked ? TextAlign.center : TextAlign.start,
           ),
           const SizedBox(height: 8),
           Text(
@@ -39,7 +41,7 @@ class _Hero extends StatelessWidget {
               height: 1.12,
               fontWeight: FontWeight.w800,
             ),
-            textAlign: isMobile ? TextAlign.center : TextAlign.start,
+            textAlign: isStacked ? TextAlign.center : TextAlign.start,
           ),
           const SizedBox(height: 8),
           Text(
@@ -51,11 +53,11 @@ class _Hero extends StatelessWidget {
                   ? AppTheme.darkAccent
                   : AppTheme.primary,
             ),
-            textAlign: isMobile ? TextAlign.center : TextAlign.start,
+            textAlign: isStacked ? TextAlign.center : TextAlign.start,
           ),
           const SizedBox(height: 22),
           Wrap(
-            alignment: WrapAlignment.center,
+            alignment: isStacked ? WrapAlignment.center : WrapAlignment.start,
             spacing: 12,
             runSpacing: 12,
             children: [
@@ -108,13 +110,15 @@ class _Hero extends StatelessWidget {
         lift: 8,
         child: _ProfileImage(
           profile.profileImage,
-          size: isMobile ? 220 : 280,
+          size: isMobile ? 220 : (isCompact ? 240 : 280),
           onTap: () {},
         ),
       ),
     );
     return SectionContainer(
-      verticalPadding: isMobile ? 44 : LayoutTokens.sectionPadding(context),
+      verticalPadding: isStacked
+          ? (isMobile ? 44 : 64)
+          : LayoutTokens.sectionPadding(context),
       background: IgnorePointer(
         child: Container(
           decoration: BoxDecoration(
@@ -135,7 +139,7 @@ class _Hero extends StatelessWidget {
           ),
         ),
       ),
-      child: isMobile
+      child: isStacked
           ? Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [image, const SizedBox(height: 24), identity],
@@ -143,11 +147,13 @@ class _Hero extends StatelessWidget {
           : Row(
               children: [
                 Expanded(child: identity),
-                const SizedBox(width: 48),
-                Expanded(child: Center(child: image)),
+                SizedBox(width: isCompact ? 32 : 48),
+                SizedBox(
+                  width: isCompact ? 240 : 280,
+                  child: Center(child: image),
+                ),
               ],
             ),
     );
   }
 }
-

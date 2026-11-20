@@ -162,25 +162,43 @@ class _AllProjectsModalState extends State<AllProjectsModal> {
                     ),
                   ),
                   Expanded(
-                    child: GridView.builder(
-                      controller: _scrollController,
-                      padding: EdgeInsets.fromLTRB(
-                        isMobile ? 12 : 24,
-                        16,
-                        isMobile ? 12 : 24,
-                        28,
-                      ),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: LayoutTokens.projectColumnCount(
-                          size.width,
-                        ),
-                        mainAxisExtent: isMobile ? 560 : 540,
-                        crossAxisSpacing: 18,
-                        mainAxisSpacing: 18,
-                      ),
-                      itemCount: filtered.length,
-                      itemBuilder: (context, index) =>
-                          widget.projectCardBuilder(filtered[index]),
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final horizontalPadding = isMobile ? 12.0 : 24.0;
+                        final gridWidth =
+                            constraints.maxWidth - horizontalPadding * 2;
+                        final columns = LayoutTokens.projectColumnCount(
+                          gridWidth,
+                        );
+                        final cardWidth =
+                            (gridWidth -
+                                LayoutTokens.projectGridSpacing *
+                                    (columns - 1)) /
+                            columns;
+                        return GridView.builder(
+                          controller: _scrollController,
+                          padding: EdgeInsets.fromLTRB(
+                            horizontalPadding,
+                            16,
+                            horizontalPadding,
+                            28,
+                          ),
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: columns,
+                                mainAxisExtent: LayoutTokens.projectCardExtent(
+                                  cardWidth,
+                                ),
+                                crossAxisSpacing:
+                                    LayoutTokens.projectGridSpacing,
+                                mainAxisSpacing:
+                                    LayoutTokens.projectGridSpacing,
+                              ),
+                          itemCount: filtered.length,
+                          itemBuilder: (context, index) =>
+                              widget.projectCardBuilder(filtered[index]),
+                        );
+                      },
                     ),
                   ),
                 ],

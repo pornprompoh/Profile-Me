@@ -223,7 +223,7 @@ class _MobileDrawer extends StatelessWidget {
         ? const ['หน้าแรก', 'เกี่ยวกับฉัน', 'ประวัติ', 'ผลงาน', 'ติดต่อ']
         : const ['Home', 'About', 'Timeline', 'Projects', 'Contact'];
     return Drawer(
-      width: 320,
+      width: MediaQuery.sizeOf(context).width.clamp(0.0, 320.0).toDouble(),
       child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(LayoutTokens.drawerPadding),

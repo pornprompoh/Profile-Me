@@ -98,19 +98,20 @@ class _ProjectsState extends State<_Projects> {
                       final visibleProjects = filtered
                           .take(visibleLimit)
                           .toList();
-                      final cardHeight = width < LayoutTokens.mobileBreakpoint
-                          ? 560.0
-                          : (width <= LayoutTokens.tabletBreakpoint
-                                ? 560.0
-                                : 540.0);
+                      final cardWidth =
+                          (width -
+                              LayoutTokens.projectGridSpacing * (columns - 1)) /
+                          columns;
                       return GridView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: columns,
-                          mainAxisSpacing: 18,
-                          crossAxisSpacing: 18,
-                          mainAxisExtent: cardHeight,
+                          mainAxisSpacing: LayoutTokens.projectGridSpacing,
+                          crossAxisSpacing: LayoutTokens.projectGridSpacing,
+                          mainAxisExtent: LayoutTokens.projectCardExtent(
+                            cardWidth,
+                          ),
                         ),
                         itemCount: visibleProjects.length,
                         itemBuilder: (context, i) => _ScrollReveal(
@@ -124,13 +125,12 @@ class _ProjectsState extends State<_Projects> {
                       );
                     },
                   ),
-                  Builder(
-                    builder: (context) {
-                      final width = MediaQuery.sizeOf(context).width;
+                  LayoutBuilder(
+                    builder: (context, constraints) {
                       final visibleLimit = LayoutTokens.projectVisibleLimit(
-                        width,
+                        constraints.maxWidth,
                       );
-                      if (filtered.length < visibleLimit) {
+                      if (filtered.length <= visibleLimit) {
                         return const SizedBox.shrink();
                       }
                       return Padding(
@@ -320,4 +320,3 @@ class _ProjectCard extends StatelessWidget {
     );
   }
 }
-
