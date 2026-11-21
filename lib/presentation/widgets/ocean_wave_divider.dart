@@ -1,5 +1,5 @@
-// หน้าที่หลัก: วาดคลื่นทะเลนิ่งซ้อนสองชั้นคั่นระหว่างพื้นหลังของ Section
-part of '../../main.dart';
+/// หน้าที่หลัก: วาดคลื่นทะเลนิ่งซ้อนสองชั้นคั่นระหว่าง Section
+part of '../portfolio_ui.dart';
 
 class _OceanWaveDivider extends StatelessWidget {
   const _OceanWaveDivider({required this.isDark, required this.isFooterEdge});

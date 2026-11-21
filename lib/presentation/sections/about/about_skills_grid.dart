@@ -1,5 +1,5 @@
-// หน้าที่หลัก: รวมกลุ่มทักษะทั้ง 3 ใน Surface ใบเดียวในคอลัมน์ขวา
-part of '../../../main.dart';
+/// หน้าที่หลัก: แสดงกลุ่มทักษะรวมใน Surface เดียว
+part of '../../portfolio_ui.dart';
 
 class _AboutSkillsGrid extends StatelessWidget {
   const _AboutSkillsGrid({required this.groups, required this.locale});

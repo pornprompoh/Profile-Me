@@ -1,12 +1,19 @@
-// หน้าที่หลัก: UI และตรรกะสำหรับส่วนนี้ของ Portfolio
-part of '../../../main.dart';
+/// หน้าที่หลัก: แสดงตัวกรอง หมวดหมู่ และ Grid ผลงาน
+part of '../../portfolio_ui.dart';
 
 class _Projects extends StatefulWidget {
-  const _Projects(this.projects, this.links, this.state, this.locale);
+  const _Projects(
+    this.projects,
+    this.links,
+    this.state,
+    this.locale, {
+    required this.accentKey,
+  });
   final List<Project> projects;
   final Links links;
   final AppState state;
   final AppLocale locale;
+  final Key accentKey;
 
   @override
   State<_Projects> createState() => _ProjectsState();
@@ -38,6 +45,7 @@ class _ProjectsState extends State<_Projects> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SectionHeader(
+            accentKey: widget.accentKey,
             title: widget.locale == AppLocale.th ? 'ผลงาน' : 'Projects',
             subtitle: widget.locale == AppLocale.th
                 ? 'เลือกดูผลงานตามหมวดหมู่'

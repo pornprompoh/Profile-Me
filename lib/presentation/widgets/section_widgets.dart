@@ -43,21 +43,30 @@ class SectionContainer extends StatelessWidget {
 }
 
 class SectionHeader extends StatelessWidget {
-  const SectionHeader({required this.title, required this.subtitle, super.key});
+  const SectionHeader({
+    required this.title,
+    required this.subtitle,
+    this.accentKey,
+    super.key,
+  });
 
   final String title;
   final String subtitle;
+  final Key? accentKey;
 
   @override
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Container(
-        width: 52,
-        height: 4,
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primary,
-          borderRadius: BorderRadius.circular(2),
+      KeyedSubtree(
+        key: accentKey,
+        child: Container(
+          width: 52,
+          height: 4,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primary,
+            borderRadius: BorderRadius.circular(2),
+          ),
         ),
       ),
       const SizedBox(height: 12),

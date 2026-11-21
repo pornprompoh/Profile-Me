@@ -1,4 +1,6 @@
-// หน้าที่หลัก: อ่านและเขียนการตั้งค่าแอปผ่าน browser localStorage
+/// หน้าที่หลัก: อ่านและเขียนการตั้งค่าแอปผ่าน browser localStorage
+library;
+
 import 'package:flutter/material.dart';
 import 'package:web/web.dart' as web;
 
@@ -19,6 +21,14 @@ class LocalStorageService {
     try {
       web.window.localStorage.setItem(key, value);
     } catch (_) {}
+  }
+
+  static void writeLocale(AppLocale locale) {
+    write('profile_locale', locale == AppLocale.th ? 'th' : 'en');
+  }
+
+  static void writeTheme(ThemeMode themeMode) {
+    write('profile_theme', themeMode == ThemeMode.dark ? 'dark' : 'light');
   }
 
   static AppLocale initialLocale() {

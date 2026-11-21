@@ -1,5 +1,5 @@
-// หน้าที่หลัก: UI และตรรกะสำหรับส่วนนี้ของ Portfolio
-part of '../../main.dart';
+/// หน้าที่หลัก: ประกอบหน้า Portfolio และเชื่อม State เข้ากับ UI
+part of '../portfolio_ui.dart';
 
 class PortfolioPage extends StatefulWidget {
   const PortfolioPage({super.key});
@@ -13,6 +13,12 @@ class _PortfolioPageState extends State<PortfolioPage> {
   final scrollController = ScrollController();
   final revealMetricsRevision = ValueNotifier<int>(0);
   final scaffoldKey = GlobalKey<ScaffoldState>();
+  final navbarKey = GlobalKey();
+  final headerKeys = {
+    AppSection.about: GlobalKey(),
+    AppSection.timeline: GlobalKey(),
+    AppSection.projects: GlobalKey(),
+  };
   final keys = {
     AppSection.home: GlobalKey(),
     AppSection.about: GlobalKey(),
@@ -20,16 +26,33 @@ class _PortfolioPageState extends State<PortfolioPage> {
     AppSection.projects: GlobalKey(),
     AppSection.contact: GlobalKey(),
   };
+
   Profile? profile;
   List<Project> projects = [];
   Links? links;
   bool loading = true;
+  late PortfolioScrollController _portfolioScrollController;
+  bool _scrollControllerInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    scrollController.addListener(_scrollSpy);
     _load();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_scrollControllerInitialized) return;
+    _portfolioScrollController = PortfolioScrollController(
+      scrollController: scrollController,
+      activeSection: AppStateScope.of(context).activeSection,
+      sectionKeys: keys,
+      headerKeys: headerKeys,
+      navbarKey: navbarKey,
+      viewportWidth: () => MediaQuery.sizeOf(context).width,
+    );
+    _scrollControllerInitialized = true;
   }
 
   Future<void> _load() async {
@@ -50,56 +73,17 @@ class _PortfolioPageState extends State<PortfolioPage> {
     }
   }
 
-  void _scrollSpy() {
-    final state = _StateScope.of(context);
-    AppSection closest = AppSection.home;
-    var distance = double.infinity;
-    for (final entry in keys.entries) {
-      final box = entry.value.currentContext?.findRenderObject() as RenderBox?;
-      if (box == null) continue;
-      final position = box.localToGlobal(Offset.zero).dy;
-      final value = (position - 120).abs();
-      if (value < distance) {
-        distance = value;
-        closest = entry.key;
-      }
-    }
-    if (state.activeSection.value != closest) {
-      state.activeSection.value = closest;
-    }
-  }
-
-  Future<void> _scrollTo(AppSection section) async {
-    final state = _StateScope.of(context);
-    state.activeSection.value = section;
-    await WidgetsBinding.instance.endOfFrame;
-    if (!mounted) return;
-
-    final targetContext = keys[section]?.currentContext;
-    final box = targetContext?.findRenderObject() as RenderBox?;
-    if (box != null && scrollController.hasClients) {
-      final top =
-          box.localToGlobal(Offset.zero).dy +
-          scrollController.offset -
-          LayoutTokens.navbarHeight -
-          8;
-      final maxScroll = scrollController.position.maxScrollExtent;
-      await scrollController.animateTo(
-        top.clamp(0.0, maxScroll),
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.easeOutCubic,
-      );
-    }
-    if (mounted && section == AppSection.home) {
-      state.activeSection.value = AppSection.home;
-    }
-    if (scaffoldKey.currentState?.isEndDrawerOpen ?? false) {
-      scaffoldKey.currentState?.closeEndDrawer();
-    }
+  Future<void> _scrollTo(AppSection section, [bool fromDrawer = false]) async {
+    await _portfolioScrollController.scrollTo(
+      section,
+      context,
+      fromDrawer: fromDrawer,
+    );
   }
 
   @override
   void dispose() {
+    _portfolioScrollController.dispose();
     scrollController.dispose();
     revealMetricsRevision.dispose();
     super.dispose();
@@ -107,21 +91,18 @@ class _PortfolioPageState extends State<PortfolioPage> {
 
   @override
   Widget build(BuildContext context) {
-    final state = _StateScope.of(context);
+    final state = AppStateScope.of(context);
     if (loading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     if (profile == null || links == null) {
       return Scaffold(
         body: Center(
-          child: Text(
-            state.locale.value == AppLocale.th
-                ? 'ไม่สามารถโหลดข้อมูลได้'
-                : 'Unable to load content',
-          ),
+          child: Text(AppStrings.contentLoadError(state.locale.value)),
         ),
       );
     }
+
     return ValueListenableBuilder<AppLocale>(
       valueListenable: state.locale,
       builder: (context, locale, _) => Scaffold(
@@ -133,83 +114,115 @@ class _PortfolioPageState extends State<PortfolioPage> {
           onNavigate: _scrollTo,
           onPdf: () => _downloadPdf(state, locale),
         ),
-        body: _ScrollRevealScope(
-          controller: scrollController,
-          metricsRevision: revealMetricsRevision,
-          child: NotificationListener<ScrollMetricsNotification>(
-            onNotification: (_) {
-              revealMetricsRevision.value++;
+        body: Listener(
+          onPointerSignal: (event) {
+            if (event is PointerScrollEvent) {
+              _portfolioScrollController.interruptProgrammaticScroll();
+            }
+          },
+          child: NotificationListener<ScrollNotification>(
+            onNotification: (notification) {
+              if (notification is UserScrollNotification &&
+                  notification.direction != ScrollDirection.idle) {
+                _portfolioScrollController.interruptProgrammaticScroll();
+              } else if (notification is ScrollUpdateNotification &&
+                  notification.dragDetails != null) {
+                _portfolioScrollController.interruptProgrammaticScroll();
+              }
               return false;
             },
-            child: CustomScrollView(
+            child: _ScrollRevealScope(
               controller: scrollController,
-              slivers: [
-                SliverPersistentHeader(
-                  pinned: true,
-                  delegate: _NavbarDelegate(
-                    minHeight: 72,
-                    maxHeight: 72,
-                    child: _Navbar(
-                      state: state,
-                      locale: locale,
-                      brandName: profile!.englishFirstName,
-                      onNavigate: _scrollTo,
-                      onPdf: () => _downloadPdf(state, locale),
-                    ),
-                  ),
-                ),
-                SliverToBoxAdapter(
-                  child: Column(
-                    children: [
-                      _Section(
-                        key: keys[AppSection.home],
-                        child: _Hero(
-                          profile!,
-                          locale,
-                          onProjects: () {
-                            _scrollTo(AppSection.projects);
-                          },
-                          onContact: () {
-                            _scrollTo(AppSection.contact);
-                          },
-                        ),
-                      ),
-                      _OceanWaveDivider(
-                        isDark: Theme.of(context).brightness == Brightness.dark,
-                        isFooterEdge: false,
-                      ),
-                      _Section(
-                        key: keys[AppSection.about],
-                        child: _About(profile!, locale),
-                      ),
-                      _Section(
-                        key: keys[AppSection.timeline],
-                        child: _Timeline(profile!, locale),
-                      ),
-                      _Section(
-                        key: keys[AppSection.projects],
-                        child: _Projects(projects, links!, state, locale),
-                      ),
-                      _BackToTopButton(
-                        locale: locale,
-                        onPressed: () => _scrollTo(AppSection.home),
-                      ),
-                      _OceanWaveDivider(
-                        isDark: Theme.of(context).brightness == Brightness.dark,
-                        isFooterEdge: true,
-                      ),
-                      _Section(
-                        key: keys[AppSection.contact],
-                        child: _Footer(
-                          profile: profile!,
-                          links: links!,
+              metricsRevision: revealMetricsRevision,
+              child: NotificationListener<ScrollMetricsNotification>(
+                onNotification: (_) {
+                  revealMetricsRevision.value++;
+                  return false;
+                },
+                child: CustomScrollView(
+                  controller: scrollController,
+                  slivers: [
+                    SliverPersistentHeader(
+                      pinned: true,
+                      delegate: _NavbarDelegate(
+                        minHeight: 72,
+                        maxHeight: 72,
+                        child: _Navbar(
+                          key: navbarKey,
+                          state: state,
                           locale: locale,
+                          brandName: profile!.englishFirstName,
+                          onNavigate: _scrollTo,
+                          onPdf: () => _downloadPdf(state, locale),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                    SliverToBoxAdapter(
+                      child: Column(
+                        children: [
+                          _Section(
+                            key: keys[AppSection.home],
+                            child: _Hero(
+                              profile!,
+                              locale,
+                              onProjects: () => _scrollTo(AppSection.projects),
+                              onContact: () => _scrollTo(AppSection.contact),
+                            ),
+                          ),
+                          _OceanWaveDivider(
+                            isDark:
+                                Theme.of(context).brightness == Brightness.dark,
+                            isFooterEdge: false,
+                          ),
+                          _Section(
+                            key: keys[AppSection.about],
+                            child: _About(
+                              profile!,
+                              locale,
+                              accentKey: headerKeys[AppSection.about]!,
+                            ),
+                          ),
+                          _Section(
+                            key: keys[AppSection.timeline],
+                            child: _Timeline(
+                              profile!,
+                              locale,
+                              accentKey: headerKeys[AppSection.timeline]!,
+                            ),
+                          ),
+                          _Section(
+                            key: keys[AppSection.projects],
+                            child: _Projects(
+                              projects,
+                              links!,
+                              state,
+                              locale,
+                              accentKey: headerKeys[AppSection.projects]!,
+                            ),
+                          ),
+                          _BackToTopButton(
+                            locale: locale,
+                            onPressed: () => _scrollTo(AppSection.home),
+                          ),
+                          _OceanWaveDivider(
+                            isDark:
+                                Theme.of(context).brightness == Brightness.dark,
+                            isFooterEdge: true,
+                          ),
+                          _Section(
+                            key: keys[AppSection.contact],
+                            child: _Footer(
+                              profile: profile!,
+                              links: links!,
+                              locale: locale,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ),

@@ -1,5 +1,5 @@
-// หน้าที่หลัก: วาดแบนเนอร์ Ocean, ลายน้ำชื่อจริง และ Dot Grid แบบนิ่ง
-part of '../../../main.dart';
+/// หน้าที่หลัก: วาดพื้นหลัง Ocean, ลายน้ำชื่อ และ Dot Grid
+part of '../../portfolio_ui.dart';
 
 class _HeroOceanBackdrop extends StatelessWidget {
   const _HeroOceanBackdrop({required this.isDark, required this.watermark});

@@ -1,5 +1,5 @@
-// หน้าที่หลัก: UI และตรรกะสำหรับส่วนนี้ของ Portfolio
-part of '../../../main.dart';
+/// หน้าที่หลัก: ประกอบ Hero Banner ข้อมูลโปรไฟล์ และปุ่ม CTA
+part of '../../portfolio_ui.dart';
 
 class _Hero extends StatelessWidget {
   const _Hero(

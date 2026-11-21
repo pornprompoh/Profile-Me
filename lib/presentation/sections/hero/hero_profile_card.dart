@@ -1,5 +1,5 @@
-// หน้าที่หลัก: แสดงภาพโปรไฟล์แนวตั้งพร้อม Caption และเปิด Lightbox
-part of '../../../main.dart';
+/// หน้าที่หลัก: แสดงภาพโปรไฟล์พร้อม Caption และเปิด Lightbox
+part of '../../portfolio_ui.dart';
 
 class _HeroProfileCard extends StatelessWidget {
   const _HeroProfileCard({

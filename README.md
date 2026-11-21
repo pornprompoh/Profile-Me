@@ -15,38 +15,70 @@
 ```text
 .
 ├── lib/
-│   ├── main.dart                    # Entry point เท่านั้น
+│   ├── main.dart                    # จุดเริ่มต้นแอปพลิเคชัน
 │   ├── app/
-│   │   ├── app_bootstrap.dart       # สร้าง Controller และค่าเริ่มต้น
+│   │   ├── app_bootstrap.dart       # สร้างค่าเริ่มต้นของแอป
 │   │   └── portfolio_app.dart       # ประกอบ MaterialApp และ Theme
 │   ├── core/
-│   │   ├── state/app_state.dart     # ValueNotifier ทั้งหมดของเว็บ
-│   │   ├── l10n/app_strings.dart    # ข้อความ UI สองภาษา
-│   │   ├── storage/local_storage_service.dart
-│   │   ├── theme/app_colors.dart
-│   │   ├── theme/app_theme.dart
-│   │   └── theme/layout_tokens.dart
+│   │   ├── l10n/app_strings.dart    # ข้อความ UI คงที่สองภาษา
+│   │   ├── state/
+│   │   │   ├── app_state.dart       # ValueNotifier ของแอป
+│   │   │   └── app_state_scope.dart # เข้าถึงสถานะจาก UI
+│   │   ├── storage/local_storage_service.dart # ภาษา/ธีมใน localStorage
+│   │   └── theme/
+│   │       ├── app_colors.dart      # ชุดสี Ocean Wave
+│   │       ├── app_theme.dart       # Light/Dark Theme
+│   │       └── layout_tokens.dart   # Breakpoints และ Layout Tokens
 │   ├── data/
-│   │   ├── models/                  # 1 Model ต่อ 1 ไฟล์
-│   │   └── repositories/content_repository.dart
-│   ├── services/pdf/resume_pdf_service.dart
+│   │   ├── models/
+│   │   │   ├── content_models.dart  # จุด export รวม Model
+│   │   │   ├── education_model.dart # ประวัติการศึกษา
+│   │   │   ├── experience_model.dart # ประสบการณ์ทำงาน
+│   │   │   ├── links_model.dart      # ลิงก์โซเชียล/โครงการ
+│   │   │   ├── localized_text.dart   # ข้อความไทย/อังกฤษ
+│   │   │   ├── profile_language_model.dart # ภาษาที่ใช้และระดับ
+│   │   │   ├── profile_model.dart    # ข้อมูลโปรไฟล์รวม
+│   │   │   ├── project_model.dart    # ข้อมูลและการเรียงผลงาน
+│   │   │   └── skill_group_model.dart # กลุ่มทักษะ
+│   │   └── repositories/
+│   │       └── content_repository.dart # โหลด JSON เป็น Models
+│   ├── services/
+│   │   └── pdf/
+│   │       └── resume_pdf_service.dart # สร้างและดาวน์โหลด Resume PDF
 │   └── presentation/
-│       ├── pages/portfolio_page.dart
-│       ├── navigation/portfolio_navigation.dart
-│       ├── sections/
-│       │   ├── hero/
-│       │   │   ├── hero_section.dart
-│       │   │   ├── hero_ocean_backdrop.dart
-│       │   │   └── hero_profile_card.dart
-│       │   ├── about/
-│       │   │   ├── about_section.dart
-│       │   │   ├── about_photo_card.dart
-│       │   │   └── about_skills_grid.dart
-│       │   ├── footer/footer_section.dart # Contact actions and copyright
+│       ├── portfolio_ui.dart        # รวม UI parts ใน Presentation layer
+│       ├── pages/
+│       │   ├── portfolio_page.dart    # ประกอบหน้า Portfolio
+│       │   └── portfolio_scroll_controller.dart # Scroll Spy/Smooth Scroll
+│       ├── navigation/
+│       │   ├── mobile_drawer.dart # เมนูนำทางบนมือถือ
+│       │   └── portfolio_navigation.dart # Sticky Navbar และ Resume Button
 │       ├── modals/
+│       │   ├── all_projects_modal.dart # หน้าต่างผลงานทั้งหมด
+│       │   ├── category_filter_bar.dart # ตัวกรองหมวดแนวนอน
+│       │   ├── image_lightbox_dialog.dart # แสดงภาพขยาย/ซูม
+│       │   └── project_modals.dart    # รายละเอียดโครงการ
+│       ├── sections/
+│       │   ├── about/
+│       │   │   ├── about_photo_card.dart # รูปใน About
+│       │   │   ├── about_section.dart # ประกอบ Section About
+│       │   │   └── about_skills_grid.dart # การ์ดทักษะ
+│       │   ├── footer/footer_section.dart # ช่องทางติดต่อและลิขสิทธิ์
+│       │   ├── hero/
+│       │   │   ├── hero_ocean_backdrop.dart # พื้นหลังและลายน้ำ
+│       │   │   ├── hero_profile_card.dart # รูป/แกลเลอรีโปรไฟล์
+│       │   │   └── hero_section.dart    # ประกอบ Section Hero
+│       │   ├── projects/
+│       │   │   ├── project_card.dart    # การ์ดโครงการ
+│       │   │   └── projects_section.dart # ตัวกรองและ Grid
+│       │   └── timeline/timeline_section.dart # เส้นเวลา
 │       └── widgets/
-│           ├── ocean_wave_divider.dart
-│           └── back_to_top_button.dart
+│           ├── back_to_top_button.dart # ปุ่มกลับด้านบน
+│           ├── brand_icon.dart          # ไอคอนแบรนด์
+│           ├── ocean_wave_divider.dart  # ตัวแบ่งคลื่นทะเล
+│           ├── project_link_button.dart # ลิงก์โครงการ
+│           ├── reveal_effects.dart      # Reveal/Hover effects
+│           └── section_widgets.dart     # Container และ Header กลาง
 ├── assets/my_content/
 │   ├── profile/profile.json
 │   ├── projects/projects.json
@@ -54,9 +86,10 @@
 │   ├── images/
 │   └── fonts/Sarabun-*.ttf
 ├── web/
-├── vercel.json
+├── .github/
 ├── scripts/
-└── .github/
+├── vercel.json
+└── pubspec.yaml
 ```
 
 ## การไหลของข้อมูลในระบบ
@@ -108,38 +141,70 @@ The project follows Clean/Layered Architecture with clear Single Responsibility 
 ```text
 .
 ├── lib/
-│   ├── main.dart                    # Application entry point only
+│   ├── main.dart                    # Application entry point
 │   ├── app/
-│   │   ├── app_bootstrap.dart       # Initial state/controller bootstrap
+│   │   ├── app_bootstrap.dart       # Creates initial app state
 │   │   └── portfolio_app.dart       # MaterialApp and theme wiring
 │   ├── core/
-│   │   ├── state/app_state.dart     # Portfolio ValueNotifiers
-│   │   ├── l10n/app_strings.dart    # Localized UI strings
-│   │   ├── storage/local_storage_service.dart
-│   │   ├── theme/app_colors.dart
-│   │   ├── theme/app_theme.dart
-│   │   └── theme/layout_tokens.dart
+│   │   ├── l10n/app_strings.dart    # Static localized UI strings
+│   │   ├── state/
+│   │   │   ├── app_state.dart       # App ValueNotifiers
+│   │   │   └── app_state_scope.dart # Access shared state from UI
+│   │   ├── storage/local_storage_service.dart # Locale/theme persistence
+│   │   └── theme/
+│   │       ├── app_colors.dart      # Ocean Wave palette
+│   │       ├── app_theme.dart       # Light/Dark Theme
+│   │       └── layout_tokens.dart   # Breakpoints and layout tokens
 │   ├── data/
-│   │   ├── models/                  # One model per file
-│   │   └── repositories/content_repository.dart
-│   ├── services/pdf/resume_pdf_service.dart
+│   │   ├── models/
+│   │   │   ├── content_models.dart  # Model export barrel
+│   │   │   ├── education_model.dart # Education records
+│   │   │   ├── experience_model.dart # Work experience
+│   │   │   ├── links_model.dart      # Social and project links
+│   │   │   ├── localized_text.dart   # Thai/English text
+│   │   │   ├── profile_language_model.dart # Languages and proficiency
+│   │   │   ├── profile_model.dart    # Combined profile data
+│   │   │   ├── project_model.dart    # Project data and sorting
+│   │   │   └── skill_group_model.dart # Skill groups
+│   │   └── repositories/
+│   │       └── content_repository.dart # JSON loading and model mapping
+│   ├── services/
+│   │   └── pdf/
+│   │       └── resume_pdf_service.dart # Resume PDF generation/download
 │   └── presentation/
-│       ├── pages/portfolio_page.dart
-│       ├── navigation/portfolio_navigation.dart
-│       ├── sections/
-│       │   ├── hero/
-│       │   │   ├── hero_section.dart
-│       │   │   ├── hero_ocean_backdrop.dart
-│       │   │   └── hero_profile_card.dart
-│       │   ├── about/
-│       │   │   ├── about_section.dart
-│       │   │   ├── about_photo_card.dart
-│       │   │   └── about_skills_grid.dart
-│       │   ├── footer/footer_section.dart # Contact actions and copyright
+│       ├── portfolio_ui.dart        # Presentation-layer UI parts library
+│       ├── pages/
+│       │   ├── portfolio_page.dart    # Portfolio page composition
+│       │   └── portfolio_scroll_controller.dart # Scroll Spy/Smooth Scroll
+│       ├── navigation/
+│       │   ├── mobile_drawer.dart # Mobile navigation drawer
+│       │   └── portfolio_navigation.dart # Sticky Navbar and Resume Button
 │       ├── modals/
+│       │   ├── all_projects_modal.dart # All projects dialog
+│       │   ├── category_filter_bar.dart # Horizontal category filter
+│       │   ├── image_lightbox_dialog.dart # Zoomable image viewer
+│       │   └── project_modals.dart    # Project details dialog
+│       ├── sections/
+│       │   ├── about/
+│       │   │   ├── about_photo_card.dart # About portrait
+│       │   │   ├── about_section.dart # About section composition
+│       │   │   └── about_skills_grid.dart # Skills card
+│       │   ├── footer/footer_section.dart # Contact and copyright
+│       │   ├── hero/
+│       │   │   ├── hero_ocean_backdrop.dart # Ocean background and watermark
+│       │   │   ├── hero_profile_card.dart # Profile portrait/gallery
+│       │   │   └── hero_section.dart    # Hero section composition
+│       │   ├── projects/
+│       │   │   ├── project_card.dart    # Project card
+│       │   │   └── projects_section.dart # Filters and responsive grid
+│       │   └── timeline/timeline_section.dart # Timeline section
 │       └── widgets/
-│           ├── ocean_wave_divider.dart
-│           └── back_to_top_button.dart
+│           ├── back_to_top_button.dart # Back-to-top control
+│           ├── brand_icon.dart          # Brand icons
+│           ├── ocean_wave_divider.dart  # Ocean divider
+│           ├── project_link_button.dart # Project link control
+│           ├── reveal_effects.dart      # Reveal/hover effects
+│           └── section_widgets.dart     # Shared section container/header
 ├── assets/my_content/
 │   ├── profile/profile.json
 │   ├── projects/projects.json
@@ -147,9 +212,10 @@ The project follows Clean/Layered Architecture with clear Single Responsibility 
 │   ├── images/
 │   └── fonts/Sarabun-*.ttf
 ├── web/
-├── vercel.json
+├── .github/
 ├── scripts/
-└── .github/
+├── vercel.json
+└── pubspec.yaml
 ```
 
 ## Data Flow

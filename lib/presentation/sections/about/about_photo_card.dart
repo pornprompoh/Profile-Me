@@ -1,5 +1,5 @@
-// หน้าที่หลัก: แสดงรูปประกอบนิ่งๆ ฝั่งซ้ายของบล็อก About
-part of '../../../main.dart';
+/// หน้าที่หลัก: แสดงรูปประกอบนิ่งทางฝั่งซ้ายของ About
+part of '../../portfolio_ui.dart';
 
 class _AboutPhotoCard extends StatelessWidget {
   const _AboutPhotoCard({required this.profile});
