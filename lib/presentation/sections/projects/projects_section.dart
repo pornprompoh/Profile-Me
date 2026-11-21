@@ -98,19 +98,21 @@ class _ProjectsState extends State<_Projects> {
                       final visibleProjects = filtered
                           .take(visibleLimit)
                           .toList();
-                      final cardHeight = width < LayoutTokens.mobileBreakpoint
-                          ? 560.0
-                          : (width <= LayoutTokens.tabletBreakpoint
-                                ? 560.0
-                                : 540.0);
+                      final cardWidth =
+                          (width -
+                              LayoutTokens.projectGridSpacing * (columns - 1)) /
+                          columns;
                       return GridView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: columns,
-                          mainAxisSpacing: 18,
-                          crossAxisSpacing: 18,
-                          mainAxisExtent: cardHeight,
+                          mainAxisSpacing: LayoutTokens.projectGridSpacing,
+                          crossAxisSpacing: LayoutTokens.projectGridSpacing,
+                          mainAxisExtent: LayoutTokens.projectCardExtent(
+                            cardWidth,
+                            compact: width < LayoutTokens.mobileBreakpoint,
+                          ),
                         ),
                         itemCount: visibleProjects.length,
                         itemBuilder: (context, i) => _ScrollReveal(
@@ -124,13 +126,12 @@ class _ProjectsState extends State<_Projects> {
                       );
                     },
                   ),
-                  Builder(
-                    builder: (context) {
-                      final width = MediaQuery.sizeOf(context).width;
+                  LayoutBuilder(
+                    builder: (context, constraints) {
                       final visibleLimit = LayoutTokens.projectVisibleLimit(
-                        width,
+                        constraints.maxWidth,
                       );
-                      if (filtered.length < visibleLimit) {
+                      if (filtered.length <= visibleLimit) {
                         return const SizedBox.shrink();
                       }
                       return Padding(
@@ -200,124 +201,3 @@ class _ProjectsState extends State<_Projects> {
     );
   }
 }
-
-class _ProjectCard extends StatelessWidget {
-  const _ProjectCard({
-    required this.project,
-    required this.links,
-    required this.locale,
-  });
-  final Project project;
-  final Links links;
-  final AppLocale locale;
-
-  @override
-  Widget build(BuildContext context) {
-    final githubLink = links.projectLinks.cast<ProjectLink?>().firstWhere(
-      (link) =>
-          link != null &&
-          link.projectId == project.id &&
-          link.type.toLowerCase() == 'github',
-      orElse: () => null,
-    );
-    final accent = Theme.of(context).brightness == Brightness.dark
-        ? AppTheme.darkAccent
-        : AppTheme.primary;
-    return _HoverWrapper(
-      child: Card(
-        clipBehavior: Clip.antiAlias,
-        margin: EdgeInsets.zero,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(LayoutTokens.cardRadius),
-          side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
-        ),
-        child: InkWell(
-          onTap: () => showDialog<void>(
-            context: context,
-            barrierDismissible: true,
-            builder: (_) =>
-                _ProjectModal(project: project, links: links, locale: locale),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AspectRatio(
-                aspectRatio: 16 / 9,
-                child: project.images.isNotEmpty
-                    ? Image.asset(
-                        project.images.first,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, _, _) =>
-                            const ColoredBox(color: AppTheme.sky),
-                      )
-                    : const ColoredBox(color: AppTheme.sky),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(LayoutTokens.cardPadding),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        locale == AppLocale.th
-                            ? project.category.th
-                            : project.category.en,
-                        style: Theme.of(
-                          context,
-                        ).textTheme.labelLarge?.copyWith(color: accent),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        locale == AppLocale.th
-                            ? project.title.th
-                            : project.title.en,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontSize: LayoutTokens.cardTitleSize(context),
-                          fontWeight: FontWeight.w700,
-                          height: 1.25,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        locale == AppLocale.th
-                            ? project.summary.th
-                            : project.summary.en,
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 12),
-                      Wrap(
-                        spacing: 6,
-                        runSpacing: 6,
-                        children: [
-                          for (final tag in project.tags.take(4))
-                            Chip(
-                              label: Text(tag),
-                              visualDensity: VisualDensity.compact,
-                            ),
-                        ],
-                      ),
-                      if (githubLink != null) ...[
-                        const SizedBox(height: 10),
-                        ProjectLinkButton(
-                          link: githubLink,
-                          locale: locale,
-                          compact: true,
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-

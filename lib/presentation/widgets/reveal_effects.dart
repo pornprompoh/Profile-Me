@@ -10,6 +10,22 @@ class _Section extends StatelessWidget {
       SizedBox(width: double.infinity, child: child);
 }
 
+class _ScrollRevealScope extends InheritedWidget {
+  const _ScrollRevealScope({
+    required this.controller,
+    required this.metricsRevision,
+    required super.child,
+  });
+
+  final ScrollController controller;
+  final ValueNotifier<int> metricsRevision;
+
+  @override
+  bool updateShouldNotify(_ScrollRevealScope oldWidget) =>
+      oldWidget.controller != controller ||
+      oldWidget.metricsRevision != metricsRevision;
+}
+
 class _ScrollReveal extends StatefulWidget {
   const _ScrollReveal({required this.child, this.delay = Duration.zero});
   final Widget child;
@@ -29,17 +45,96 @@ class _ScrollRevealState extends State<_ScrollReveal>
     parent: controller,
     curve: Curves.easeOutCubic,
   );
+  ScrollController? _scrollController;
+  ValueNotifier<int>? _metricsRevision;
+  Timer? _settleTimer;
+  Timer? _initialGuardTimer;
+  late double _viewportHeight;
+  bool _started = false;
+  bool _checkScheduled = false;
 
   @override
   void initState() {
     super.initState();
-    Future.delayed(widget.delay, () {
+    // ตรวจซ้ำหลัง layout รอบแรก เผื่อ ScrollMetrics พร้อมช้ากว่า frame แรก
+    _initialGuardTimer = Timer(
+      const Duration(milliseconds: 700),
+      _scheduleVisibilityCheck,
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _viewportHeight = MediaQuery.sizeOf(context).height;
+    final scope = context
+        .dependOnInheritedWidgetOfExactType<_ScrollRevealScope>();
+    final controller = scope?.controller;
+    if (!identical(controller, _scrollController)) {
+      _scrollController?.removeListener(_startWhenVisible);
+      _scrollController?.removeListener(_onScrollChanged);
+      _scrollController = controller;
+      _scrollController?.addListener(_onScrollChanged);
+    }
+    if (!identical(scope?.metricsRevision, _metricsRevision)) {
+      _metricsRevision?.removeListener(_scheduleVisibilityCheck);
+      _metricsRevision = scope?.metricsRevision;
+      _metricsRevision?.addListener(_scheduleVisibilityCheck);
+    }
+    _scheduleVisibilityCheck();
+  }
+
+  void _onScrollChanged() {
+    _scheduleVisibilityCheck();
+    _settleTimer?.cancel();
+    _settleTimer = Timer(
+      const Duration(milliseconds: 180),
+      _scheduleVisibilityCheck,
+    );
+  }
+
+  void _scheduleVisibilityCheck() {
+    if (_started || !mounted || _checkScheduled) return;
+    _checkScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkScheduled = false;
+      _startWhenVisible();
+    });
+  }
+
+  void _startWhenVisible() {
+    if (_started || !mounted) return;
+    final renderObject = context.findRenderObject();
+    if (renderObject is! RenderBox || !renderObject.hasSize) return;
+    final top = renderObject.localToGlobal(Offset.zero).dy;
+    final bottom = top + renderObject.size.height;
+    final intersectsViewport =
+        bottom > LayoutTokens.navbarHeight && top < _viewportHeight;
+    final alreadyPassed = bottom <= LayoutTokens.navbarHeight;
+    // เมื่อข้ามส่วนนี้ไปแล้วหรืออยู่ท้ายหน้า ให้เริ่มแอนิเมชันแทนการค้างโปร่งใส
+    final atPageEnd =
+        _scrollController?.hasClients == true &&
+        _scrollController!.position.pixels >=
+            _scrollController!.position.maxScrollExtent - 1 &&
+        top < _viewportHeight;
+    if (!intersectsViewport && !alreadyPassed && !atPageEnd) return;
+
+    _started = true;
+    _initialGuardTimer?.cancel();
+    _settleTimer?.cancel();
+    _scrollController?.removeListener(_onScrollChanged);
+    _metricsRevision?.removeListener(_scheduleVisibilityCheck);
+    Future<void>.delayed(widget.delay, () {
       if (mounted) controller.forward();
     });
   }
 
   @override
   void dispose() {
+    _initialGuardTimer?.cancel();
+    _settleTimer?.cancel();
+    _scrollController?.removeListener(_onScrollChanged);
+    _metricsRevision?.removeListener(_scheduleVisibilityCheck);
     controller.dispose();
     super.dispose();
   }
@@ -85,41 +180,3 @@ class _HoverWrapperState extends State<_HoverWrapper> {
     ),
   );
 }
-
-class _ProfileImage extends StatelessWidget {
-  const _ProfileImage(this.path, {required this.size, required this.onTap});
-  final String path;
-  final double size;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) => InkWell(
-    onTap: path.isEmpty
-        ? null
-        : () => showDialog<void>(
-            context: context,
-            barrierDismissible: true,
-            builder: (_) => _Lightbox(images: [path]),
-          ),
-    borderRadius: BorderRadius.circular(size / 2),
-    child: Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(color: AppTheme.sky, width: 8),
-      ),
-      child: ClipOval(
-        child: path.isNotEmpty
-            ? Image.asset(
-                path,
-                fit: BoxFit.cover,
-                errorBuilder: (_, _, _) =>
-                    const ColoredBox(color: AppTheme.sky),
-              )
-            : const ColoredBox(color: AppTheme.sky),
-      ),
-    ),
-  );
-}
-

@@ -213,24 +213,6 @@
     "updatedAt": "2026-02-17"
   },
   {
-    "id": "valentineday-mook",
-    "title": { "th": "ValentineDay_Mook", "en": "ValentineDay_Mook" },
-    "category": { "th": "ต้นแบบ / ข้อมูลจำกัด", "en": "Prototype" },
-    "summary": {
-      "th": "มี README ระบุชื่อโปรเจกต์ แต่ไม่พบโค้ดหรือรายละเอียดฟังก์ชัน",
-      "en": "The README names the project, but no source code or feature details were found."
-    },
-    "description": {
-      "th": "Repository มีเพียง README ที่ระบุชื่อโปรเจกต์ จึงยังไม่สามารถยืนยันประเภทแอปหรือความสามารถจากไฟล์ที่พบได้",
-      "en": "The repository contains only a README naming the project, so its application type and capabilities cannot be verified from the available files."
-    },
-    "highlights": [],
-    "tags": [],
-    "images": ["assets/my_content/images/projects/placeholder_prototype.png"],
-    "featured": false,
-    "updatedAt": "2026-02-14"
-  },
-  {
     "id": "lalalalalala",
     "title": { "th": "lalalalalala", "en": "lalalalalala" },
     "category": { "th": "เว็บแอป", "en": "Web App" },

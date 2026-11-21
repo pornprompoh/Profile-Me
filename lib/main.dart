@@ -6,6 +6,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'core/state/app_state.dart';
 import 'core/storage/local_storage_service.dart';
+import 'core/l10n/app_strings.dart';
+import 'core/theme/app_colors.dart';
 import 'core/theme/app_theme.dart';
 import 'data/models/content_models.dart';
 import 'data/repositories/content_repository.dart';
@@ -21,12 +23,19 @@ part 'app/portfolio_app.dart';
 part 'presentation/pages/portfolio_page.dart';
 part 'presentation/navigation/portfolio_navigation.dart';
 part 'presentation/widgets/reveal_effects.dart';
+part 'presentation/widgets/ocean_wave_divider.dart';
 part 'presentation/sections/hero/hero_section.dart';
+part 'presentation/sections/hero/hero_ocean_backdrop.dart';
+part 'presentation/sections/hero/hero_profile_card.dart';
 part 'presentation/sections/about/about_section.dart';
+part 'presentation/sections/about/about_photo_card.dart';
+part 'presentation/sections/about/about_skills_grid.dart';
 part 'presentation/sections/timeline/timeline_section.dart';
 part 'presentation/sections/projects/projects_section.dart';
+part 'presentation/sections/projects/project_card.dart';
 part 'presentation/modals/project_modals.dart';
-part 'presentation/sections/contact/contact_footer.dart';
+part 'presentation/sections/footer/footer_section.dart';
+part 'presentation/widgets/back_to_top_button.dart';
 
 // หน้าที่หลัก: จุดเริ่มต้นของแอปพลิเคชัน
 void main() {

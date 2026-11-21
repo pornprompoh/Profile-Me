@@ -16,20 +16,31 @@ class _Hero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final isMobile = width < LayoutTokens.mobileBreakpoint;
+    final isStacked = width < 720;
+    final isCompact = width < 900;
     final name = locale == AppLocale.th ? profile.names.th : profile.names.en;
     final role = locale == AppLocale.th ? profile.roles.th : profile.roles.en;
+    final caption = AppStrings.profileCaption(locale);
+    final tagline =
+        (locale == AppLocale.th
+                ? profile.heroTagline.th
+                : profile.heroTagline.en)
+            .trim();
     final identity = _ScrollReveal(
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: isMobile
+        crossAxisAlignment: isStacked
             ? CrossAxisAlignment.center
             : CrossAxisAlignment.start,
         children: [
           Text(
-            locale == AppLocale.th ? 'สวัสดีครับ ผมชื่อ' : 'Hello, I am',
-            style: Theme.of(context).textTheme.titleLarge,
-            textAlign: isMobile ? TextAlign.center : TextAlign.start,
+            locale == AppLocale.th ? 'สวัสดีครับ ผมชื่อ' : "Hello, I'm",
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              color: Colors.white.withValues(alpha: .88),
+            ),
+            textAlign: isStacked ? TextAlign.center : TextAlign.start,
           ),
           const SizedBox(height: 8),
           Text(
@@ -38,8 +49,9 @@ class _Hero extends StatelessWidget {
               fontSize: LayoutTokens.heroNameSize(context),
               height: 1.12,
               fontWeight: FontWeight.w800,
+              color: Colors.white,
             ),
-            textAlign: isMobile ? TextAlign.center : TextAlign.start,
+            textAlign: isStacked ? TextAlign.center : TextAlign.start,
           ),
           const SizedBox(height: 8),
           Text(
@@ -47,15 +59,26 @@ class _Hero extends StatelessWidget {
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
               fontSize: LayoutTokens.heroRoleSize(context),
               height: 1.35,
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? AppTheme.darkAccent
-                  : AppTheme.primary,
+              color: AppColors.darkAccent,
             ),
-            textAlign: isMobile ? TextAlign.center : TextAlign.start,
+            textAlign: isStacked ? TextAlign.center : TextAlign.start,
           ),
-          const SizedBox(height: 22),
+          if (tagline.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            Text(
+              tagline,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: Colors.white.withValues(alpha: .78),
+                fontSize: 15,
+              ),
+              textAlign: isStacked ? TextAlign.center : TextAlign.start,
+            ),
+          ],
+          const SizedBox(height: 20),
           Wrap(
-            alignment: WrapAlignment.center,
+            alignment: isStacked ? WrapAlignment.center : WrapAlignment.start,
             spacing: 12,
             runSpacing: 12,
             children: [
@@ -63,6 +86,8 @@ class _Hero extends StatelessWidget {
                 onPressed: onProjects,
                 icon: const Icon(Icons.grid_view_rounded),
                 style: FilledButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: AppColors.lightOceanDeep,
                   minimumSize: const Size(0, LayoutTokens.touchTarget),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 18,
@@ -82,6 +107,8 @@ class _Hero extends StatelessWidget {
                 onPressed: onContact,
                 icon: const Icon(Icons.mail_outline),
                 style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  side: BorderSide(color: Colors.white.withValues(alpha: .48)),
                   minimumSize: const Size(0, LayoutTokens.touchTarget),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 18,
@@ -106,36 +133,26 @@ class _Hero extends StatelessWidget {
       delay: const Duration(milliseconds: 120),
       child: _HoverWrapper(
         lift: 8,
-        child: _ProfileImage(
-          profile.profileImage,
-          size: isMobile ? 220 : 280,
-          onTap: () {},
+        child: _HeroProfileCard(
+          paths: profile.profileImages.isNotEmpty
+              ? profile.profileImages
+              : (profile.profileImage.isNotEmpty
+                    ? [profile.profileImage]
+                    : const []),
+          width: isMobile ? 190 : (isCompact ? 220 : 260),
+          caption: caption,
         ),
       ),
     );
     return SectionContainer(
-      verticalPadding: isMobile ? 44 : LayoutTokens.sectionPadding(context),
+      verticalPadding: isStacked ? (isMobile ? 36 : 52) : (isCompact ? 56 : 64),
       background: IgnorePointer(
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              stops: const [0, .72, 1],
-              colors: [
-                Theme.of(
-                  context,
-                ).colorScheme.primaryContainer.withValues(alpha: .30),
-                Theme.of(
-                  context,
-                ).scaffoldBackgroundColor.withValues(alpha: .45),
-                Colors.transparent,
-              ],
-            ),
-          ),
+        child: _HeroOceanBackdrop(
+          isDark: isDark,
+          watermark: profile.englishNameWatermark,
         ),
       ),
-      child: isMobile
+      child: isStacked
           ? Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [image, const SizedBox(height: 24), identity],
@@ -143,11 +160,13 @@ class _Hero extends StatelessWidget {
           : Row(
               children: [
                 Expanded(child: identity),
-                const SizedBox(width: 48),
-                Expanded(child: Center(child: image)),
+                SizedBox(width: isCompact ? 32 : 48),
+                SizedBox(
+                  width: isCompact ? 264 : 304,
+                  child: Center(child: image),
+                ),
               ],
             ),
     );
   }
 }
-

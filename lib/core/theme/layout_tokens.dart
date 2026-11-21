@@ -20,6 +20,8 @@ class LayoutTokens {
   static const double drawerPadding = 16;
   static const double elementGap = 12;
   static const double touchTarget = 48;
+  static const double projectGridSpacing = 18;
+  static const double projectMinCardWidth = 280;
 
   static const double cardRadius = 20;
   static const double modalRadius = 24;
@@ -42,18 +44,23 @@ class LayoutTokens {
   static double heroNameSize(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
     if (width > tabletBreakpoint) return 52;
+    if (width < 840 && width >= mobileBreakpoint) return 38;
     if (width >= mobileBreakpoint) return 44;
     return 34;
   }
 
   static double heroRoleSize(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
-    return width >= tabletBreakpoint ? 24 : (width >= mobileBreakpoint ? 20 : 18);
+    return width >= tabletBreakpoint
+        ? 24
+        : (width >= mobileBreakpoint ? 20 : 18);
   }
 
   static double sectionTitleSize(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
-    return width >= tabletBreakpoint ? 36 : (width >= mobileBreakpoint ? 30 : 26);
+    return width >= tabletBreakpoint
+        ? 36
+        : (width >= mobileBreakpoint ? 30 : 26);
   }
 
   static double cardTitleSize(BuildContext context) {
@@ -62,14 +69,21 @@ class LayoutTokens {
   }
 
   static int projectVisibleLimit(double width) {
-    if (width > tabletBreakpoint) return 6;
-    if (width >= mobileBreakpoint) return 4;
-    return 3;
+    return switch (projectColumnCount(width)) {
+      1 => 3,
+      2 => 4,
+      _ => 6,
+    };
   }
 
   static int projectColumnCount(double width) {
-    if (width > tabletBreakpoint) return 3;
-    if (width >= mobileBreakpoint) return 2;
-    return 1;
+    final columns =
+        ((width + projectGridSpacing) /
+                (projectMinCardWidth + projectGridSpacing))
+            .floor();
+    return columns.clamp(1, 3).toInt();
   }
+
+  static double projectCardExtent(double cardWidth, {bool compact = false}) =>
+      compact ? cardWidth / 2 + 280 : cardWidth * 9 / 16 + 330;
 }

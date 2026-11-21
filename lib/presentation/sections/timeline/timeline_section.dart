@@ -8,17 +8,22 @@ class _Timeline extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasExperience = profile.experience.isNotEmpty;
     return SectionContainer(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SectionHeader(
             title: locale == AppLocale.th
-                ? 'ประวัติและประสบการณ์'
-                : 'Education & Experience',
+                ? (hasExperience ? 'ประวัติและประสบการณ์' : 'ประวัติการศึกษา')
+                : (hasExperience ? 'Education & Experience' : 'Education'),
             subtitle: locale == AppLocale.th
-                ? 'เส้นทางการเรียนรู้และการทำงาน'
-                : 'Learning and career journey',
+                ? (hasExperience
+                      ? 'เส้นทางการเรียนรู้และการทำงาน'
+                      : 'เส้นทางการเรียนรู้')
+                : (hasExperience
+                      ? 'Learning and career journey'
+                      : 'Academic background'),
           ),
           const SizedBox(height: 32),
           for (var i = 0; i < profile.education.length; i++)
@@ -34,6 +39,9 @@ class _Timeline extends StatelessWidget {
                   ? profile.education[i].details.th
                   : profile.education[i].details.en,
               education: true,
+              isLast:
+                  i == profile.education.length - 1 &&
+                  profile.experience.isEmpty,
               delay: Duration(milliseconds: i * 80),
             ),
           for (var i = 0; i < profile.experience.length; i++)
@@ -49,6 +57,7 @@ class _Timeline extends StatelessWidget {
                   ? profile.experience[i].details.th
                   : profile.experience[i].details.en,
               education: false,
+              isLast: i == profile.experience.length - 1,
               delay: Duration(
                 milliseconds: (i + profile.education.length) * 80,
               ),
@@ -66,6 +75,7 @@ class _TimelineItem extends StatelessWidget {
     required this.organization,
     required this.details,
     required this.education,
+    required this.isLast,
     required this.delay,
   });
   final String period;
@@ -73,77 +83,91 @@ class _TimelineItem extends StatelessWidget {
   final String organization;
   final String details;
   final bool education;
+  final bool isLast;
   final Duration delay;
 
   @override
-  Widget build(BuildContext context) => _ScrollReveal(
-    delay: delay,
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          width: 36,
-          child: Column(
-            children: [
-              Container(
-                width: 32,
-                height: 32,
-                decoration: const BoxDecoration(
-                  color: AppTheme.primary,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  education ? Icons.school : Icons.work,
-                  size: 17,
-                  color: Colors.white,
-                ),
-              ),
-              Container(width: 3, height: 120, color: AppTheme.sky),
-            ],
-          ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: _HoverWrapper(
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(18),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (period.isNotEmpty)
-                      Chip(
-                        label: Text(period),
-                        backgroundColor: Theme.of(
+  Widget build(BuildContext context) => Padding(
+    padding: EdgeInsets.only(bottom: isLast ? 0 : 18),
+    child: _ScrollReveal(
+      delay: delay,
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(
+              width: 36,
+              child: Column(
+                children: [
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      education ? Icons.school : Icons.work,
+                      size: 17,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    ),
+                  ),
+                  if (!isLast)
+                    Expanded(
+                      child: Container(
+                        width: 3,
+                        color: Theme.of(
                           context,
-                        ).colorScheme.primaryContainer,
+                        ).colorScheme.primary.withValues(alpha: .28),
                       ),
-                    if (title.isNotEmpty)
-                      Text(
-                        title,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    if (organization.isNotEmpty)
-                      Text(
-                        organization,
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(color: AppTheme.primary),
-                      ),
-                    if (details.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: Text(details),
-                      ),
-                  ],
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: _HoverWrapper(
+                child: Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(18),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (period.isNotEmpty)
+                          Chip(
+                            label: Text(period),
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.primaryContainer,
+                          ),
+                        if (title.isNotEmpty)
+                          Text(
+                            title,
+                            style: Theme.of(context).textTheme.titleLarge
+                                ?.copyWith(fontWeight: FontWeight.w700),
+                          ),
+                        if (organization.isNotEmpty)
+                          Text(
+                            organization,
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                          ),
+                        if (details.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Text(details),
+                          ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
+          ],
         ),
-      ],
+      ),
     ),
   );
 }
-

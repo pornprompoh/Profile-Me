@@ -11,6 +11,7 @@ class PortfolioPage extends StatefulWidget {
 class _PortfolioPageState extends State<PortfolioPage> {
   final repository = ContentRepository();
   final scrollController = ScrollController();
+  final revealMetricsRevision = ValueNotifier<int>(0);
   final scaffoldKey = GlobalKey<ScaffoldState>();
   final keys = {
     AppSection.home: GlobalKey(),
@@ -51,7 +52,6 @@ class _PortfolioPageState extends State<PortfolioPage> {
 
   void _scrollSpy() {
     final state = _StateScope.of(context);
-    state.showBackToTop.value = scrollController.offset > 350;
     AppSection closest = AppSection.home;
     var distance = double.infinity;
     for (final entry in keys.entries) {
@@ -90,6 +90,9 @@ class _PortfolioPageState extends State<PortfolioPage> {
         curve: Curves.easeOutCubic,
       );
     }
+    if (mounted && section == AppSection.home) {
+      state.activeSection.value = AppSection.home;
+    }
     if (scaffoldKey.currentState?.isEndDrawerOpen ?? false) {
       scaffoldKey.currentState?.closeEndDrawer();
     }
@@ -98,6 +101,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
   @override
   void dispose() {
     scrollController.dispose();
+    revealMetricsRevision.dispose();
     super.dispose();
   }
 
@@ -125,12 +129,19 @@ class _PortfolioPageState extends State<PortfolioPage> {
         endDrawer: _MobileDrawer(
           state: state,
           locale: locale,
+          brandName: profile!.englishFirstName,
           onNavigate: _scrollTo,
           onPdf: () => _downloadPdf(state, locale),
         ),
-        body: Stack(
-          children: [
-            CustomScrollView(
+        body: _ScrollRevealScope(
+          controller: scrollController,
+          metricsRevision: revealMetricsRevision,
+          child: NotificationListener<ScrollMetricsNotification>(
+            onNotification: (_) {
+              revealMetricsRevision.value++;
+              return false;
+            },
+            child: CustomScrollView(
               controller: scrollController,
               slivers: [
                 SliverPersistentHeader(
@@ -141,8 +152,9 @@ class _PortfolioPageState extends State<PortfolioPage> {
                     child: _Navbar(
                       state: state,
                       locale: locale,
+                      brandName: profile!.englishFirstName,
                       onNavigate: _scrollTo,
-                      socialLinks: links!.socialLinks,
+                      onPdf: () => _downloadPdf(state, locale),
                     ),
                   ),
                 ),
@@ -162,6 +174,10 @@ class _PortfolioPageState extends State<PortfolioPage> {
                           },
                         ),
                       ),
+                      _OceanWaveDivider(
+                        isDark: Theme.of(context).brightness == Brightness.dark,
+                        isFooterEdge: false,
+                      ),
                       _Section(
                         key: keys[AppSection.about],
                         child: _About(profile!, locale),
@@ -174,47 +190,28 @@ class _PortfolioPageState extends State<PortfolioPage> {
                         key: keys[AppSection.projects],
                         child: _Projects(projects, links!, state, locale),
                       ),
+                      _BackToTopButton(
+                        locale: locale,
+                        onPressed: () => _scrollTo(AppSection.home),
+                      ),
+                      _OceanWaveDivider(
+                        isDark: Theme.of(context).brightness == Brightness.dark,
+                        isFooterEdge: true,
+                      ),
                       _Section(
                         key: keys[AppSection.contact],
-                        child: _Contact(profile!, links!, state, locale),
+                        child: _Footer(
+                          profile: profile!,
+                          links: links!,
+                          locale: locale,
+                        ),
                       ),
-                      _Footer(profile: profile!, locale: locale),
                     ],
                   ),
                 ),
               ],
             ),
-            ValueListenableBuilder<bool>(
-              valueListenable: state.showBackToTop,
-              builder: (context, visible, _) => Positioned(
-                right: 24,
-                bottom: 24,
-                child: AnimatedOpacity(
-                  opacity: visible ? 1 : 0,
-                  duration: const Duration(milliseconds: 220),
-                  child: AnimatedScale(
-                    scale: visible ? 1 : .7,
-                    duration: const Duration(milliseconds: 220),
-                    child: _HoverWrapper(
-                      child: FloatingActionButton(
-                        onPressed: visible
-                            ? () => scrollController.animateTo(
-                                0,
-                                duration: const Duration(milliseconds: 700),
-                                curve: Curves.easeInOutCubic,
-                              )
-                            : null,
-                        tooltip: locale == AppLocale.th
-                            ? 'กลับขึ้นด้านบน'
-                            : 'Back to top',
-                        child: const Icon(Icons.keyboard_arrow_up),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

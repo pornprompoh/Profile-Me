@@ -6,6 +6,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:web/web.dart' as web;
 
 import '../../core/state/app_state.dart';
+import '../../core/l10n/app_strings.dart';
 import '../../data/models/content_models.dart';
 
 class ResumePdfService {
@@ -58,7 +59,7 @@ class ResumePdfService {
 
     final name = isThai ? profile.names.th : profile.names.en;
     final role = isThai ? profile.roles.th : profile.roles.en;
-    final bio = isThai ? profile.bio.th : profile.bio.en;
+    final bio = profile.resolvedBio(locale);
     final cleanName = name
         .replaceAll(RegExp(r'[<>:"/\\|?*\s]+'), '_')
         .replaceAll(RegExp(r'_+'), '_');
@@ -97,6 +98,14 @@ class ResumePdfService {
                     pw.UrlLink(
                       destination: 'mailto:${profile.email}',
                       child: text(profile.email, size: 9),
+                    ),
+                  if (profile.phone.isNotEmpty)
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.only(top: 5),
+                      child: text(
+                        '${AppStrings.phoneLabel(isThai ? AppLocale.th : AppLocale.en)}: ${profile.phone}',
+                        size: 9,
+                      ),
                     ),
                   for (final link in links.socialLinks.take(4))
                     pw.Padding(

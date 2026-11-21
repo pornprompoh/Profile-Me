@@ -16,5 +16,4 @@ class AppState {
     AppSection.home,
   );
   final ValueNotifier<bool> isGeneratingPdf = ValueNotifier(false);
-  final ValueNotifier<bool> showBackToTop = ValueNotifier(false);
 }
