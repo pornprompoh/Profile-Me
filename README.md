@@ -124,6 +124,10 @@ JSON ใน assets/my_content
 
 </details>
 
+## คู่มือ Deploy
+
+ดูขั้นตอน GitHub Actions CI และการตั้งค่า Production บน Vercel ที่ [DEPLOY_GUIDE.md](./DEPLOY_GUIDE.md)
+
 <details>
 <summary>🇬🇧 English — Architecture &amp; Project Structure (Click to expand/collapse)</summary>
 
