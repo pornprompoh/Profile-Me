@@ -111,17 +111,7 @@
   README มีเพียงชื่อโปรเจกต์; ระบุการเชื่อมต่อ gRPC และ MongoDB จากไฟล์กำหนด dependencies และโค้ด
 - **เทคโนโลยีหลักที่ใช้ (Tech Stack):** `JavaScript`, `React`, `Node.js`, `Express`, `gRPC`, `MongoDB`, `Mongoose`
 
-## 11. ValentineDay_Mook
-- **ชื่อโปรเจกต์:** `ValentineDay_Mook`
-- **ลิงก์ Repository:** [https://github.com/pornprompoh/ValentineDay_Mook](https://github.com/pornprompoh/ValentineDay_Mook)
-- **วันที่อัปเดตล่าสุด:** 2026-02-14
-- **หมวดหมู่ที่แนะนำ:** Prototype / ข้อมูลจำกัด
-- **สรุปจุดเด่นและสิ่งที่ทำได้:**
-  พบเพียง README ที่ระบุชื่อโปรเจกต์ โดยไม่พบไฟล์โค้ดหรือคำอธิบายฟังก์ชัน  
-  จึงยังไม่สามารถยืนยันประเภทแอปหรือความสามารถจาก Repository ได้
-- **เทคโนโลยีหลักที่ใช้ (Tech Stack):** ไม่พบไฟล์โค้ดหรือไฟล์กำหนด dependencies
-
-## 12. lalalalalala
+## 11. lalalalalala
 - **ชื่อโปรเจกต์:** `lalalalalala`
 - **ลิงก์ Repository:** [https://github.com/pornprompoh/lalalalalala](https://github.com/pornprompoh/lalalalalala)
 - **วันที่อัปเดตล่าสุด:** 2025-12-04
@@ -131,7 +121,7 @@
   README มีเพียงชื่อ Repository จึงอ้างอิงจากหน้าเว็บที่พบ
 - **เทคโนโลยีหลักที่ใช้ (Tech Stack):** `HTML`, `CSS`
 
-## 13. DetectiveGame_Python
+## 12. DetectiveGame_Python
 - **ชื่อโปรเจกต์:** `DetectiveGame_Python`
 - **ลิงก์ Repository:** [https://github.com/pornprompoh/DetectiveGame_Python](https://github.com/pornprompoh/DetectiveGame_Python)
 - **วันที่อัปเดตล่าสุด:** 2025-11-26
@@ -141,7 +131,7 @@
   มีระบบสถานะเกมและ inventory สำหรับใช้ประกอบการดำเนินเรื่อง; ไม่มี README
 - **เทคโนโลยีหลักที่ใช้ (Tech Stack):** `Python`, `Pygame`
 
-## 14. Birth_Day_My_Girlfriend
+## 13. Birth_Day_My_Girlfriend
 - **ชื่อโปรเจกต์:** `Birth_Day_My_Girlfriend`
 - **ลิงก์ Repository:** [https://github.com/pornprompoh/Birth_Day_My_Girlfriend](https://github.com/pornprompoh/Birth_Day_My_Girlfriend)
 - **วันที่อัปเดตล่าสุด:** 2025-11-10
@@ -151,7 +141,7 @@
   ใช้ Flask render หน้าเว็บจาก template; ไม่มี README
 - **เทคโนโลยีหลักที่ใช้ (Tech Stack):** `Python`, `Flask`, `Jinja2`, `HTML`, `CSS`
 
-## 15. loy_krathong_project
+## 14. loy_krathong_project
 - **ชื่อโปรเจกต์:** `loy_krathong_project`
 - **ลิงก์ Repository:** [https://github.com/pornprompoh/loy_krathong_project](https://github.com/pornprompoh/loy_krathong_project)
 - **วันที่อัปเดตล่าสุด:** 2025-11-05
@@ -161,7 +151,7 @@
   บันทึกข้อมูลกิจกรรมด้วย Flask และฐานข้อมูล SQLAlchemy/SQLite; ไม่มี README
 - **เทคโนโลยีหลักที่ใช้ (Tech Stack):** `Python`, `Flask`, `Flask-SQLAlchemy`, `Flask-Migrate`, `SQLite`, `Jinja2`
 
-## 16. FindDominitoryKMITL_Deploy_Web_Test
+## 15. FindDominitoryKMITL_Deploy_Web_Test
 - **ชื่อโปรเจกต์:** `FindDominitoryKMITL_Deploy_Web_Test`
 - **ลิงก์ Repository:** [https://github.com/pornprompoh/FindDominitoryKMITL_Deploy_Web_Test](https://github.com/pornprompoh/FindDominitoryKMITL_Deploy_Web_Test)
 - **วันที่อัปเดตล่าสุด:** 2025-10-14
