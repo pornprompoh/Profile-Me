@@ -21,7 +21,9 @@
 │   │   └── portfolio_app.dart       # ประกอบ MaterialApp และ Theme
 │   ├── core/
 │   │   ├── state/app_state.dart     # ValueNotifier ทั้งหมดของเว็บ
+│   │   ├── l10n/app_strings.dart    # ข้อความ UI สองภาษา
 │   │   ├── storage/local_storage_service.dart
+│   │   ├── theme/app_colors.dart
 │   │   ├── theme/app_theme.dart
 │   │   └── theme/layout_tokens.dart
 │   ├── data/
@@ -32,8 +34,15 @@
 │       ├── pages/portfolio_page.dart
 │       ├── navigation/portfolio_navigation.dart
 │       ├── sections/
+│       │   ├── hero/
+│       │   │   ├── hero_section.dart
+│       │   │   ├── hero_ocean_backdrop.dart
+│       │   │   ├── hero_profile_card.dart
+│       │   │   └── hero_tech_stack_row.dart
+│       │   ├── footer/footer_section.dart # Contact actions and copyright
 │       ├── modals/
 │       └── widgets/
+│           └── ocean_wave_divider.dart
 ├── assets/my_content/
 │   ├── profile/profile.json
 │   ├── projects/projects.json
@@ -61,7 +70,8 @@ JSON ใน assets/my_content
 
 | ต้องการแก้ | เปิดไฟล์ |
 |---|---|
-| สีและ Light/Dark Theme | `lib/core/theme/app_theme.dart` |
+| สีและ Light/Dark Theme | `lib/core/theme/app_colors.dart`, `lib/core/theme/app_theme.dart` |
+| ข้อความ UI สองภาษา | `lib/core/l10n/app_strings.dart` |
 | Breakpoints, Spacing, Typography | `lib/core/theme/layout_tokens.dart` |
 | ภาษาและธีมเริ่มต้น | `lib/core/storage/local_storage_service.dart` |
 | สถานะภาษา/ธีม/Scroll/Filter/PDF | `lib/core/state/app_state.dart` |
@@ -69,6 +79,8 @@ JSON ใน assets/my_content
 | การโหลด JSON | `lib/data/repositories/content_repository.dart` |
 | โครงสร้างหน้าและ Scroll Spy | `lib/presentation/pages/portfolio_page.dart` |
 | Navbar และ Mobile Drawer | `lib/presentation/navigation/portfolio_navigation.dart` |
+| Hero Banner และ Portrait Card | `lib/presentation/sections/hero/` |
+| คลื่นทะเลและ Footer/Contact | `lib/presentation/widgets/ocean_wave_divider.dart`, `lib/presentation/sections/footer/footer_section.dart` |
 | การ์ดผลงานและ Modal | `lib/presentation/sections/projects/projects_section.dart` |
 | All Projects / Detail / Lightbox | `lib/presentation/modals/` |
 | Resume PDF | `lib/services/pdf/resume_pdf_service.dart` |
@@ -98,7 +110,9 @@ The project follows Clean/Layered Architecture with clear Single Responsibility 
 │   │   └── portfolio_app.dart       # MaterialApp and theme wiring
 │   ├── core/
 │   │   ├── state/app_state.dart     # Portfolio ValueNotifiers
+│   │   ├── l10n/app_strings.dart    # Localized UI strings
 │   │   ├── storage/local_storage_service.dart
+│   │   ├── theme/app_colors.dart
 │   │   ├── theme/app_theme.dart
 │   │   └── theme/layout_tokens.dart
 │   ├── data/
@@ -109,8 +123,15 @@ The project follows Clean/Layered Architecture with clear Single Responsibility 
 │       ├── pages/portfolio_page.dart
 │       ├── navigation/portfolio_navigation.dart
 │       ├── sections/
+│       │   ├── hero/
+│       │   │   ├── hero_section.dart
+│       │   │   ├── hero_ocean_backdrop.dart
+│       │   │   ├── hero_profile_card.dart
+│       │   │   └── hero_tech_stack_row.dart
+│       │   ├── footer/footer_section.dart # Contact actions and copyright
 │       ├── modals/
 │       └── widgets/
+│           └── ocean_wave_divider.dart
 ├── assets/my_content/
 │   ├── profile/profile.json
 │   ├── projects/projects.json
@@ -138,7 +159,8 @@ JSON in assets/my_content
 
 | Change | Open |
 |---|---|
-| Colors and Light/Dark Theme | `lib/core/theme/app_theme.dart` |
+| Colors and Light/Dark Theme | `lib/core/theme/app_colors.dart`, `lib/core/theme/app_theme.dart` |
+| Localized UI strings | `lib/core/l10n/app_strings.dart` |
 | Breakpoints, spacing, typography | `lib/core/theme/layout_tokens.dart` |
 | Initial locale and theme | `lib/core/storage/local_storage_service.dart` |
 | Locale/theme/scroll/filter/PDF state | `lib/core/state/app_state.dart` |
@@ -146,6 +168,8 @@ JSON in assets/my_content
 | JSON loading | `lib/data/repositories/content_repository.dart` |
 | Page structure and Scroll Spy | `lib/presentation/pages/portfolio_page.dart` |
 | Navbar and Mobile Drawer | `lib/presentation/navigation/portfolio_navigation.dart` |
+| Hero banner and portrait card | `lib/presentation/sections/hero/` |
+| Ocean waves and Footer/Contact | `lib/presentation/widgets/ocean_wave_divider.dart`, `lib/presentation/sections/footer/footer_section.dart` |
 | Project cards and project section | `lib/presentation/sections/projects/projects_section.dart` |
 | All Projects / Detail / Lightbox | `lib/presentation/modals/` |
 | Resume PDF | `lib/services/pdf/resume_pdf_service.dart` |

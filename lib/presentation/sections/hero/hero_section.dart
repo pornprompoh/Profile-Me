@@ -22,6 +22,7 @@ class _Hero extends StatelessWidget {
     final isCompact = width < 900;
     final name = locale == AppLocale.th ? profile.names.th : profile.names.en;
     final role = locale == AppLocale.th ? profile.roles.th : profile.roles.en;
+    final caption = AppStrings.profileCaption(locale);
     final tagline =
         (locale == AppLocale.th
                 ? profile.heroTagline.th
@@ -35,8 +36,10 @@ class _Hero extends StatelessWidget {
             : CrossAxisAlignment.start,
         children: [
           Text(
-            locale == AppLocale.th ? 'สวัสดีครับ ผมชื่อ' : 'Hello, I am',
-            style: Theme.of(context).textTheme.titleLarge,
+            locale == AppLocale.th ? 'สวัสดีครับ ผมคือ' : "Hello, I'm",
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              color: Colors.white.withValues(alpha: .88),
+            ),
             textAlign: isStacked ? TextAlign.center : TextAlign.start,
           ),
           const SizedBox(height: 8),
@@ -46,6 +49,7 @@ class _Hero extends StatelessWidget {
               fontSize: LayoutTokens.heroNameSize(context),
               height: 1.12,
               fontWeight: FontWeight.w800,
+              color: Colors.white,
             ),
             textAlign: isStacked ? TextAlign.center : TextAlign.start,
           ),
@@ -55,9 +59,7 @@ class _Hero extends StatelessWidget {
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
               fontSize: LayoutTokens.heroRoleSize(context),
               height: 1.35,
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? AppTheme.darkAccent
-                  : AppTheme.primary,
+              color: AppColors.darkAccent,
             ),
             textAlign: isStacked ? TextAlign.center : TextAlign.start,
           ),
@@ -68,7 +70,7 @@ class _Hero extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                color: Colors.white.withValues(alpha: .78),
                 fontSize: 15,
               ),
               textAlign: isStacked ? TextAlign.center : TextAlign.start,
@@ -84,6 +86,8 @@ class _Hero extends StatelessWidget {
                 onPressed: onProjects,
                 icon: const Icon(Icons.grid_view_rounded),
                 style: FilledButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: AppColors.lightOceanDeep,
                   minimumSize: const Size(0, LayoutTokens.touchTarget),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 18,
@@ -103,6 +107,8 @@ class _Hero extends StatelessWidget {
                 onPressed: onContact,
                 icon: const Icon(Icons.mail_outline),
                 style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  side: BorderSide(color: Colors.white.withValues(alpha: .48)),
                   minimumSize: const Size(0, LayoutTokens.touchTarget),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 18,
@@ -134,15 +140,21 @@ class _Hero extends StatelessWidget {
       delay: const Duration(milliseconds: 120),
       child: _HoverWrapper(
         lift: 8,
-        child: _ProfileImage(
-          profile.profileImage,
-          size: isMobile ? 220 : (isCompact ? 240 : 280),
+        child: _HeroProfileCard(
+          path: profile.profileImage,
+          width: isMobile ? 190 : (isCompact ? 220 : 260),
+          caption: caption,
         ),
       ),
     );
     return SectionContainer(
       verticalPadding: isStacked ? (isMobile ? 40 : 56) : (isCompact ? 64 : 72),
-      background: IgnorePointer(child: _HeroDotGridBackground(isDark: isDark)),
+      background: IgnorePointer(
+        child: _HeroOceanBackdrop(
+          isDark: isDark,
+          watermark: profile.englishNameWatermark,
+        ),
+      ),
       child: isStacked
           ? Column(
               crossAxisAlignment: CrossAxisAlignment.center,

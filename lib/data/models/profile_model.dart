@@ -35,6 +35,13 @@ class Profile {
   final List<ProfileLanguage> languages;
   final String profileImage;
 
+  String get englishFirstName {
+    final englishName = names.en.trim();
+    return englishName.isEmpty ? '' : englishName.split(RegExp(r'\s+')).first;
+  }
+
+  String get englishNameWatermark => names.en.trim().toUpperCase();
+
   int get age {
     final date = DateTime.tryParse(birthDate);
     if (date == null) return 0;

@@ -130,7 +130,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
         endDrawer: _MobileDrawer(
           state: state,
           locale: locale,
-          brandName: profile!.names.en,
+          brandName: profile!.englishFirstName,
           onNavigate: _scrollTo,
           onPdf: () => _downloadPdf(state, locale),
         ),
@@ -155,9 +155,9 @@ class _PortfolioPageState extends State<PortfolioPage> {
                         child: _Navbar(
                           state: state,
                           locale: locale,
-                          brandName: profile!.names.en,
+                          brandName: profile!.englishFirstName,
                           onNavigate: _scrollTo,
-                          socialLinks: links!.socialLinks,
+                          onPdf: () => _downloadPdf(state, locale),
                         ),
                       ),
                     ),
@@ -177,6 +177,11 @@ class _PortfolioPageState extends State<PortfolioPage> {
                               },
                             ),
                           ),
+                          _OceanWaveDivider(
+                            isDark:
+                                Theme.of(context).brightness == Brightness.dark,
+                            isFooterEdge: false,
+                          ),
                           _Section(
                             key: keys[AppSection.about],
                             child: _About(profile!, locale),
@@ -189,11 +194,19 @@ class _PortfolioPageState extends State<PortfolioPage> {
                             key: keys[AppSection.projects],
                             child: _Projects(projects, links!, state, locale),
                           ),
+                          _OceanWaveDivider(
+                            isDark:
+                                Theme.of(context).brightness == Brightness.dark,
+                            isFooterEdge: true,
+                          ),
                           _Section(
                             key: keys[AppSection.contact],
-                            child: _Contact(profile!, links!, state, locale),
+                            child: _Footer(
+                              profile: profile!,
+                              links: links!,
+                              locale: locale,
+                            ),
                           ),
-                          _Footer(profile: profile!, locale: locale),
                         ],
                       ),
                     ),

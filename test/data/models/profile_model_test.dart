@@ -2,6 +2,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:profile_me/data/models/profile_model.dart';
 
 void main() {
+  test('english first name is derived from the localized profile name', () {
+    final profile = Profile.fromJson({
+      'names': {'th': 'ชื่อไทย', 'en': '  Pornprom Sukjaimit  '},
+    });
+
+    expect(profile.englishFirstName, 'Pornprom');
+    expect(profile.englishNameWatermark, 'PORNPROM SUKJAIMIT');
+  });
+
   test('missing Hero fields fall back to empty tagline and skill groups', () {
     final profile = Profile.fromJson({
       'skillGroups': [

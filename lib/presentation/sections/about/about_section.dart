@@ -128,33 +128,8 @@ class _AboutFacts extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Icon(Icons.mail_outline),
-              const SizedBox(width: 10),
-              Expanded(
-                child: SelectableText(
-                  profile.email,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ),
-            ],
-          ),
         ],
       ),
     );
   }
 }
-
-class _SectionTitle extends StatelessWidget {
-  const _SectionTitle(this.title, this.subtitle);
-  final String title;
-  final String subtitle;
-
-  @override
-  Widget build(BuildContext context) =>
-      SectionHeader(title: title, subtitle: subtitle);
-}
-

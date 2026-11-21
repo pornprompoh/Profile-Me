@@ -30,8 +30,7 @@ class _NavbarDelegate extends SliverPersistentHeaderDelegate {
       child: DecoratedBox(
         decoration: BoxDecoration(
           border: Border(
-            top: BorderSide(color: accent.withValues(alpha: .72), width: 2),
-            bottom: BorderSide(color: accent.withValues(alpha: .24), width: 1),
+            bottom: BorderSide(color: accent.withValues(alpha: .16), width: 1),
           ),
         ),
         child: child,
@@ -50,21 +49,19 @@ class _Navbar extends StatelessWidget {
     required this.locale,
     required this.brandName,
     required this.onNavigate,
-    required this.socialLinks,
+    required this.onPdf,
   });
   final AppState state;
   final AppLocale locale;
   final String brandName;
   final Future<void> Function(AppSection) onNavigate;
-  final List<SocialLink> socialLinks;
+  final Future<void> Function() onPdf;
 
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
-    final isMobile = width < LayoutTokens.mobileBreakpoint;
-    final showBrandName = !isMobile || width >= 380;
     final showFullNavigation = width >= 900;
-    final showSocialLinks = width >= 1100;
+    final controlSize = width < 420 ? 40.0 : LayoutTokens.touchTarget;
     final accent = AppTheme.navbarAccent(Theme.of(context).brightness);
     final labels = locale == AppLocale.th
         ? const ['หน้าแรก', 'เกี่ยวกับฉัน', 'ประวัติ', 'ผลงาน', 'ติดต่อ']
@@ -91,38 +88,23 @@ class _Navbar extends StatelessWidget {
                       color: Colors.transparent,
                       child: InkWell(
                         onTap: () => onNavigate(AppSection.home),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(20),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 8,
+                            horizontal: 10,
+                            vertical: 9,
                           ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.blur_circular, color: accent),
-                              if (showBrandName) ...[
-                                const SizedBox(width: 8),
-                                ConstrainedBox(
-                                  constraints: BoxConstraints(
-                                    maxWidth: width < 1100 ? 150 : 190,
-                                  ),
-                                  child: Text(
-                                    brandName,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium
-                                        ?.copyWith(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w900,
-                                          letterSpacing: .2,
-                                        ),
-                                  ),
+                          child: Text(
+                            brandName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: .2,
+                                  color: accent,
                                 ),
-                              ],
-                            ],
                           ),
                         ),
                       ),
@@ -192,22 +174,6 @@ class _Navbar extends StatelessWidget {
                     ),
                   ),
                 if (!showFullNavigation) const Spacer(),
-                if (showSocialLinks)
-                  for (final link in socialLinks)
-                    IconButton(
-                      tooltip: link.label,
-                      onPressed: () async {
-                        await launchUrl(
-                          Uri.parse(link.url),
-                          mode: LaunchMode.externalApplication,
-                        );
-                      },
-                      icon: BrandIcon(name: link.icon, size: 20),
-                      constraints: const BoxConstraints.tightFor(
-                        width: LayoutTokens.touchTarget,
-                        height: LayoutTokens.touchTarget,
-                      ),
-                    ),
                 IconButton(
                   tooltip: locale == AppLocale.th
                       ? 'เปลี่ยนภาษา'
@@ -224,6 +190,11 @@ class _Navbar extends StatelessWidget {
                   icon: Text(
                     locale == AppLocale.th ? 'EN' : 'TH',
                     style: const TextStyle(fontWeight: FontWeight.w800),
+                  ),
+                  padding: EdgeInsets.zero,
+                  constraints: BoxConstraints.tightFor(
+                    width: controlSize,
+                    height: controlSize,
                   ),
                 ),
                 IconButton(
@@ -245,12 +216,32 @@ class _Navbar extends StatelessWidget {
                         ? Icons.light_mode
                         : Icons.dark_mode,
                   ),
+                  padding: EdgeInsets.zero,
+                  constraints: BoxConstraints.tightFor(
+                    width: controlSize,
+                    height: controlSize,
+                  ),
+                ),
+                const SizedBox(width: 2),
+                ValueListenableBuilder<bool>(
+                  valueListenable: state.isGeneratingPdf,
+                  builder: (context, generating, _) => _ResumeButton(
+                    locale: locale,
+                    onPressed: onPdf,
+                    isGenerating: generating,
+                    height: controlSize,
+                  ),
                 ),
                 if (!showFullNavigation)
                   Builder(
                     builder: (context) => IconButton(
                       onPressed: Scaffold.of(context).openEndDrawer,
                       icon: const Icon(Icons.menu),
+                      padding: EdgeInsets.zero,
+                      constraints: BoxConstraints.tightFor(
+                        width: controlSize,
+                        height: controlSize,
+                      ),
                     ),
                   ),
               ],
@@ -260,6 +251,47 @@ class _Navbar extends StatelessWidget {
       ),
     );
   }
+}
+
+class _ResumeButton extends StatelessWidget {
+  const _ResumeButton({
+    required this.locale,
+    required this.onPressed,
+    required this.isGenerating,
+    this.height = LayoutTokens.touchTarget,
+  });
+
+  final AppLocale locale;
+  final Future<void> Function() onPressed;
+  final bool isGenerating;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) => Tooltip(
+    message: AppStrings.resumeTooltip(locale),
+    child: OutlinedButton(
+      onPressed: isGenerating ? null : onPressed,
+      style: OutlinedButton.styleFrom(
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
+        side: BorderSide(
+          color: AppTheme.navbarAccent(
+            Theme.of(context).brightness,
+          ).withValues(alpha: .42),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        minimumSize: Size(0, height),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        shape: const StadiumBorder(),
+      ),
+      child: isGenerating
+          ? const SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          : const Text('Resume'),
+    ),
+  );
 }
 
 class _MobileDrawer extends StatelessWidget {
@@ -305,13 +337,6 @@ class _MobileDrawer extends StatelessWidget {
                         ),
                         child: Row(
                           children: [
-                            Icon(
-                              Icons.blur_circular,
-                              color: AppTheme.navbarAccent(
-                                Theme.of(context).brightness,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
                             Expanded(
                               child: Text(
                                 brandName,
@@ -413,20 +438,14 @@ class _MobileDrawer extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 8),
-              SizedBox(
-                width: double.infinity,
-                child: ValueListenableBuilder<bool>(
-                  valueListenable: state.isGeneratingPdf,
-                  builder: (context, generating, _) => FilledButton.icon(
-                    onPressed: generating ? null : onPdf,
-                    icon: generating
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.download),
-                    label: const Text('Resume PDF'),
+              ValueListenableBuilder<bool>(
+                valueListenable: state.isGeneratingPdf,
+                builder: (context, generating, _) => Center(
+                  child: _ResumeButton(
+                    locale: locale,
+                    onPressed: onPdf,
+                    isGenerating: generating,
+                    height: LayoutTokens.touchTarget,
                   ),
                 ),
               ),

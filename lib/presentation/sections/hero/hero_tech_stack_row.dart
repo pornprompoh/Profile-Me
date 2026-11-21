@@ -9,7 +9,6 @@ class _HeroTechStackRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
     return Wrap(
       alignment: alignment,
       spacing: 8,
@@ -19,17 +18,15 @@ class _HeroTechStackRow extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
             decoration: BoxDecoration(
-              color: colors.surface.withValues(alpha: .62),
+              color: Colors.white.withValues(alpha: .08),
               borderRadius: BorderRadius.circular(999),
-              border: Border.all(
-                color: colors.outlineVariant.withValues(alpha: .58),
-              ),
+              border: Border.all(color: Colors.white.withValues(alpha: .20)),
             ),
             child: Text(
               skill,
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
                 fontWeight: FontWeight.w600,
-                color: colors.onSurfaceVariant,
+                color: Colors.white.withValues(alpha: .88),
               ),
             ),
           ),
