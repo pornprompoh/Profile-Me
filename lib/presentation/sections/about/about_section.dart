@@ -1,4 +1,4 @@
-// หน้าที่หลัก: ประกอบบล็อกประวัติ รูป กิจกรรม และทักษะของส่วน About
+// หน้าที่หลัก: ประกอบบล็อกประวัติ รูปและทักษะของส่วน About
 part of '../../../main.dart';
 
 class _About extends StatelessWidget {
@@ -32,16 +32,13 @@ class _About extends StatelessWidget {
                   Center(child: _AboutPhotoCard(profile: profile)),
                   const SizedBox(height: 24),
                   _AboutBio(bio: bio),
-                  const SizedBox(height: 20),
-                  _AboutActivitiesGrid(
-                    activities: profile.activities,
-                    locale: locale,
-                  ),
+                  const SizedBox(height: 16),
+                  _AboutSkillsGrid(groups: profile.skillGroups, locale: locale),
                 ],
               )
             else
               Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Expanded(flex: 36, child: _AboutPhotoCard(profile: profile)),
                   const SizedBox(width: 36),
@@ -51,9 +48,9 @@ class _About extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _AboutBio(bio: bio),
-                        const SizedBox(height: 20),
-                        _AboutActivitiesGrid(
-                          activities: profile.activities,
+                        const SizedBox(height: 16),
+                        _AboutSkillsGrid(
+                          groups: profile.skillGroups,
                           locale: locale,
                         ),
                       ],
@@ -61,8 +58,6 @@ class _About extends StatelessWidget {
                   ),
                 ],
               ),
-            const SizedBox(height: 32),
-            _AboutSkillsGrid(groups: profile.skillGroups, locale: locale),
           ],
         ),
       ),
@@ -78,8 +73,10 @@ class _AboutBio extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Text(
     bio,
+    textAlign: TextAlign.justify,
     style: Theme.of(context).textTheme.titleMedium?.copyWith(
       height: 1.78,
+      wordSpacing: 0.1,
       color: Theme.of(context).colorScheme.onSurface,
     ),
   );

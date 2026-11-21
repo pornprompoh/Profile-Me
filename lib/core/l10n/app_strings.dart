@@ -15,4 +15,13 @@ class AppStrings {
 
   static String emailTooltip(AppLocale locale, String email) =>
       locale == AppLocale.th ? 'คัดลอกอีเมล: $email' : 'Copy email: $email';
+
+  static String phoneTooltip(AppLocale locale, String phone) =>
+      locale == AppLocale.th ? 'คัดลอกเบอร์โทร: $phone' : 'Copy phone: $phone';
+
+  static String phoneCopied(AppLocale locale) =>
+      locale == AppLocale.th ? 'คัดลอกเบอร์โทรแล้ว' : 'Phone number copied';
+
+  static String phoneLabel(AppLocale locale) =>
+      locale == AppLocale.th ? 'โทรศัพท์' : 'Phone';
 }

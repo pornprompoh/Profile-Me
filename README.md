@@ -41,7 +41,6 @@
 │       │   ├── about/
 │       │   │   ├── about_section.dart
 │       │   │   ├── about_photo_card.dart
-│       │   │   ├── about_activities_grid.dart
 │       │   │   └── about_skills_grid.dart
 │       │   ├── footer/footer_section.dart # Contact actions and copyright
 │       ├── modals/
@@ -135,7 +134,6 @@ The project follows Clean/Layered Architecture with clear Single Responsibility 
 │       │   ├── about/
 │       │   │   ├── about_section.dart
 │       │   │   ├── about_photo_card.dart
-│       │   │   ├── about_activities_grid.dart
 │       │   │   └── about_skills_grid.dart
 │       │   ├── footer/footer_section.dart # Contact actions and copyright
 │       ├── modals/

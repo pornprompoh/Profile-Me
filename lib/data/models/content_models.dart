@@ -1,6 +1,5 @@
 // หน้าที่หลัก: export Models ทั้งหมดสำหรับ import จุดเดียว
 export 'education_model.dart';
-export 'about_activity_model.dart';
 export 'experience_model.dart';
 export 'links_model.dart';
 export 'localized_text.dart';

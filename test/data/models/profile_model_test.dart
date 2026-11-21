@@ -50,18 +50,14 @@ void main() {
       'names': {'th': 'ทดสอบ ภาษาไทย', 'en': 'Test Person'},
       'profileImage': 'assets/profile-main.jpg',
       'bio': {'th': 'ฉันอายุ {age} ปี', 'en': 'I am {age} years old'},
-      'activities': [
-        {
-          'title': {'th': 'กิจกรรม', 'en': 'Activity'},
-          'description': {'th': 'คำอธิบาย', 'en': 'Description'},
-        },
-      ],
+      'phone': '065-567-2577',
     });
 
     expect(profile.resolvedBio(AppLocale.th), 'ฉันอายุ ${profile.age} ปี');
     expect(profile.resolvedBio(AppLocale.en), 'I am ${profile.age} years old');
     expect(profile.resolvedBio(AppLocale.en), isNot(contains('{age}')));
     expect(profile.aboutImage, 'assets/profile-main.jpg');
-    expect(profile.activities, hasLength(1));
+    expect(profile.phone, '065-567-2577');
+    expect(profile.dialablePhone, '0655672577');
   });
 }

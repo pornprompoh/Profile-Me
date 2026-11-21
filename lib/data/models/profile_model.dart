@@ -4,7 +4,6 @@ import 'experience_model.dart';
 import 'localized_text.dart';
 import 'profile_language_model.dart';
 import 'skill_group_model.dart';
-import 'about_activity_model.dart';
 import '../../core/state/app_state.dart';
 
 class Profile {
@@ -13,6 +12,7 @@ class Profile {
     required this.roles,
     required this.birthDate,
     required this.email,
+    required this.phone,
     required this.bio,
     required this.education,
     required this.experience,
@@ -21,7 +21,6 @@ class Profile {
     required this.profileImage,
     required this.profileImages,
     required this.aboutImage,
-    required this.activities,
     LocalizedText? heroTagline,
   }) : heroTagline = heroTagline ?? LocalizedText('', '');
 
@@ -29,6 +28,7 @@ class Profile {
   final LocalizedText roles;
   final String birthDate;
   final String email;
+  final String phone;
   final LocalizedText bio;
   final LocalizedText heroTagline;
   final List<Education> education;
@@ -38,7 +38,8 @@ class Profile {
   final String profileImage;
   final List<String> profileImages;
   final String aboutImage;
-  final List<AboutActivity> activities;
+
+  String get dialablePhone => phone.replaceAll(RegExp(r'\D'), '');
 
   String get englishFirstName {
     final englishName = names.en.trim();
@@ -76,6 +77,7 @@ class Profile {
     roles: LocalizedText.fromJson(json['roles']),
     birthDate: json['birthDate'] as String? ?? '',
     email: json['email'] as String? ?? '',
+    phone: json['phone'] as String? ?? '',
     bio: LocalizedText.fromJson(json['bio']),
     heroTagline: LocalizedText.fromJson(json['heroTagline']),
     education: (json['education'] as List<dynamic>? ?? const [])
@@ -101,9 +103,5 @@ class Profile {
     aboutImage: (json['aboutImage'] as String?)?.trim().isNotEmpty == true
         ? (json['aboutImage'] as String).trim()
         : json['profileImage'] as String? ?? '',
-    activities: (json['activities'] as List<dynamic>? ?? const [])
-        .whereType<Map<String, dynamic>>()
-        .map(AboutActivity.fromJson)
-        .toList(),
   );
 }

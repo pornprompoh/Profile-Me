@@ -26,6 +26,15 @@ class _Footer extends StatelessWidget {
     );
   }
 
+  Future<void> _copyPhone(BuildContext context) async {
+    if (profile.dialablePhone.isEmpty) return;
+    await Clipboard.setData(ClipboardData(text: profile.dialablePhone));
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(AppStrings.phoneCopied(locale))));
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -42,6 +51,13 @@ class _Footer extends StatelessWidget {
           tooltip: AppStrings.emailTooltip(locale, profile.email),
           icon: const Icon(Icons.email_outlined),
           onPressed: () => _copyEmail(context),
+        ),
+      if (profile.phone.isNotEmpty)
+        _contactIcon(
+          context,
+          tooltip: AppStrings.phoneTooltip(locale, profile.phone),
+          icon: const Icon(Icons.phone_outlined),
+          onPressed: () => _copyPhone(context),
         ),
       for (final link in links.socialLinks)
         _contactIcon(
