@@ -91,6 +91,9 @@ class _PortfolioPageState extends State<PortfolioPage> {
         curve: Curves.easeOutCubic,
       );
     }
+    if (mounted && section == AppSection.home) {
+      state.activeSection.value = AppSection.home;
+    }
     if (scaffoldKey.currentState?.isEndDrawerOpen ?? false) {
       scaffoldKey.currentState?.closeEndDrawer();
     }
@@ -127,6 +130,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
         endDrawer: _MobileDrawer(
           state: state,
           locale: locale,
+          brandName: profile!.names.en,
           onNavigate: _scrollTo,
           onPdf: () => _downloadPdf(state, locale),
         ),
@@ -151,6 +155,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
                         child: _Navbar(
                           state: state,
                           locale: locale,
+                          brandName: profile!.names.en,
                           onNavigate: _scrollTo,
                           socialLinks: links!.socialLinks,
                         ),

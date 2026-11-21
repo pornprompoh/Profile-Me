@@ -13,6 +13,11 @@
     "th": "สวัสดีครับ ผมชื่อ ป๋อ กำลังศึกษาที่สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหาร ลาดกระบัง ผมชอบค้นคว้าและทดลองสิ่งใหม่ ๆ เรียนรู้ทักษะใหม่ ๆ และสนุกกับการใช้งาน AI โดยเฉพาะการเขียน Prompt",
     "en": "Hello, my name is Po. I am studying at King Mongkut's Institute of Technology Ladkrabang. I enjoy exploring new ideas, learning new skills, and using AI, especially crafting prompts."
   },
+  "heroTagline": {
+    "th": "เทคโนโลยีคอมพิวเตอร์ - เว็บ แอป และ AI",
+    "en": "Computer Technology - Web, Apps & AI"
+  },
+  "heroTechStack": ["Dart", "JavaScript", "HTML", "CSS", "Flutter", "Firebase"],
   "education": [
     {
       "period": "2018 - 2020",

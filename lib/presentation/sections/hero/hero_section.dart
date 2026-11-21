@@ -22,6 +22,11 @@ class _Hero extends StatelessWidget {
     final isCompact = width < 900;
     final name = locale == AppLocale.th ? profile.names.th : profile.names.en;
     final role = locale == AppLocale.th ? profile.roles.th : profile.roles.en;
+    final tagline =
+        (locale == AppLocale.th
+                ? profile.heroTagline.th
+                : profile.heroTagline.en)
+            .trim();
     final identity = _ScrollReveal(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -56,7 +61,20 @@ class _Hero extends StatelessWidget {
             ),
             textAlign: isStacked ? TextAlign.center : TextAlign.start,
           ),
-          const SizedBox(height: 22),
+          if (tagline.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            Text(
+              tagline,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                fontSize: 15,
+              ),
+              textAlign: isStacked ? TextAlign.center : TextAlign.start,
+            ),
+          ],
+          const SizedBox(height: 20),
           Wrap(
             alignment: isStacked ? WrapAlignment.center : WrapAlignment.start,
             spacing: 12,
@@ -102,6 +120,13 @@ class _Hero extends StatelessWidget {
               ),
             ],
           ),
+          if (profile.heroTechStack.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            _HeroTechStackRow(
+              profile.heroTechStack,
+              alignment: isStacked ? WrapAlignment.center : WrapAlignment.start,
+            ),
+          ],
         ],
       ),
     );
@@ -112,47 +137,12 @@ class _Hero extends StatelessWidget {
         child: _ProfileImage(
           profile.profileImage,
           size: isMobile ? 220 : (isCompact ? 240 : 280),
-          onTap: () {},
         ),
       ),
     );
     return SectionContainer(
-      verticalPadding: isStacked
-          ? (isMobile ? 44 : 64)
-          : LayoutTokens.sectionPadding(context),
-      background: IgnorePointer(
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              stops: isDark ? const [0, .72, 1] : const [0, .42, .78, 1],
-              colors: isDark
-                  ? [
-                      Theme.of(
-                        context,
-                      ).colorScheme.primaryContainer.withValues(alpha: .30),
-                      Theme.of(
-                        context,
-                      ).scaffoldBackgroundColor.withValues(alpha: .45),
-                      Colors.transparent,
-                    ]
-                  : [
-                      Theme.of(
-                        context,
-                      ).colorScheme.primaryContainer.withValues(alpha: .14),
-                      Theme.of(
-                        context,
-                      ).scaffoldBackgroundColor.withValues(alpha: .18),
-                      Theme.of(
-                        context,
-                      ).scaffoldBackgroundColor.withValues(alpha: .08),
-                      Colors.transparent,
-                    ],
-            ),
-          ),
-        ),
-      ),
+      verticalPadding: isStacked ? (isMobile ? 40 : 56) : (isCompact ? 64 : 72),
+      background: IgnorePointer(child: _HeroDotGridBackground(isDark: isDark)),
       child: isStacked
           ? Column(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -163,7 +153,7 @@ class _Hero extends StatelessWidget {
                 Expanded(child: identity),
                 SizedBox(width: isCompact ? 32 : 48),
                 SizedBox(
-                  width: isCompact ? 240 : 280,
+                  width: isCompact ? 264 : 304,
                   child: Center(child: image),
                 ),
               ],

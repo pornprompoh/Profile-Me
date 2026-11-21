@@ -48,11 +48,13 @@ class _Navbar extends StatelessWidget {
   const _Navbar({
     required this.state,
     required this.locale,
+    required this.brandName,
     required this.onNavigate,
     required this.socialLinks,
   });
   final AppState state;
   final AppLocale locale;
+  final String brandName;
   final Future<void> Function(AppSection) onNavigate;
   final List<SocialLink> socialLinks;
 
@@ -60,6 +62,7 @@ class _Navbar extends StatelessWidget {
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
     final isMobile = width < LayoutTokens.mobileBreakpoint;
+    final showBrandName = !isMobile || width >= 380;
     final showFullNavigation = width >= 900;
     final showSocialLinks = width >= 1100;
     final accent = AppTheme.navbarAccent(Theme.of(context).brightness);
@@ -80,18 +83,52 @@ class _Navbar extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Icon(Icons.blur_circular, color: accent),
-                if (!isMobile) ...[
-                  const SizedBox(width: 8),
-                  Text(
-                    'PORTFOLIO',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1.2,
+                MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: Tooltip(
+                    message: brandName,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () => onNavigate(AppSection.home),
+                        borderRadius: BorderRadius.circular(12),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 8,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.blur_circular, color: accent),
+                              if (showBrandName) ...[
+                                const SizedBox(width: 8),
+                                ConstrainedBox(
+                                  constraints: BoxConstraints(
+                                    maxWidth: width < 1100 ? 150 : 190,
+                                  ),
+                                  child: Text(
+                                    brandName,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium
+                                        ?.copyWith(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w900,
+                                          letterSpacing: .2,
+                                        ),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                ],
+                ),
                 if (showFullNavigation) const SizedBox(width: 18),
                 if (showFullNavigation)
                   Expanded(
@@ -229,11 +266,13 @@ class _MobileDrawer extends StatelessWidget {
   const _MobileDrawer({
     required this.state,
     required this.locale,
+    required this.brandName,
     required this.onNavigate,
     required this.onPdf,
   });
   final AppState state;
   final AppLocale locale;
+  final String brandName;
   final Future<void> Function(AppSection) onNavigate;
   final Future<void> Function() onPdf;
 
@@ -250,20 +289,46 @@ class _MobileDrawer extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                child: Row(
-                  children: [
-                    Icon(Icons.blur_circular, color: AppTheme.primary),
-                    SizedBox(width: 8),
-                    Text(
-                      'Portfolio',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w800,
-                        fontSize: 18,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () => onNavigate(AppSection.home),
+                      borderRadius: BorderRadius.circular(12),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 8,
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.blur_circular,
+                              color: AppTheme.navbarAccent(
+                                Theme.of(context).brightness,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                brandName,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context).textTheme.titleMedium
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 18,
+                                    ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ],
+                  ),
                 ),
               ),
               const SizedBox(height: 12),

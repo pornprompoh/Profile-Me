@@ -17,16 +17,21 @@ class Profile {
     required this.skillGroups,
     required this.languages,
     required this.profileImage,
-  });
+    LocalizedText? heroTagline,
+    List<String>? heroTechStack,
+  }) : heroTagline = heroTagline ?? LocalizedText('', ''),
+       heroTechStack = _resolveHeroTechStack(heroTechStack, skillGroups);
 
   final LocalizedText names;
   final LocalizedText roles;
   final String birthDate;
   final String email;
   final LocalizedText bio;
+  final LocalizedText heroTagline;
   final List<Education> education;
   final List<Experience> experience;
   final List<SkillGroup> skillGroups;
+  final List<String> heroTechStack;
   final List<ProfileLanguage> languages;
   final String profileImage;
 
@@ -48,6 +53,7 @@ class Profile {
     birthDate: json['birthDate'] as String? ?? '',
     email: json['email'] as String? ?? '',
     bio: LocalizedText.fromJson(json['bio']),
+    heroTagline: LocalizedText.fromJson(json['heroTagline']),
     education: (json['education'] as List<dynamic>? ?? const [])
         .whereType<Map<String, dynamic>>()
         .map(Education.fromJson)
@@ -60,10 +66,31 @@ class Profile {
         .whereType<Map<String, dynamic>>()
         .map(SkillGroup.fromJson)
         .toList(),
+    heroTechStack: json['heroTechStack'] is List
+        ? (json['heroTechStack'] as List<dynamic>).whereType<String>().toList()
+        : null,
     languages: (json['languages'] as List<dynamic>? ?? const [])
         .whereType<Map<String, dynamic>>()
         .map(ProfileLanguage.fromJson)
         .toList(),
     profileImage: json['profileImage'] as String? ?? '',
   );
+}
+
+List<String> _resolveHeroTechStack(
+  List<String>? configured,
+  List<SkillGroup> skillGroups,
+) {
+  final selected = configured
+      ?.where((skill) => skill.trim().isNotEmpty)
+      .toList();
+  if (selected != null && selected.isNotEmpty) {
+    return selected.take(6).toList();
+  }
+  return skillGroups
+      .take(2)
+      .expand((group) => group.skills)
+      .where((skill) => skill.trim().isNotEmpty)
+      .take(6)
+      .toList();
 }
