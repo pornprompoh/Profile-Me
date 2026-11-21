@@ -11,13 +11,19 @@ class _Section extends StatelessWidget {
 }
 
 class _ScrollRevealScope extends InheritedWidget {
-  const _ScrollRevealScope({required this.controller, required super.child});
+  const _ScrollRevealScope({
+    required this.controller,
+    required this.metricsRevision,
+    required super.child,
+  });
 
   final ScrollController controller;
+  final ValueNotifier<int> metricsRevision;
 
   @override
   bool updateShouldNotify(_ScrollRevealScope oldWidget) =>
-      oldWidget.controller != controller;
+      oldWidget.controller != controller ||
+      oldWidget.metricsRevision != metricsRevision;
 }
 
 class _ScrollReveal extends StatefulWidget {
@@ -40,27 +46,60 @@ class _ScrollRevealState extends State<_ScrollReveal>
     curve: Curves.easeOutCubic,
   );
   ScrollController? _scrollController;
+  ValueNotifier<int>? _metricsRevision;
+  Timer? _settleTimer;
+  Timer? _initialGuardTimer;
   late double _viewportHeight;
   bool _started = false;
+  bool _checkScheduled = false;
 
   @override
   void initState() {
     super.initState();
+    // ตรวจซ้ำหลัง layout รอบแรก เผื่อ ScrollMetrics พร้อมช้ากว่า frame แรก
+    _initialGuardTimer = Timer(
+      const Duration(milliseconds: 700),
+      _scheduleVisibilityCheck,
+    );
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _viewportHeight = MediaQuery.sizeOf(context).height;
-    final controller = context
-        .dependOnInheritedWidgetOfExactType<_ScrollRevealScope>()
-        ?.controller;
+    final scope = context
+        .dependOnInheritedWidgetOfExactType<_ScrollRevealScope>();
+    final controller = scope?.controller;
     if (!identical(controller, _scrollController)) {
       _scrollController?.removeListener(_startWhenVisible);
+      _scrollController?.removeListener(_onScrollChanged);
       _scrollController = controller;
-      _scrollController?.addListener(_startWhenVisible);
+      _scrollController?.addListener(_onScrollChanged);
     }
-    WidgetsBinding.instance.addPostFrameCallback((_) => _startWhenVisible());
+    if (!identical(scope?.metricsRevision, _metricsRevision)) {
+      _metricsRevision?.removeListener(_scheduleVisibilityCheck);
+      _metricsRevision = scope?.metricsRevision;
+      _metricsRevision?.addListener(_scheduleVisibilityCheck);
+    }
+    _scheduleVisibilityCheck();
+  }
+
+  void _onScrollChanged() {
+    _scheduleVisibilityCheck();
+    _settleTimer?.cancel();
+    _settleTimer = Timer(
+      const Duration(milliseconds: 180),
+      _scheduleVisibilityCheck,
+    );
+  }
+
+  void _scheduleVisibilityCheck() {
+    if (_started || !mounted || _checkScheduled) return;
+    _checkScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkScheduled = false;
+      _startWhenVisible();
+    });
   }
 
   void _startWhenVisible() {
@@ -69,10 +108,22 @@ class _ScrollRevealState extends State<_ScrollReveal>
     if (renderObject is! RenderBox || !renderObject.hasSize) return;
     final top = renderObject.localToGlobal(Offset.zero).dy;
     final bottom = top + renderObject.size.height;
-    if (bottom <= LayoutTokens.navbarHeight || top >= _viewportHeight) return;
+    final intersectsViewport =
+        bottom > LayoutTokens.navbarHeight && top < _viewportHeight;
+    final alreadyPassed = bottom <= LayoutTokens.navbarHeight;
+    // เมื่อข้ามส่วนนี้ไปแล้วหรืออยู่ท้ายหน้า ให้เริ่มแอนิเมชันแทนการค้างโปร่งใส
+    final atPageEnd =
+        _scrollController?.hasClients == true &&
+        _scrollController!.position.pixels >=
+            _scrollController!.position.maxScrollExtent - 1 &&
+        top < _viewportHeight;
+    if (!intersectsViewport && !alreadyPassed && !atPageEnd) return;
 
     _started = true;
-    _scrollController?.removeListener(_startWhenVisible);
+    _initialGuardTimer?.cancel();
+    _settleTimer?.cancel();
+    _scrollController?.removeListener(_onScrollChanged);
+    _metricsRevision?.removeListener(_scheduleVisibilityCheck);
     Future<void>.delayed(widget.delay, () {
       if (mounted) controller.forward();
     });
@@ -80,7 +131,10 @@ class _ScrollRevealState extends State<_ScrollReveal>
 
   @override
   void dispose() {
-    _scrollController?.removeListener(_startWhenVisible);
+    _initialGuardTimer?.cancel();
+    _settleTimer?.cancel();
+    _scrollController?.removeListener(_onScrollChanged);
+    _metricsRevision?.removeListener(_scheduleVisibilityCheck);
     controller.dispose();
     super.dispose();
   }

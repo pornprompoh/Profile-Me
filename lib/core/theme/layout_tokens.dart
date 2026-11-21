@@ -84,5 +84,6 @@ class LayoutTokens {
     return columns.clamp(1, 3).toInt();
   }
 
-  static double projectCardExtent(double cardWidth) => cardWidth * 9 / 16 + 330;
+  static double projectCardExtent(double cardWidth, {bool compact = false}) =>
+      compact ? cardWidth / 2 + 280 : cardWidth * 9 / 16 + 330;
 }

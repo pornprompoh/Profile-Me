@@ -16,6 +16,7 @@ class _Hero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final isMobile = width < LayoutTokens.mobileBreakpoint;
     final isStacked = width < 720;
     final isCompact = width < 900;
@@ -125,16 +126,29 @@ class _Hero extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              stops: const [0, .72, 1],
-              colors: [
-                Theme.of(
-                  context,
-                ).colorScheme.primaryContainer.withValues(alpha: .30),
-                Theme.of(
-                  context,
-                ).scaffoldBackgroundColor.withValues(alpha: .45),
-                Colors.transparent,
-              ],
+              stops: isDark ? const [0, .72, 1] : const [0, .42, .78, 1],
+              colors: isDark
+                  ? [
+                      Theme.of(
+                        context,
+                      ).colorScheme.primaryContainer.withValues(alpha: .30),
+                      Theme.of(
+                        context,
+                      ).scaffoldBackgroundColor.withValues(alpha: .45),
+                      Colors.transparent,
+                    ]
+                  : [
+                      Theme.of(
+                        context,
+                      ).colorScheme.primaryContainer.withValues(alpha: .14),
+                      Theme.of(
+                        context,
+                      ).scaffoldBackgroundColor.withValues(alpha: .18),
+                      Theme.of(
+                        context,
+                      ).scaffoldBackgroundColor.withValues(alpha: .08),
+                      Colors.transparent,
+                    ],
             ),
           ),
         ),

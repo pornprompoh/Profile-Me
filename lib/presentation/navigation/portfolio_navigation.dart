@@ -102,32 +102,52 @@ class _Navbar extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             for (var i = 0; i < sections.length; i++)
-                              TextButton(
-                                onPressed: () => onNavigate(sections[i]),
-                                style: TextButton.styleFrom(
-                                  minimumSize: const Size(0, 44),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 9,
-                                  ),
-                                  foregroundColor: active == sections[i]
-                                      ? (Theme.of(context).brightness ==
-                                                Brightness.dark
-                                            ? AppTheme.darkAccent
-                                            : AppTheme.primary)
-                                      : Theme.of(context).colorScheme.onSurface,
-                                ),
-                                child: Text(
-                                  locale == AppLocale.en
-                                      ? labels[i].toUpperCase()
-                                      : labels[i],
-                                  style: TextStyle(
-                                    fontSize: locale == AppLocale.en ? 11 : 13,
-                                    fontWeight: FontWeight.w800,
-                                    letterSpacing: locale == AppLocale.en
-                                        ? 1
-                                        : 0,
-                                  ),
-                                ),
+                              Builder(
+                                builder: (context) {
+                                  final isActive = active == sections[i];
+                                  final accent =
+                                      Theme.of(context).brightness ==
+                                          Brightness.dark
+                                      ? AppTheme.darkAccent
+                                      : AppTheme.primary;
+                                  return TextButton(
+                                    onPressed: () => onNavigate(sections[i]),
+                                    style: TextButton.styleFrom(
+                                      minimumSize: const Size(0, 44),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                      ),
+                                      foregroundColor: isActive
+                                          ? accent
+                                          : Theme.of(
+                                              context,
+                                            ).colorScheme.onSurface,
+                                      backgroundColor: isActive
+                                          ? Theme.of(context)
+                                                .colorScheme
+                                                .primaryContainer
+                                                .withValues(alpha: .28)
+                                          : null,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      locale == AppLocale.en
+                                          ? labels[i].toUpperCase()
+                                          : labels[i],
+                                      style: TextStyle(
+                                        fontSize: locale == AppLocale.en
+                                            ? 13
+                                            : 14,
+                                        fontWeight: FontWeight.w800,
+                                        letterSpacing: locale == AppLocale.en
+                                            ? .6
+                                            : 0,
+                                      ),
+                                    ),
+                                  );
+                                },
                               ),
                           ],
                         ),

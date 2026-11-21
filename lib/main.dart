@@ -25,6 +25,7 @@ part 'presentation/sections/hero/hero_section.dart';
 part 'presentation/sections/about/about_section.dart';
 part 'presentation/sections/timeline/timeline_section.dart';
 part 'presentation/sections/projects/projects_section.dart';
+part 'presentation/sections/projects/project_card.dart';
 part 'presentation/modals/project_modals.dart';
 part 'presentation/sections/contact/contact_footer.dart';
 
