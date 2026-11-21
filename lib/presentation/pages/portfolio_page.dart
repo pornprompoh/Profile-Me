@@ -1,5 +1,5 @@
-// หน้าที่หลัก: จัดการเลื่อนหน้า และเชื่อม Scroll Spy ของ Portfolio
-part of '../../main.dart';
+/// หน้าที่หลัก: ประกอบหน้า Portfolio และเชื่อม State เข้ากับ UI
+part of '../portfolio_ui.dart';
 
 class PortfolioPage extends StatefulWidget {
   const PortfolioPage({super.key});
@@ -9,9 +9,6 @@ class PortfolioPage extends StatefulWidget {
 }
 
 class _PortfolioPageState extends State<PortfolioPage> {
-  static const double scrollNoOpTolerance = 10;
-  static const Duration scrollDuration = Duration(milliseconds: 550);
-
   final repository = ContentRepository();
   final scrollController = ScrollController();
   final revealMetricsRevision = ValueNotifier<int>(0);
@@ -34,14 +31,28 @@ class _PortfolioPageState extends State<PortfolioPage> {
   List<Project> projects = [];
   Links? links;
   bool loading = true;
-  bool _isProgrammaticScrolling = false;
-  int _scrollAnimationToken = 0;
+  late PortfolioScrollController _portfolioScrollController;
+  bool _scrollControllerInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    scrollController.addListener(_scrollSpy);
     _load();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_scrollControllerInitialized) return;
+    _portfolioScrollController = PortfolioScrollController(
+      scrollController: scrollController,
+      activeSection: AppStateScope.of(context).activeSection,
+      sectionKeys: keys,
+      headerKeys: headerKeys,
+      navbarKey: navbarKey,
+      viewportWidth: () => MediaQuery.sizeOf(context).width,
+    );
+    _scrollControllerInitialized = true;
   }
 
   Future<void> _load() async {
@@ -62,142 +73,17 @@ class _PortfolioPageState extends State<PortfolioPage> {
     }
   }
 
-  double _actualNavbarHeight() {
-    final box = navbarKey.currentContext?.findRenderObject() as RenderBox?;
-    if (box != null && box.hasSize) return box.size.height;
-    return LayoutTokens.navbarHeight;
-  }
-
-  // breathingGap 20px บนมือถือและ 24px บน tablet/desktop
-  double _breathingGap(BuildContext context) =>
-      MediaQuery.sizeOf(context).width < LayoutTokens.mobileBreakpoint
-      ? 20
-      : 24;
-
-  double _scrollSpyLine(BuildContext context) =>
-      _actualNavbarHeight() + _breathingGap(context);
-
-  void _interruptProgrammaticScroll() {
-    if (!_isProgrammaticScrolling) return;
-    // Pointer signal หรือ touch drag ยกเลิก token เพื่อปลด Scroll Lock
-    _scrollAnimationToken++;
-    _isProgrammaticScrolling = false;
-    _scrollSpy();
-  }
-
-  void _scrollSpy() {
-    if (_isProgrammaticScrolling) return;
-    final state = _StateScope.of(context);
-    AppSection closest = AppSection.home;
-    var distance = double.infinity;
-    final spyLine = _scrollSpyLine(context);
-
-    for (final entry in keys.entries) {
-      final box = entry.value.currentContext?.findRenderObject() as RenderBox?;
-      if (box == null) continue;
-      final position = box.localToGlobal(Offset.zero).dy;
-      final value = (position - spyLine).abs();
-      if (value < distance) {
-        distance = value;
-        closest = entry.key;
-      }
-    }
-
-    for (final entry in headerKeys.entries) {
-      final box = entry.value.currentContext?.findRenderObject() as RenderBox?;
-      if (box == null) continue;
-      final value = (box.localToGlobal(Offset.zero).dy - spyLine).abs();
-      if (value < distance) {
-        distance = value;
-        closest = entry.key;
-      }
-    }
-
-    if (state.activeSection.value != closest) {
-      state.activeSection.value = closest;
-    }
-  }
-
-  double? _targetOffset(AppSection section, BuildContext context) {
-    if (!scrollController.hasClients) return null;
-    if (section == AppSection.home) return 0;
-    if (section == AppSection.contact) {
-      return scrollController.position.maxScrollExtent;
-    }
-
-    final headerKey = headerKeys[section];
-    if (headerKey != null) {
-      final box = headerKey.currentContext?.findRenderObject() as RenderBox?;
-      if (box != null && box.hasSize) {
-        final top = box.localToGlobal(Offset.zero).dy;
-        final target =
-            top +
-            scrollController.offset -
-            _actualNavbarHeight() -
-            _breathingGap(context);
-        return target.clamp(0, scrollController.position.maxScrollExtent);
-      }
-    }
-
-    final box = keys[section]?.currentContext?.findRenderObject() as RenderBox?;
-    if (box == null) return null;
-    final top =
-        box.localToGlobal(Offset.zero).dy +
-        scrollController.offset -
-        _actualNavbarHeight() -
-        _breathingGap(context);
-    return top.clamp(0, scrollController.position.maxScrollExtent);
-  }
-
   Future<void> _scrollTo(AppSection section, [bool fromDrawer = false]) async {
-    final state = _StateScope.of(context);
-    state.activeSection.value = section;
-
-    await WidgetsBinding.instance.endOfFrame;
-    if (!mounted) return;
-
-    if (fromDrawer && !MediaQuery.disableAnimationsOf(context)) {
-      // ปิด Drawer แล้วรอ 150ms ก่อนเลื่อนเพื่อไม่ให้จอมือถือกระตุก
-      await Future<void>.delayed(const Duration(milliseconds: 150));
-      if (!mounted || !scrollController.hasClients) return;
-    }
-
-    final targetOffset = _targetOffset(section, context);
-    if (targetOffset == null) return;
-
-    // no-op: ไม่สั่ง jump/animate และไม่เปิดล็อกหากห่างเป้าหมายไม่เกิน 10px
-    if ((scrollController.offset - targetOffset).abs() <= scrollNoOpTolerance) {
-      state.activeSection.value = section;
-      return;
-    }
-
-    if (MediaQuery.disableAnimationsOf(context)) {
-      _scrollAnimationToken++;
-      _isProgrammaticScrolling = false;
-      scrollController.jumpTo(targetOffset);
-      state.activeSection.value = section;
-      return;
-    }
-
-    final token = ++_scrollAnimationToken;
-    _isProgrammaticScrolling = true;
-    try {
-      await scrollController.animateTo(
-        targetOffset,
-        duration: scrollDuration,
-        curve: Curves.easeInOutCubic,
-      );
-    } finally {
-      if (token == _scrollAnimationToken) {
-        _isProgrammaticScrolling = false;
-        state.activeSection.value = section;
-      }
-    }
+    await _portfolioScrollController.scrollTo(
+      section,
+      context,
+      fromDrawer: fromDrawer,
+    );
   }
 
   @override
   void dispose() {
-    scrollController.removeListener(_scrollSpy);
+    _portfolioScrollController.dispose();
     scrollController.dispose();
     revealMetricsRevision.dispose();
     super.dispose();
@@ -205,18 +91,14 @@ class _PortfolioPageState extends State<PortfolioPage> {
 
   @override
   Widget build(BuildContext context) {
-    final state = _StateScope.of(context);
+    final state = AppStateScope.of(context);
     if (loading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     if (profile == null || links == null) {
       return Scaffold(
         body: Center(
-          child: Text(
-            state.locale.value == AppLocale.th
-                ? 'ไม่สามารถโหลดข้อมูลได้'
-                : 'Unable to load content',
-          ),
+          child: Text(AppStrings.contentLoadError(state.locale.value)),
         ),
       );
     }
@@ -235,17 +117,17 @@ class _PortfolioPageState extends State<PortfolioPage> {
         body: Listener(
           onPointerSignal: (event) {
             if (event is PointerScrollEvent) {
-              _interruptProgrammaticScroll();
+              _portfolioScrollController.interruptProgrammaticScroll();
             }
           },
           child: NotificationListener<ScrollNotification>(
             onNotification: (notification) {
               if (notification is UserScrollNotification &&
                   notification.direction != ScrollDirection.idle) {
-                _interruptProgrammaticScroll();
+                _portfolioScrollController.interruptProgrammaticScroll();
               } else if (notification is ScrollUpdateNotification &&
                   notification.dragDetails != null) {
-                _interruptProgrammaticScroll();
+                _portfolioScrollController.interruptProgrammaticScroll();
               }
               return false;
             },

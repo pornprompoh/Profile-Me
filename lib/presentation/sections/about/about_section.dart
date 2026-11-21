@@ -1,5 +1,5 @@
-// หน้าที่หลัก: ประกอบบล็อกประวัติ รูปและทักษะของส่วน About
-part of '../../../main.dart';
+/// หน้าที่หลัก: ประกอบรูป ประวัติ และทักษะของ About section
+part of '../../portfolio_ui.dart';
 
 class _About extends StatelessWidget {
   const _About(this.profile, this.locale, {required this.accentKey});

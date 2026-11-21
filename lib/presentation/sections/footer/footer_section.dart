@@ -1,5 +1,5 @@
-// หน้าที่หลัก: รวมช่องทางติดต่อและข้อความลิขสิทธิ์ไว้ใน Footer
-part of '../../../main.dart';
+/// หน้าที่หลัก: รวมช่องทางติดต่อและข้อความลิขสิทธิ์ไว้ใน Footer
+part of '../../portfolio_ui.dart';
 
 class _Footer extends StatelessWidget {
   const _Footer({
@@ -15,15 +15,9 @@ class _Footer extends StatelessWidget {
   Future<void> _copyEmail(BuildContext context) async {
     await Clipboard.setData(ClipboardData(text: profile.email));
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          locale == AppLocale.th
-              ? 'คัดลอกอีเมลแล้ว'
-              : 'Email copied to clipboard',
-        ),
-      ),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(AppStrings.emailCopied(locale))));
   }
 
   Future<void> _copyPhone(BuildContext context) async {

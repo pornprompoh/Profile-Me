@@ -1,5 +1,12 @@
-// หน้าที่หลัก: UI และตรรกะสำหรับส่วนนี้ของ Portfolio
-part of '../main.dart';
+/// หน้าที่หลัก: ประกอบ MaterialApp พร้อม State Scope และ Theme
+library;
+
+import 'package:flutter/material.dart';
+
+import '../core/state/app_state_scope.dart';
+import '../core/theme/app_theme.dart';
+import '../presentation/portfolio_ui.dart';
+import 'app_bootstrap.dart';
 
 class PortfolioApp extends StatelessWidget {
   const PortfolioApp({super.key});
@@ -7,7 +14,7 @@ class PortfolioApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = AppBootstrap.createState();
-    return _StateScope(
+    return AppStateScope(
       state: state,
       child: ValueListenableBuilder<ThemeMode>(
         valueListenable: state.themeMode,
@@ -23,15 +30,3 @@ class PortfolioApp extends StatelessWidget {
     );
   }
 }
-
-class _StateScope extends InheritedWidget {
-  const _StateScope({required this.state, required super.child});
-  final AppState state;
-
-  static AppState of(BuildContext context) =>
-      context.dependOnInheritedWidgetOfExactType<_StateScope>()!.state;
-
-  @override
-  bool updateShouldNotify(_StateScope oldWidget) => state != oldWidget.state;
-}
-

@@ -1,5 +1,5 @@
-// หน้าที่หลัก: UI และตรรกะสำหรับส่วนนี้ของ Portfolio
-part of '../../main.dart';
+/// หน้าที่หลัก: รวม Section wrapper และเอฟเฟกต์ Scroll Reveal/Hover
+part of '../portfolio_ui.dart';
 
 class _Section extends StatelessWidget {
   const _Section({super.key, required this.child});

@@ -1,4 +1,6 @@
-// หน้าที่หลัก: รวมข้อความ UI สั้น ๆ ที่สลับตามภาษาของแอป
+/// หน้าที่หลัก: รวมข้อความ UI ที่สลับตามภาษาของแอป
+library;
+
 import '../state/app_state.dart';
 
 class AppStrings {
@@ -24,4 +26,22 @@ class AppStrings {
 
   static String phoneLabel(AppLocale locale) =>
       locale == AppLocale.th ? 'โทรศัพท์' : 'Phone';
+
+  static List<String> navigationLabels(AppLocale locale) =>
+      locale == AppLocale.th
+      ? const ['หน้าแรก', 'เกี่ยวกับฉัน', 'ประวัติ', 'ผลงาน', 'ติดต่อ']
+      : const ['Home', 'About', 'Timeline', 'Projects', 'Contact'];
+
+  static String changeLanguageTooltip(AppLocale locale) =>
+      locale == AppLocale.th ? 'เปลี่ยนภาษา' : 'Change language';
+
+  static String toggleThemeTooltip(AppLocale locale) =>
+      locale == AppLocale.th ? 'สลับธีม' : 'Toggle theme';
+
+  static String contentLoadError(AppLocale locale) => locale == AppLocale.th
+      ? 'ไม่สามารถโหลดข้อมูลได้'
+      : 'Unable to load content';
+
+  static String emailCopied(AppLocale locale) =>
+      locale == AppLocale.th ? 'คัดลอกอีเมลแล้ว' : 'Email copied to clipboard';
 }

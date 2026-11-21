@@ -1,5 +1,5 @@
-// หน้าที่หลัก: UI และตรรกะสำหรับส่วนนี้ของ Portfolio
-part of '../../../main.dart';
+/// หน้าที่หลัก: แสดง Timeline การศึกษาและประสบการณ์
+part of '../../portfolio_ui.dart';
 
 class _Timeline extends StatelessWidget {
   const _Timeline(this.profile, this.locale, {required this.accentKey});

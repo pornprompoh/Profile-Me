@@ -1,5 +1,5 @@
-// หน้าที่หลัก: การ์ดสรุปผลงานและการเปิดรายละเอียดโครงการ
-part of '../../../main.dart';
+/// หน้าที่หลัก: แสดงการ์ดสรุปโครงการและเปิดรายละเอียด
+part of '../../portfolio_ui.dart';
 
 class _ProjectCard extends StatelessWidget {
   const _ProjectCard({

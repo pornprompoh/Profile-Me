@@ -1,5 +1,5 @@
-// หน้าที่หลัก: UI และตรรกะสำหรับส่วนนี้ของ Portfolio
-part of '../../../main.dart';
+/// หน้าที่หลัก: แสดงตัวกรอง หมวดหมู่ และ Grid ผลงาน
+part of '../../portfolio_ui.dart';
 
 class _Projects extends StatefulWidget {
   const _Projects(

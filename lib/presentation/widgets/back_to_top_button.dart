@@ -1,5 +1,5 @@
-// หน้าที่หลัก: แสดงปุ่มกลับด้านบนแบบฝังในลำดับเนื้อหาก่อน Footer
-part of '../../main.dart';
+/// หน้าที่หลัก: แสดงปุ่มกลับด้านบนก่อน Footer
+part of '../portfolio_ui.dart';
 
 class _BackToTopButton extends StatelessWidget {
   const _BackToTopButton({required this.locale, required this.onPressed});
