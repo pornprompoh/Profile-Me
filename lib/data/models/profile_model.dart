@@ -4,6 +4,8 @@ import 'experience_model.dart';
 import 'localized_text.dart';
 import 'profile_language_model.dart';
 import 'skill_group_model.dart';
+import 'about_activity_model.dart';
+import '../../core/state/app_state.dart';
 
 class Profile {
   Profile({
@@ -18,6 +20,8 @@ class Profile {
     required this.languages,
     required this.profileImage,
     required this.profileImages,
+    required this.aboutImage,
+    required this.activities,
     LocalizedText? heroTagline,
   }) : heroTagline = heroTagline ?? LocalizedText('', '');
 
@@ -33,6 +37,8 @@ class Profile {
   final List<ProfileLanguage> languages;
   final String profileImage;
   final List<String> profileImages;
+  final String aboutImage;
+  final List<AboutActivity> activities;
 
   String get englishFirstName {
     final englishName = names.en.trim();
@@ -57,6 +63,12 @@ class Profile {
       value--;
     }
     return value < 0 ? 0 : value;
+  }
+
+  // แทนอายุจริงใน bio ทุกจุดเพื่อไม่ให้ {age} ค้างในหน้าเว็บหรือ Resume PDF
+  String resolvedBio(AppLocale locale) {
+    final text = locale == AppLocale.th ? bio.th : bio.en;
+    return text.replaceAll('{age}', age.toString());
   }
 
   factory Profile.fromJson(Map<String, dynamic> json) => Profile(
@@ -85,6 +97,13 @@ class Profile {
     profileImage: json['profileImage'] as String? ?? '',
     profileImages: (json['profileImages'] as List<dynamic>? ?? const [])
         .whereType<String>()
+        .toList(),
+    aboutImage: (json['aboutImage'] as String?)?.trim().isNotEmpty == true
+        ? (json['aboutImage'] as String).trim()
+        : json['profileImage'] as String? ?? '',
+    activities: (json['activities'] as List<dynamic>? ?? const [])
+        .whereType<Map<String, dynamic>>()
+        .map(AboutActivity.fromJson)
         .toList(),
   );
 }

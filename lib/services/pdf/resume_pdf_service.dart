@@ -58,7 +58,7 @@ class ResumePdfService {
 
     final name = isThai ? profile.names.th : profile.names.en;
     final role = isThai ? profile.roles.th : profile.roles.en;
-    final bio = isThai ? profile.bio.th : profile.bio.en;
+    final bio = profile.resolvedBio(locale);
     final cleanName = name
         .replaceAll(RegExp(r'[<>:"/\\|?*\s]+'), '_')
         .replaceAll(RegExp(r'_+'), '_');

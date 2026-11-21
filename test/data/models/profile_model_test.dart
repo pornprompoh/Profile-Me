@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:profile_me/data/models/profile_model.dart';
+import 'package:profile_me/core/state/app_state.dart';
 
 void main() {
   test('English name and watermark use only the first name', () {
@@ -41,5 +42,26 @@ void main() {
     });
 
     expect(profile.englishNameWatermark, isEmpty);
+  });
+
+  test('resolved bio replaces age and supports About fallback fields', () {
+    final profile = Profile.fromJson({
+      'birthDate': '2000-01-01',
+      'names': {'th': 'ทดสอบ ภาษาไทย', 'en': 'Test Person'},
+      'profileImage': 'assets/profile-main.jpg',
+      'bio': {'th': 'ฉันอายุ {age} ปี', 'en': 'I am {age} years old'},
+      'activities': [
+        {
+          'title': {'th': 'กิจกรรม', 'en': 'Activity'},
+          'description': {'th': 'คำอธิบาย', 'en': 'Description'},
+        },
+      ],
+    });
+
+    expect(profile.resolvedBio(AppLocale.th), 'ฉันอายุ ${profile.age} ปี');
+    expect(profile.resolvedBio(AppLocale.en), 'I am ${profile.age} years old');
+    expect(profile.resolvedBio(AppLocale.en), isNot(contains('{age}')));
+    expect(profile.aboutImage, 'assets/profile-main.jpg');
+    expect(profile.activities, hasLength(1));
   });
 }

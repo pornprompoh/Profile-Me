@@ -10,9 +10,28 @@
   "birthDate": "2006-04-17",
   "email": "poh17449@gmail.com",
   "bio": {
-    "th": "สวัสดีครับ ผมชื่อ ป๋อ กำลังศึกษาที่สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหาร ลาดกระบัง ผมชอบค้นคว้าและทดลองสิ่งใหม่ ๆ เรียนรู้ทักษะใหม่ ๆ และสนุกกับการใช้งาน AI โดยเฉพาะการเขียน Prompt",
-    "en": "Hello, my name is Po. I am studying at King Mongkut's Institute of Technology Ladkrabang. I enjoy exploring new ideas, learning new skills, and using AI, especially crafting prompts."
+    "th": "สวัสดีครับ ผมชื่อ ป๋อ อายุ {age} ปี ปัจจุบันกำลังศึกษาอยู่ที่คณะครุศาสตร์อุตสาหกรรมและเทคโนโลยี สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง ผมเป็นคนชอบลงมือทำ ค้นคว้า และทดลองเทคโนโลยีใหม่ ๆ อยู่เสมอ ไม่ว่าจะเป็นการพัฒนาแอปและเว็บไซต์ด้วย Flutter การสร้างสรรค์งาน 3D และอิเล็กทรอนิกส์ ไปจนถึงการประยุกต์ใช้ AI และการเขียน Prompt เพื่อแก้ปัญหาและต่อยอดเป็นเครื่องมือที่ใช้งานได้จริงครับ",
+    "en": "Hi, I'm Po, {age} years old, currently studying at the Faculty of Industrial Education and Technology, King Mongkut's Institute of Technology Ladkrabang (KMITL). I enjoy hands-on learning and exploring new technologies—from building web and cross-platform apps with Flutter, tinkering with 3D modeling and electronics, to leveraging AI and prompt engineering to solve problems and build practical tools."
   },
+  "aboutImage": "assets/my_content/images/profile/profile-3.jpg",
+  "activities": [
+    {
+      "title": {"th": "พัฒนาเว็บและแอปพลิเคชัน", "en": "Web & App Development"},
+      "description": {"th": "สร้างแอปและเว็บโปรเจกต์ด้วย Flutter, Supabase และ Firebase", "en": "Build web and cross-platform apps with Flutter, Supabase, and Firebase"}
+    },
+    {
+      "title": {"th": "AI & Prompt Engineering", "en": "AI & Prompt Engineering"},
+      "description": {"th": "ออกแบบ Prompt และประยุกต์ใช้ AI ช่วยเพิ่มประสิทธิภาพการทำงานและการเรียนรู้", "en": "Design structured prompts and apply AI workflows to boost productivity and learning"}
+    },
+    {
+      "title": {"th": "งานสร้างสรรค์ 3D & อิเล็กทรอนิกส์", "en": "3D Modeling & DIY Electronics"},
+      "description": {"th": "ทดลองปั้นโมเดล 3D และต่อยอดโปรเจกต์ไมโครคอนโทรลเลอร์", "en": "Explore 3D character sculpting and build hands-on microcontroller projects"}
+    },
+    {
+      "title": {"th": "เทคโนโลยีเพื่อการศึกษา", "en": "Tech & Learning Tools"},
+      "description": {"th": "ออกแบบสื่อและเครื่องมือช่วยการเรียนรู้ที่เข้าใจง่ายและโต้ตอบได้", "en": "Craft clear, interactive learning media and practical educational tools"}
+    }
+  ],
   "heroTagline": {
     "th": "เทคโนโลยีคอมพิวเตอร์ - เว็บ แอป และ AI",
     "en": "Computer Technology - Web, Apps & AI"

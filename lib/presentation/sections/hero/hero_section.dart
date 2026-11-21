@@ -36,7 +36,7 @@ class _Hero extends StatelessWidget {
             : CrossAxisAlignment.start,
         children: [
           Text(
-            locale == AppLocale.th ? 'สวัสดีครับ ผมคือ' : "Hello, I'm",
+            locale == AppLocale.th ? 'สวัสดีครับ ผมชื่อ' : "Hello, I'm",
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
               color: Colors.white.withValues(alpha: .88),
             ),

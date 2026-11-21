@@ -1,8 +1,9 @@
-// หน้าที่หลัก: UI และตรรกะสำหรับส่วนนี้ของ Portfolio
+// หน้าที่หลัก: ประกอบบล็อกประวัติ รูป กิจกรรม และทักษะของส่วน About
 part of '../../../main.dart';
 
 class _About extends StatelessWidget {
   const _About(this.profile, this.locale);
+
   final Profile profile;
   final AppLocale locale;
 
@@ -10,6 +11,8 @@ class _About extends StatelessWidget {
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
     final isMobile = width < LayoutTokens.mobileBreakpoint;
+    final bio = profile.resolvedBio(locale);
+
     return SectionContainer(
       child: _ScrollReveal(
         child: Column(
@@ -22,73 +25,44 @@ class _About extends StatelessWidget {
                   : 'Background and interests',
             ),
             const SizedBox(height: 24),
-            LayoutBuilder(
-              builder: (context, constraints) => isMobile
-                  ? Column(
+            if (isMobile)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Center(child: _AboutPhotoCard(profile: profile)),
+                  const SizedBox(height: 24),
+                  _AboutBio(bio: bio),
+                  const SizedBox(height: 20),
+                  _AboutActivitiesGrid(
+                    activities: profile.activities,
+                    locale: locale,
+                  ),
+                ],
+              )
+            else
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(flex: 36, child: _AboutPhotoCard(profile: profile)),
+                  const SizedBox(width: 36),
+                  Expanded(
+                    flex: 64,
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          locale == AppLocale.th
-                              ? profile.bio.th
-                              : profile.bio.en,
-                          style: Theme.of(
-                            context,
-                          ).textTheme.titleMedium?.copyWith(height: 1.75),
-                        ),
+                        _AboutBio(bio: bio),
                         const SizedBox(height: 20),
-                        _AboutFacts(profile: profile, locale: locale),
-                      ],
-                    )
-                  : Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          flex: 3,
-                          child: Text(
-                            locale == AppLocale.th
-                                ? profile.bio.th
-                                : profile.bio.en,
-                            style: Theme.of(
-                              context,
-                            ).textTheme.titleMedium?.copyWith(height: 1.75),
-                          ),
-                        ),
-                        const SizedBox(width: 36),
-                        Expanded(
-                          flex: 2,
-                          child: _AboutFacts(profile: profile, locale: locale),
+                        _AboutActivitiesGrid(
+                          activities: profile.activities,
+                          locale: locale,
                         ),
                       ],
                     ),
-            ),
-            const SizedBox(height: 32),
-            for (final group in profile.skillGroups)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      locale == AppLocale.th ? group.title.th : group.title.en,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        for (final skill in group.skills)
-                          Chip(
-                            label: Text(skill),
-                            visualDensity: VisualDensity.compact,
-                          ),
-                      ],
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
+            const SizedBox(height: 32),
+            _AboutSkillsGrid(groups: profile.skillGroups, locale: locale),
           ],
         ),
       ),
@@ -96,40 +70,17 @@ class _About extends StatelessWidget {
   }
 }
 
-class _AboutFacts extends StatelessWidget {
-  const _AboutFacts({required this.profile, required this.locale});
-  final Profile profile;
-  final AppLocale locale;
+class _AboutBio extends StatelessWidget {
+  const _AboutBio({required this.bio});
+
+  final String bio;
 
   @override
-  Widget build(BuildContext context) {
-    final surface = Theme.of(context).colorScheme.primaryContainer.withValues(
-      alpha: Theme.of(context).brightness == Brightness.dark ? .28 : .55,
-    );
-    return Container(
-      padding: const EdgeInsets.all(LayoutTokens.cardPadding),
-      decoration: BoxDecoration(
-        color: surface,
-        borderRadius: BorderRadius.circular(LayoutTokens.cardRadius),
-        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.cake_outlined),
-              const SizedBox(width: 10),
-              Text(
-                '${locale == AppLocale.th ? 'อายุ' : 'Age'} ${profile.age}',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) => Text(
+    bio,
+    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+      height: 1.78,
+      color: Theme.of(context).colorScheme.onSurface,
+    ),
+  );
 }
