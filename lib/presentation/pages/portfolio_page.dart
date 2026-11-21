@@ -52,7 +52,6 @@ class _PortfolioPageState extends State<PortfolioPage> {
 
   void _scrollSpy() {
     final state = _StateScope.of(context);
-    state.showBackToTop.value = scrollController.offset > 350;
     AppSection closest = AppSection.home;
     var distance = double.infinity;
     for (final entry in keys.entries) {
@@ -134,117 +133,85 @@ class _PortfolioPageState extends State<PortfolioPage> {
           onNavigate: _scrollTo,
           onPdf: () => _downloadPdf(state, locale),
         ),
-        body: Stack(
-          children: [
-            _ScrollRevealScope(
+        body: _ScrollRevealScope(
+          controller: scrollController,
+          metricsRevision: revealMetricsRevision,
+          child: NotificationListener<ScrollMetricsNotification>(
+            onNotification: (_) {
+              revealMetricsRevision.value++;
+              return false;
+            },
+            child: CustomScrollView(
               controller: scrollController,
-              metricsRevision: revealMetricsRevision,
-              child: NotificationListener<ScrollMetricsNotification>(
-                onNotification: (_) {
-                  revealMetricsRevision.value++;
-                  return false;
-                },
-                child: CustomScrollView(
-                  controller: scrollController,
-                  slivers: [
-                    SliverPersistentHeader(
-                      pinned: true,
-                      delegate: _NavbarDelegate(
-                        minHeight: 72,
-                        maxHeight: 72,
-                        child: _Navbar(
-                          state: state,
-                          locale: locale,
-                          brandName: profile!.englishFirstName,
-                          onNavigate: _scrollTo,
-                          onPdf: () => _downloadPdf(state, locale),
-                        ),
-                      ),
-                    ),
-                    SliverToBoxAdapter(
-                      child: Column(
-                        children: [
-                          _Section(
-                            key: keys[AppSection.home],
-                            child: _Hero(
-                              profile!,
-                              locale,
-                              onProjects: () {
-                                _scrollTo(AppSection.projects);
-                              },
-                              onContact: () {
-                                _scrollTo(AppSection.contact);
-                              },
-                            ),
-                          ),
-                          _OceanWaveDivider(
-                            isDark:
-                                Theme.of(context).brightness == Brightness.dark,
-                            isFooterEdge: false,
-                          ),
-                          _Section(
-                            key: keys[AppSection.about],
-                            child: _About(profile!, locale),
-                          ),
-                          _Section(
-                            key: keys[AppSection.timeline],
-                            child: _Timeline(profile!, locale),
-                          ),
-                          _Section(
-                            key: keys[AppSection.projects],
-                            child: _Projects(projects, links!, state, locale),
-                          ),
-                          _OceanWaveDivider(
-                            isDark:
-                                Theme.of(context).brightness == Brightness.dark,
-                            isFooterEdge: true,
-                          ),
-                          _Section(
-                            key: keys[AppSection.contact],
-                            child: _Footer(
-                              profile: profile!,
-                              links: links!,
-                              locale: locale,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            ValueListenableBuilder<bool>(
-              valueListenable: state.showBackToTop,
-              builder: (context, visible, _) => Positioned(
-                right: 24,
-                bottom: 24,
-                child: AnimatedOpacity(
-                  opacity: visible ? 1 : 0,
-                  duration: const Duration(milliseconds: 220),
-                  child: AnimatedScale(
-                    scale: visible ? 1 : .7,
-                    duration: const Duration(milliseconds: 220),
-                    child: _HoverWrapper(
-                      child: FloatingActionButton(
-                        onPressed: visible
-                            ? () => scrollController.animateTo(
-                                0,
-                                duration: const Duration(milliseconds: 700),
-                                curve: Curves.easeInOutCubic,
-                              )
-                            : null,
-                        tooltip: locale == AppLocale.th
-                            ? 'กลับขึ้นด้านบน'
-                            : 'Back to top',
-                        child: const Icon(Icons.keyboard_arrow_up),
-                      ),
+              slivers: [
+                SliverPersistentHeader(
+                  pinned: true,
+                  delegate: _NavbarDelegate(
+                    minHeight: 72,
+                    maxHeight: 72,
+                    child: _Navbar(
+                      state: state,
+                      locale: locale,
+                      brandName: profile!.englishFirstName,
+                      onNavigate: _scrollTo,
+                      onPdf: () => _downloadPdf(state, locale),
                     ),
                   ),
                 ),
-              ),
+                SliverToBoxAdapter(
+                  child: Column(
+                    children: [
+                      _Section(
+                        key: keys[AppSection.home],
+                        child: _Hero(
+                          profile!,
+                          locale,
+                          onProjects: () {
+                            _scrollTo(AppSection.projects);
+                          },
+                          onContact: () {
+                            _scrollTo(AppSection.contact);
+                          },
+                        ),
+                      ),
+                      _OceanWaveDivider(
+                        isDark: Theme.of(context).brightness == Brightness.dark,
+                        isFooterEdge: false,
+                      ),
+                      _Section(
+                        key: keys[AppSection.about],
+                        child: _About(profile!, locale),
+                      ),
+                      _Section(
+                        key: keys[AppSection.timeline],
+                        child: _Timeline(profile!, locale),
+                      ),
+                      _Section(
+                        key: keys[AppSection.projects],
+                        child: _Projects(projects, links!, state, locale),
+                      ),
+                      _BackToTopButton(
+                        locale: locale,
+                        onPressed: () => _scrollTo(AppSection.home),
+                      ),
+                      _OceanWaveDivider(
+                        isDark: Theme.of(context).brightness == Brightness.dark,
+                        isFooterEdge: true,
+                      ),
+                      _Section(
+                        key: keys[AppSection.contact],
+                        child: _Footer(
+                          profile: profile!,
+                          links: links!,
+                          locale: locale,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

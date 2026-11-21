@@ -37,12 +37,12 @@
 │       │   ├── hero/
 │       │   │   ├── hero_section.dart
 │       │   │   ├── hero_ocean_backdrop.dart
-│       │   │   ├── hero_profile_card.dart
-│       │   │   └── hero_tech_stack_row.dart
+│       │   │   └── hero_profile_card.dart
 │       │   ├── footer/footer_section.dart # Contact actions and copyright
 │       ├── modals/
 │       └── widgets/
-│           └── ocean_wave_divider.dart
+│           ├── ocean_wave_divider.dart
+│           └── back_to_top_button.dart
 ├── assets/my_content/
 │   ├── profile/profile.json
 │   ├── projects/projects.json
@@ -126,12 +126,12 @@ The project follows Clean/Layered Architecture with clear Single Responsibility 
 │       │   ├── hero/
 │       │   │   ├── hero_section.dart
 │       │   │   ├── hero_ocean_backdrop.dart
-│       │   │   ├── hero_profile_card.dart
-│       │   │   └── hero_tech_stack_row.dart
+│       │   │   └── hero_profile_card.dart
 │       │   ├── footer/footer_section.dart # Contact actions and copyright
 │       ├── modals/
 │       └── widgets/
-│           └── ocean_wave_divider.dart
+│           ├── ocean_wave_divider.dart
+│           └── back_to_top_button.dart
 ├── assets/my_content/
 │   ├── profile/profile.json
 │   ├── projects/projects.json

@@ -73,20 +73,9 @@ class _Footer extends StatelessWidget {
       child: _ScrollReveal(
         child: isMobile
             ? Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Wrap(
-                    alignment: WrapAlignment.center,
-                    spacing: 12,
-                    runSpacing: 12,
-                    children: contactIcons,
-                  ),
-                  const SizedBox(height: 18),
-                  Container(
-                    height: 1,
-                    width: double.infinity,
-                    color: Colors.white.withValues(alpha: .12),
-                  ),
-                  const SizedBox(height: 16),
+                  // บนมือถือวางลิขสิทธิ์ก่อน แล้วตามด้วยช่องทางติดต่อ
                   Text(
                     copyright,
                     textAlign: TextAlign.center,
@@ -94,6 +83,19 @@ class _Footer extends StatelessWidget {
                       color: Colors.white.withValues(alpha: .76),
                       fontSize: 13,
                     ),
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    height: 1,
+                    width: double.infinity,
+                    color: Colors.white.withValues(alpha: .12),
+                  ),
+                  const SizedBox(height: 16),
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: 12,
+                    runSpacing: 12,
+                    children: contactIcons,
                   ),
                 ],
               )

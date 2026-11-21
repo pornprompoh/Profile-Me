@@ -126,13 +126,6 @@ class _Hero extends StatelessWidget {
               ),
             ],
           ),
-          if (profile.heroTechStack.isNotEmpty) ...[
-            const SizedBox(height: 16),
-            _HeroTechStackRow(
-              profile.heroTechStack,
-              alignment: isStacked ? WrapAlignment.center : WrapAlignment.start,
-            ),
-          ],
         ],
       ),
     );
@@ -148,7 +141,7 @@ class _Hero extends StatelessWidget {
       ),
     );
     return SectionContainer(
-      verticalPadding: isStacked ? (isMobile ? 40 : 56) : (isCompact ? 64 : 72),
+      verticalPadding: isStacked ? (isMobile ? 36 : 52) : (isCompact ? 56 : 64),
       background: IgnorePointer(
         child: _HeroOceanBackdrop(
           isDark: isDark,

@@ -2,16 +2,16 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:profile_me/data/models/profile_model.dart';
 
 void main() {
-  test('english first name is derived from the localized profile name', () {
+  test('English name and watermark use only the first name', () {
     final profile = Profile.fromJson({
       'names': {'th': 'ชื่อไทย', 'en': '  Pornprom Sukjaimit  '},
     });
 
     expect(profile.englishFirstName, 'Pornprom');
-    expect(profile.englishNameWatermark, 'PORNPROM SUKJAIMIT');
+    expect(profile.englishNameWatermark, 'PORNPROM');
   });
 
-  test('missing Hero fields fall back to empty tagline and skill groups', () {
+  test('missing tagline falls back without changing About skill groups', () {
     final profile = Profile.fromJson({
       'skillGroups': [
         {
@@ -27,38 +27,19 @@ void main() {
 
     expect(profile.heroTagline.th, isEmpty);
     expect(profile.heroTagline.en, isEmpty);
-    expect(profile.heroTechStack, [
+    expect(profile.skillGroups.first.skills, [
       'Dart',
       'JavaScript',
+      '',
       'HTML',
-      'Flutter',
-      'Firebase',
-      'Supabase',
     ]);
   });
 
-  test('configured Hero Tech Stack is trimmed to six entries', () {
+  test('empty English name produces an empty watermark', () {
     final profile = Profile.fromJson({
-      'heroTagline': {'th': 'คำโปรยไทย', 'en': 'English tagline'},
-      'heroTechStack': [
-        'Dart',
-        'Flutter',
-        'Firebase',
-        'HTML',
-        'CSS',
-        'JS',
-        'SQL',
-      ],
+      'names': {'th': 'ชื่อไทย', 'en': '   '},
     });
 
-    expect(profile.heroTagline.en, 'English tagline');
-    expect(profile.heroTechStack, [
-      'Dart',
-      'Flutter',
-      'Firebase',
-      'HTML',
-      'CSS',
-      'JS',
-    ]);
+    expect(profile.englishNameWatermark, isEmpty);
   });
 }

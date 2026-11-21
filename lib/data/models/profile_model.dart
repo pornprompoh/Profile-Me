@@ -18,9 +18,7 @@ class Profile {
     required this.languages,
     required this.profileImage,
     LocalizedText? heroTagline,
-    List<String>? heroTechStack,
-  }) : heroTagline = heroTagline ?? LocalizedText('', ''),
-       heroTechStack = _resolveHeroTechStack(heroTechStack, skillGroups);
+  }) : heroTagline = heroTagline ?? LocalizedText('', '');
 
   final LocalizedText names;
   final LocalizedText roles;
@@ -31,7 +29,6 @@ class Profile {
   final List<Education> education;
   final List<Experience> experience;
   final List<SkillGroup> skillGroups;
-  final List<String> heroTechStack;
   final List<ProfileLanguage> languages;
   final String profileImage;
 
@@ -40,7 +37,13 @@ class Profile {
     return englishName.isEmpty ? '' : englishName.split(RegExp(r'\s+')).first;
   }
 
-  String get englishNameWatermark => names.en.trim().toUpperCase();
+  // ลายน้ำใช้เฉพาะชื่อภาษาอังกฤษคำแรก ไม่รวมชื่อสกุล
+  String get englishNameWatermark {
+    final englishName = names.en.trim();
+    return englishName.isEmpty
+        ? ''
+        : englishName.split(RegExp(r'\s+')).first.toUpperCase();
+  }
 
   int get age {
     final date = DateTime.tryParse(birthDate);
@@ -73,31 +76,10 @@ class Profile {
         .whereType<Map<String, dynamic>>()
         .map(SkillGroup.fromJson)
         .toList(),
-    heroTechStack: json['heroTechStack'] is List
-        ? (json['heroTechStack'] as List<dynamic>).whereType<String>().toList()
-        : null,
     languages: (json['languages'] as List<dynamic>? ?? const [])
         .whereType<Map<String, dynamic>>()
         .map(ProfileLanguage.fromJson)
         .toList(),
     profileImage: json['profileImage'] as String? ?? '',
   );
-}
-
-List<String> _resolveHeroTechStack(
-  List<String>? configured,
-  List<SkillGroup> skillGroups,
-) {
-  final selected = configured
-      ?.where((skill) => skill.trim().isNotEmpty)
-      .toList();
-  if (selected != null && selected.isNotEmpty) {
-    return selected.take(6).toList();
-  }
-  return skillGroups
-      .take(2)
-      .expand((group) => group.skills)
-      .where((skill) => skill.trim().isNotEmpty)
-      .take(6)
-      .toList();
 }

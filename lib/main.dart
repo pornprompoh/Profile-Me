@@ -27,13 +27,13 @@ part 'presentation/widgets/ocean_wave_divider.dart';
 part 'presentation/sections/hero/hero_section.dart';
 part 'presentation/sections/hero/hero_ocean_backdrop.dart';
 part 'presentation/sections/hero/hero_profile_card.dart';
-part 'presentation/sections/hero/hero_tech_stack_row.dart';
 part 'presentation/sections/about/about_section.dart';
 part 'presentation/sections/timeline/timeline_section.dart';
 part 'presentation/sections/projects/projects_section.dart';
 part 'presentation/sections/projects/project_card.dart';
 part 'presentation/modals/project_modals.dart';
 part 'presentation/sections/footer/footer_section.dart';
+part 'presentation/widgets/back_to_top_button.dart';
 
 // หน้าที่หลัก: จุดเริ่มต้นของแอปพลิเคชัน
 void main() {
