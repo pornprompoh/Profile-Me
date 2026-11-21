@@ -74,6 +74,9 @@ git push origin dev
 เปิด Production URL ที่ Vercel แสดงให้ ทั้งบน Desktop และ Mobile:
 
 - หน้าเว็บโหลดได้และฟอนต์ไทย Sarabun แสดงผลถูกต้อง
+- แท็บเบราว์เซอร์แสดง Favicon แบบมุมโค้งมนใหม่ ไม่ติดแคช Flutter เดิม
+- แบ่งแชร์ลิงก์แสดง `og:image` / `twitter:image` จากไอคอนแบรนด์เดียวกัน
+- Navbar และ Mobile Drawer แสดงไอคอนสี่เหลี่ยมขอบมนหน้าชื่อ `Pornprom` ครบทั้ง Light/Dark และ 390px
 - รูปใน Hero, About และ Projects โหลดครบ ไม่เป็นภาพเสีย
 - สลับธีม Light/Dark แล้วสีและตัวอักษรยังอ่านได้
 - สลับภาษาไทย/อังกฤษแล้วเนื้อหาเปลี่ยนครบ

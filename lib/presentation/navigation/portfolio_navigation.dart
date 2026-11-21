@@ -95,11 +95,12 @@ class _Navbar extends StatelessWidget {
                             horizontal: 10,
                             vertical: 9,
                           ),
-                          child: Text(
-                            brandName,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.titleMedium
+                          child: _BrandLogo(
+                            brandName: brandName,
+                            iconSize: width < LayoutTokens.mobileBreakpoint
+                                ? 24
+                                : 30,
+                            textStyle: Theme.of(context).textTheme.titleMedium
                                 ?.copyWith(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w800,

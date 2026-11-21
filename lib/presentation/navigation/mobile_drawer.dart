@@ -46,11 +46,12 @@ class _MobileDrawer extends StatelessWidget {
                         child: Row(
                           children: [
                             Expanded(
-                              child: Text(
-                                brandName,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context).textTheme.titleMedium
+                              child: _BrandLogo(
+                                brandName: brandName,
+                                iconSize: 24,
+                                textStyle: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
                                     ?.copyWith(
                                       fontWeight: FontWeight.w800,
                                       fontSize: 18,

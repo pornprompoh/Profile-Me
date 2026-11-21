@@ -43,3 +43,4 @@ part 'modals/project_modals.dart';
 part 'modals/image_lightbox_dialog.dart';
 part 'sections/footer/footer_section.dart';
 part 'widgets/back_to_top_button.dart';
+part 'widgets/brand_logo.dart';

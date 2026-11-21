@@ -58,6 +58,7 @@ flutter:
     - assets/my_content/profile/
     - assets/my_content/projects/
     - assets/my_content/links/
+    - assets/my_content/images/brand_icon.png
     - assets/my_content/images/profile/
     - assets/my_content/images/projects/
     - assets/my_content/images/others/

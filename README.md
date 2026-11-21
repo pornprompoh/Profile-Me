@@ -74,6 +74,8 @@
 │       │   └── timeline/timeline_section.dart # เส้นเวลา
 │       └── widgets/
 │           ├── back_to_top_button.dart # ปุ่มกลับด้านบน
+│           ├── brand_logo.dart           # Brand icon beside Pornprom # ปุ่มกลับด้านบน
+│           ├── brand_logo.dart           # ไอคอนแบรนด์ด้านชื่อ Pornprom # ปุ่มกลับด้านบน
 │           ├── brand_icon.dart          # ไอคอนแบรนด์
 │           ├── ocean_wave_divider.dart  # ตัวแบ่งคลื่นทะเล
 │           ├── project_link_button.dart # ลิงก์โครงการ
