@@ -95,11 +95,12 @@ class _Navbar extends StatelessWidget {
                             horizontal: 10,
                             vertical: 9,
                           ),
-                          child: Text(
-                            brandName,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.titleMedium
+                          child: _BrandLogo(
+                            brandName: brandName,
+                            iconSize: width < LayoutTokens.mobileBreakpoint
+                                ? 24
+                                : 30,
+                            textStyle: Theme.of(context).textTheme.titleMedium
                                 ?.copyWith(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w800,
@@ -213,16 +214,18 @@ class _Navbar extends StatelessWidget {
                     height: controlSize,
                   ),
                 ),
-                const SizedBox(width: 2),
-                ValueListenableBuilder<bool>(
-                  valueListenable: state.isGeneratingPdf,
-                  builder: (context, generating, _) => _ResumeButton(
-                    locale: locale,
-                    onPressed: onPdf,
-                    isGenerating: generating,
-                    height: controlSize,
+                if (showFullNavigation) ...[
+                  const SizedBox(width: 2),
+                  ValueListenableBuilder<bool>(
+                    valueListenable: state.isGeneratingPdf,
+                    builder: (context, generating, _) => _ResumeButton(
+                      locale: locale,
+                      onPressed: onPdf,
+                      isGenerating: generating,
+                      height: controlSize,
+                    ),
                   ),
-                ),
+                ],
                 if (!showFullNavigation)
                   Builder(
                     builder: (context) => IconButton(

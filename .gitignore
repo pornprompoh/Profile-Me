@@ -2,6 +2,8 @@
 *.class
 *.log
 *.pyc
+*.tmp
+*.temp
 *.swp
 .DS_Store
 .atom/
@@ -30,8 +32,15 @@ migrate_working_dir/
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
-/build/
+build/
+/.flutter/
+/.vercel/
 /coverage/
+
+# Local environment variables
+.env
+.env.*
+!.env.example
 
 # Local draft for personal portfolio info
 FILL_MY_INFO.md

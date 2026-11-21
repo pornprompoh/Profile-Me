@@ -74,6 +74,8 @@
 │       │   └── timeline/timeline_section.dart # เส้นเวลา
 │       └── widgets/
 │           ├── back_to_top_button.dart # ปุ่มกลับด้านบน
+│           ├── brand_logo.dart           # Brand icon beside Pornprom # ปุ่มกลับด้านบน
+│           ├── brand_logo.dart           # ไอคอนแบรนด์ด้านชื่อ Pornprom # ปุ่มกลับด้านบน
 │           ├── brand_icon.dart          # ไอคอนแบรนด์
 │           ├── ocean_wave_divider.dart  # ตัวแบ่งคลื่นทะเล
 │           ├── project_link_button.dart # ลิงก์โครงการ
@@ -123,6 +125,10 @@ JSON ใน assets/my_content
 | Resume PDF | `lib/services/pdf/resume_pdf_service.dart` |
 
 </details>
+
+## คู่มือ Deploy
+
+ดูขั้นตอน GitHub Actions CI และการตั้งค่า Production บน Vercel ที่ [DEPLOY_GUIDE.md](./DEPLOY_GUIDE.md)
 
 <details>
 <summary>🇬🇧 English — Architecture &amp; Project Structure (Click to expand/collapse)</summary>
