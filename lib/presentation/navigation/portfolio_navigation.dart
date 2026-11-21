@@ -214,16 +214,18 @@ class _Navbar extends StatelessWidget {
                     height: controlSize,
                   ),
                 ),
-                const SizedBox(width: 2),
-                ValueListenableBuilder<bool>(
-                  valueListenable: state.isGeneratingPdf,
-                  builder: (context, generating, _) => _ResumeButton(
-                    locale: locale,
-                    onPressed: onPdf,
-                    isGenerating: generating,
-                    height: controlSize,
+                if (showFullNavigation) ...[
+                  const SizedBox(width: 2),
+                  ValueListenableBuilder<bool>(
+                    valueListenable: state.isGeneratingPdf,
+                    builder: (context, generating, _) => _ResumeButton(
+                      locale: locale,
+                      onPressed: onPdf,
+                      isGenerating: generating,
+                      height: controlSize,
+                    ),
                   ),
-                ),
+                ],
                 if (!showFullNavigation)
                   Builder(
                     builder: (context) => IconButton(
