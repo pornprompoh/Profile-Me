@@ -3,12 +3,12 @@ part of '../../../main.dart';
 
 class _HeroProfileCard extends StatelessWidget {
   const _HeroProfileCard({
-    required this.path,
+    required this.paths,
     required this.width,
     required this.caption,
   });
 
-  final String path;
+  final List<String> paths;
   final double width;
   final String caption;
 
@@ -23,12 +23,12 @@ class _HeroProfileCard extends StatelessWidget {
           color: Colors.transparent,
           borderRadius: radius,
           child: InkWell(
-            onTap: path.isEmpty
+            onTap: paths.isEmpty
                 ? null
                 : () => showDialog<void>(
                     context: context,
                     barrierDismissible: true,
-                    builder: (_) => _Lightbox(images: [path]),
+                    builder: (_) => _Lightbox(images: paths),
                   ),
             borderRadius: radius,
             child: Ink(
@@ -56,9 +56,9 @@ class _HeroProfileCard extends StatelessWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    if (path.isNotEmpty)
+                    if (paths.isNotEmpty)
                       Image.asset(
-                        path,
+                        paths.first,
                         fit: BoxFit.cover,
                         alignment: Alignment.topCenter,
                         errorBuilder: (_, _, _) => _fallback(context),

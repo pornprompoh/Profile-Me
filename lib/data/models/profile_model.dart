@@ -17,6 +17,7 @@ class Profile {
     required this.skillGroups,
     required this.languages,
     required this.profileImage,
+    required this.profileImages,
     LocalizedText? heroTagline,
   }) : heroTagline = heroTagline ?? LocalizedText('', '');
 
@@ -31,6 +32,7 @@ class Profile {
   final List<SkillGroup> skillGroups;
   final List<ProfileLanguage> languages;
   final String profileImage;
+  final List<String> profileImages;
 
   String get englishFirstName {
     final englishName = names.en.trim();
@@ -81,5 +83,8 @@ class Profile {
         .map(ProfileLanguage.fromJson)
         .toList(),
     profileImage: json['profileImage'] as String? ?? '',
+    profileImages: (json['profileImages'] as List<dynamic>? ?? const [])
+        .whereType<String>()
+        .toList(),
   );
 }

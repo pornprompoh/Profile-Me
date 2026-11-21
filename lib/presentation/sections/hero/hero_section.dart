@@ -134,7 +134,11 @@ class _Hero extends StatelessWidget {
       child: _HoverWrapper(
         lift: 8,
         child: _HeroProfileCard(
-          path: profile.profileImage,
+          paths: profile.profileImages.isNotEmpty
+              ? profile.profileImages
+              : (profile.profileImage.isNotEmpty
+                    ? [profile.profileImage]
+                    : const []),
           width: isMobile ? 190 : (isCompact ? 220 : 260),
           caption: caption,
         ),

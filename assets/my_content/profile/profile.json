@@ -64,7 +64,23 @@
       }
     }
   ],
-  "experience": [],
+  "experience": [
+    {
+      "period": "ช่วงปิดภาคฤดูร้อนหลังชั้นปีที่ 2",
+      "role": {
+        "th": "นักศึกษาฝึกงาน",
+        "en": "Intern"
+      },
+      "organization": {
+        "th": "บริษัท ภาวินเทคโนโลยี จำกัด",
+        "en": "Pawin Technology Co., Ltd."
+      },
+      "details": {
+        "th": "ฝึกงานประมาณ 2 เดือน รับผิดชอบประกอบแผงวงจรและจุ่มบัดกรี (DIP soldering) ดูแลสต็อกสินค้า และจัดการหน้าร้านบน Shopee รวมถึงลงรายการสินค้าเพื่อจำหน่าย",
+        "en": "Completed an approximately two-month internship, assembling circuit boards and performing DIP soldering, managing inventory, and maintaining the company's Shopee store, including creating product listings."
+      }
+    }
+  ],
   "skillGroups": [
     {
       "title": {
@@ -89,5 +105,11 @@
     }
   ],
   "languages": [],
-  "profileImage": "assets/my_content/images/profile/profile.jpg"
+  "profileImage": "assets/my_content/images/profile/profile-1.jpg",
+  "profileImages": [
+    "assets/my_content/images/profile/profile-1.jpg",
+    "assets/my_content/images/profile/profile-2.jpg",
+    "assets/my_content/images/profile/profile-3.jpg",
+    "assets/my_content/images/profile/profile-4.jpg"
+  ]
 }
