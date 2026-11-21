@@ -2,9 +2,10 @@
 part of '../../../main.dart';
 
 class _Timeline extends StatelessWidget {
-  const _Timeline(this.profile, this.locale);
+  const _Timeline(this.profile, this.locale, {required this.accentKey});
   final Profile profile;
   final AppLocale locale;
+  final Key accentKey;
 
   @override
   Widget build(BuildContext context) {
@@ -14,6 +15,7 @@ class _Timeline extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SectionHeader(
+            accentKey: accentKey,
             title: locale == AppLocale.th
                 ? (hasExperience ? 'ประวัติและประสบการณ์' : 'ประวัติการศึกษา')
                 : (hasExperience ? 'Education & Experience' : 'Education'),

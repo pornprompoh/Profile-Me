@@ -50,11 +50,12 @@ class _Navbar extends StatelessWidget {
     required this.brandName,
     required this.onNavigate,
     required this.onPdf,
+    super.key,
   });
   final AppState state;
   final AppLocale locale;
   final String brandName;
-  final Future<void> Function(AppSection) onNavigate;
+  final Future<void> Function(AppSection, [bool]) onNavigate;
   final Future<void> Function() onPdf;
 
   @override
@@ -87,7 +88,9 @@ class _Navbar extends StatelessWidget {
                     child: Material(
                       color: Colors.transparent,
                       child: InkWell(
-                        onTap: () => onNavigate(AppSection.home),
+                        onTap: () {
+                          onNavigate(AppSection.home);
+                        },
                         borderRadius: BorderRadius.circular(20),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
@@ -305,7 +308,7 @@ class _MobileDrawer extends StatelessWidget {
   final AppState state;
   final AppLocale locale;
   final String brandName;
-  final Future<void> Function(AppSection) onNavigate;
+  final Future<void> Function(AppSection, [bool]) onNavigate;
   final Future<void> Function() onPdf;
 
   @override
@@ -328,7 +331,10 @@ class _MobileDrawer extends StatelessWidget {
                   child: Material(
                     color: Colors.transparent,
                     child: InkWell(
-                      onTap: () => onNavigate(AppSection.home),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        onNavigate(AppSection.home, true);
+                      },
                       borderRadius: BorderRadius.circular(12),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
@@ -388,7 +394,10 @@ class _MobileDrawer extends StatelessWidget {
                                   : FontWeight.w500,
                             ),
                           ),
-                          onTap: () => onNavigate(AppSection.values[i]),
+                          onTap: () {
+                            Navigator.of(context).pop();
+                            onNavigate(AppSection.values[i], true);
+                          },
                         ),
                     ],
                   ),

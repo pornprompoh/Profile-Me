@@ -2,10 +2,11 @@
 part of '../../../main.dart';
 
 class _About extends StatelessWidget {
-  const _About(this.profile, this.locale);
+  const _About(this.profile, this.locale, {required this.accentKey});
 
   final Profile profile;
   final AppLocale locale;
+  final Key accentKey;
 
   @override
   Widget build(BuildContext context) {
@@ -19,6 +20,7 @@ class _About extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SectionHeader(
+              accentKey: accentKey,
               title: locale == AppLocale.th ? 'เกี่ยวกับฉัน' : 'About Me',
               subtitle: locale == AppLocale.th
                   ? 'ประวัติและจุดสนใจ'

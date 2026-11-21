@@ -50,6 +50,7 @@ class _ScrollRevealState extends State<_ScrollReveal>
   Timer? _settleTimer;
   Timer? _initialGuardTimer;
   late double _viewportHeight;
+  bool _disableAnimations = false;
   bool _started = false;
   bool _checkScheduled = false;
 
@@ -66,6 +67,18 @@ class _ScrollRevealState extends State<_ScrollReveal>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    final disableAnimations = MediaQuery.disableAnimationsOf(context);
+    if (disableAnimations != _disableAnimations) {
+      _disableAnimations = disableAnimations;
+      if (_disableAnimations) {
+        // Reduced Motion: แสดงเนื้อหาสมบูรณ์ทันทีไม่รัน Fade/Slide
+        _started = true;
+        _initialGuardTimer?.cancel();
+        _settleTimer?.cancel();
+        _scrollController?.removeListener(_onScrollChanged);
+        _metricsRevision?.removeListener(_scheduleVisibilityCheck);
+      }
+    }
     _viewportHeight = MediaQuery.sizeOf(context).height;
     final scope = context
         .dependOnInheritedWidgetOfExactType<_ScrollRevealScope>();
@@ -103,6 +116,10 @@ class _ScrollRevealState extends State<_ScrollReveal>
   }
 
   void _startWhenVisible() {
+    if (_disableAnimations) {
+      _started = true;
+      return;
+    }
     if (_started || !mounted) return;
     final renderObject = context.findRenderObject();
     if (renderObject is! RenderBox || !renderObject.hasSize) return;
@@ -140,17 +157,22 @@ class _ScrollRevealState extends State<_ScrollReveal>
   }
 
   @override
-  Widget build(BuildContext context) => AnimatedBuilder(
-    animation: animation,
-    builder: (context, child) => Opacity(
-      opacity: animation.value,
-      child: Transform.translate(
-        offset: Offset(0, 18 * (1 - animation.value)),
-        child: child,
+  Widget build(BuildContext context) {
+    if (MediaQuery.disableAnimationsOf(context)) {
+      return widget.child;
+    }
+    return AnimatedBuilder(
+      animation: animation,
+      builder: (context, child) => Opacity(
+        opacity: animation.value,
+        child: Transform.translate(
+          offset: Offset(0, 18 * (1 - animation.value)),
+          child: child,
+        ),
       ),
-    ),
-    child: widget.child,
-  );
+      child: widget.child,
+    );
+  }
 }
 
 class _HoverWrapper extends StatefulWidget {
