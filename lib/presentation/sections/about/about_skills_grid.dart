@@ -14,11 +14,24 @@ class _AboutSkillsGrid extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF0D1F33) : Colors.white,
+        color: AppTheme.cardSurface(
+          isDark ? Brightness.dark : Brightness.light,
+        ),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+          color: AppTheme.cardBorder(
+            isDark ? Brightness.dark : Brightness.light,
+          ),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.cardShadow(
+              isDark ? Brightness.dark : Brightness.light,
+            ),
+            blurRadius: 14,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

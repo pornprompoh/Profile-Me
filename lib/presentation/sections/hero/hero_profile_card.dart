@@ -27,7 +27,7 @@ class _HeroProfileCard extends StatelessWidget {
                 ? null
                 : () => showDialog<void>(
                     context: context,
-                    barrierDismissible: true,
+                    barrierDismissible: false,
                     builder: (_) => _Lightbox(images: paths),
                   ),
             borderRadius: radius,
