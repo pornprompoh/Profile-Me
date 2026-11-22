@@ -12,11 +12,14 @@ class _Lightbox extends StatefulWidget {
 
 class _LightboxState extends State<_Lightbox>
     with SingleTickerProviderStateMixin {
-  late final controller = PageController(initialPage: widget.initialIndex);
+  late final PageController controller = PageController(
+    initialPage: widget.initialIndex,
+  );
   late final AnimationController zoomAnimationController;
   late var index = widget.initialIndex;
   final isZoomed = ValueNotifier<bool>(false);
   final controllers = <int, TransformationController>{};
+  final imageKeys = <int, GlobalKey>{};
 
   @override
   void initState() {
@@ -46,8 +49,7 @@ class _LightboxState extends State<_Lightbox>
       });
 
   void _syncZoomed(TransformationController controller) {
-    final scale = controller.value.getMaxScaleOnAxis();
-    isZoomed.value = scale > 1.01;
+    isZoomed.value = controller.value.getMaxScaleOnAxis() > 1.01;
   }
 
   void _resetZoom({bool animate = true}) {
@@ -80,8 +82,7 @@ class _LightboxState extends State<_Lightbox>
 
   void _toggleDoubleTap(int page, Offset localPosition) {
     final controller = _controllerFor(page);
-    final scale = controller.value.getMaxScaleOnAxis();
-    if (scale > 1.01) {
+    if (controller.value.getMaxScaleOnAxis() > 1.01) {
       _resetZoom();
       return;
     }
@@ -138,155 +139,171 @@ class _LightboxState extends State<_Lightbox>
         },
         child: Focus(
           autofocus: true,
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () {
-              if (isZoomed.value) {
-                _resetZoom();
-              } else {
-                Navigator.pop(context);
-              }
-            },
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                Container(color: const Color(0xE0000000)),
-                ValueListenableBuilder<bool>(
-                  valueListenable: isZoomed,
-                  builder: (context, zoomed, _) => PageView.builder(
-                    controller: controller,
-                    physics: zoomed
-                        ? const NeverScrollableScrollPhysics()
-                        : null,
-                    itemCount: widget.images.length,
-                    onPageChanged: (value) {
-                      _resetAllZoom();
-                      setState(() => index = value);
-                    },
-                    itemBuilder: (context, i) {
-                      final transformation = _controllerFor(i);
-                      Offset? doubleTapPosition;
-                      return Listener(
-                        onPointerSignal: (event) {
-                          if (event is PointerScrollEvent &&
-                              event.kind == PointerDeviceKind.mouse) {
-                            // เมาส์ใช้แพนภาพไม่ได้และไม่ควรซูมภาพด้วยล้อ
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              // พื้นหลังดำแยกจากรูปเพื่อทำ Smart Backdrop Tap
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () {
+                  if (isZoomed.value) {
+                    _resetZoom();
+                  } else {
+                    Navigator.pop(context);
+                  }
+                },
+                child: const ColoredBox(color: Color(0xE0000000)),
+              ),
+              ValueListenableBuilder<bool>(
+                valueListenable: isZoomed,
+                builder: (context, zoomed, _) => PageView.builder(
+                  controller: controller,
+                  physics: zoomed ? const NeverScrollableScrollPhysics() : null,
+                  itemCount: widget.images.length,
+                  onPageChanged: (value) {
+                    _resetAllZoom();
+                    setState(() => index = value);
+                  },
+                  itemBuilder: (context, i) {
+                    final transformation = _controllerFor(i);
+                    final imageKey = imageKeys.putIfAbsent(i, GlobalKey.new);
+                    Offset? doubleTapPosition;
+                    return Listener(
+                      onPointerUp: (event) {
+                        final box =
+                            imageKey.currentContext?.findRenderObject()
+                                as RenderBox?;
+                        if (box == null) return;
+                        final topLeft = box.localToGlobal(Offset.zero);
+                        final imageRect = Rect.fromLTWH(
+                          topLeft.dx,
+                          topLeft.dy,
+                          box.size.width,
+                          box.size.height,
+                        );
+                        final outsideImage = !imageRect.contains(
+                          event.position,
+                        );
+                        if (outsideImage) {
+                          if (isZoomed.value) {
+                            _resetZoom();
+                          } else {
+                            Navigator.pop(context);
                           }
-                        },
-                        child: GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () {},
-                          onDoubleTapDown: (details) =>
-                              doubleTapPosition = details.localPosition,
-                          onDoubleTap: () => _toggleDoubleTap(
-                            i,
-                            doubleTapPosition ?? Offset.zero,
-                          ),
-                          child: InteractiveViewer(
-                            transformationController: transformation,
-                            minScale: 1,
-                            maxScale: 4,
-                            trackpadScrollCausesScale: false,
-                            panEnabled: true,
-                            scaleEnabled: true,
-                            child: Padding(
-                              padding: const EdgeInsets.all(24),
-                              child: Center(
-                                child: Image.asset(
-                                  widget.images[i],
-                                  fit: BoxFit.contain,
-                                  errorBuilder: (_, _, _) =>
-                                      const ColoredBox(color: AppTheme.sky),
-                                ),
+                        }
+                      },
+                      child: InteractiveViewer(
+                        transformationController: transformation,
+                        minScale: 1,
+                        maxScale: 4,
+                        trackpadScrollCausesScale: false,
+                        panEnabled: true,
+                        scaleEnabled: true,
+                        child: Padding(
+                          padding: const EdgeInsets.all(24),
+                          child: Center(
+                            child: GestureDetector(
+                              onDoubleTapDown: (details) =>
+                                  doubleTapPosition = details.localPosition,
+                              onDoubleTap: () => _toggleDoubleTap(
+                                i,
+                                doubleTapPosition ?? Offset.zero,
+                              ),
+                              child: Image.asset(
+                                widget.images[i],
+                                key: imageKey,
+                                fit: BoxFit.contain,
+                                errorBuilder: (_, _, _) =>
+                                    const ColoredBox(color: AppTheme.sky),
                               ),
                             ),
                           ),
                         ),
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  },
                 ),
-                ValueListenableBuilder<bool>(
-                  valueListenable: isZoomed,
-                  builder: (context, zoomed, _) => IgnorePointer(
-                    ignoring: zoomed,
-                    child: AnimatedOpacity(
-                      opacity: zoomed ? 0 : 1,
-                      duration: disableAnimations
-                          ? Duration.zero
-                          : const Duration(milliseconds: 160),
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          Positioned(
-                            top: 24,
-                            right: 24,
-                            child: IconButton.filled(
-                              onPressed: () => Navigator.pop(context),
-                              icon: const Icon(Icons.close),
+              ),
+              ValueListenableBuilder<bool>(
+                valueListenable: isZoomed,
+                builder: (context, zoomed, _) => IgnorePointer(
+                  ignoring: zoomed,
+                  child: AnimatedOpacity(
+                    opacity: zoomed ? 0 : 1,
+                    duration: disableAnimations
+                        ? Duration.zero
+                        : const Duration(milliseconds: 160),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        Positioned(
+                          top: 24,
+                          right: 24,
+                          child: IconButton.filled(
+                            onPressed: () => Navigator.pop(context),
+                            icon: const Icon(Icons.close),
+                          ),
+                        ),
+                        if (!isMobile && widget.images.length > 1) ...[
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 24),
+                              child: SizedBox(
+                                width: 44,
+                                height: 44,
+                                child: IconButton.filledTonal(
+                                  onPressed: () => controller.previousPage(
+                                    duration: disableAnimations
+                                        ? Duration.zero
+                                        : const Duration(milliseconds: 300),
+                                    curve: Curves.easeInOut,
+                                  ),
+                                  icon: const Icon(Icons.chevron_left),
+                                ),
+                              ),
                             ),
                           ),
-                          if (!isMobile && widget.images.length > 1) ...[
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: Padding(
-                                padding: const EdgeInsets.only(left: 24),
-                                child: SizedBox(
-                                  width: 44,
-                                  height: 44,
-                                  child: IconButton.filledTonal(
-                                    onPressed: () => controller.previousPage(
-                                      duration: disableAnimations
-                                          ? Duration.zero
-                                          : const Duration(milliseconds: 300),
-                                      curve: Curves.easeInOut,
-                                    ),
-                                    icon: const Icon(Icons.chevron_left),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 24),
+                              child: SizedBox(
+                                width: 44,
+                                height: 44,
+                                child: IconButton.filledTonal(
+                                  onPressed: () => controller.nextPage(
+                                    duration: disableAnimations
+                                        ? Duration.zero
+                                        : const Duration(milliseconds: 300),
+                                    curve: Curves.easeInOut,
                                   ),
-                                ),
-                              ),
-                            ),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: Padding(
-                                padding: const EdgeInsets.only(right: 24),
-                                child: SizedBox(
-                                  width: 44,
-                                  height: 44,
-                                  child: IconButton.filledTonal(
-                                    onPressed: () => controller.nextPage(
-                                      duration: disableAnimations
-                                          ? Duration.zero
-                                          : const Duration(milliseconds: 300),
-                                      curve: Curves.easeInOut,
-                                    ),
-                                    icon: const Icon(Icons.chevron_right),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                          Positioned(
-                            bottom: 24,
-                            left: 0,
-                            right: 0,
-                            child: Center(
-                              child: Text(
-                                '${index + 1} / ${widget.images.length}',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700,
+                                  icon: const Icon(Icons.chevron_right),
                                 ),
                               ),
                             ),
                           ),
                         ],
-                      ),
+                        Positioned(
+                          bottom: 24,
+                          left: 0,
+                          right: 0,
+                          child: Center(
+                            child: Text(
+                              '${index + 1} / ${widget.images.length}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

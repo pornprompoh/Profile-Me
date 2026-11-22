@@ -19,15 +19,8 @@ class _Timeline extends StatelessWidget {
             title: locale == AppLocale.th
                 ? (hasExperience ? 'ประวัติและประสบการณ์' : 'ประวัติการศึกษา')
                 : (hasExperience ? 'Education & Experience' : 'Education'),
-            subtitle: locale == AppLocale.th
-                ? (hasExperience
-                      ? 'เส้นทางการเรียนรู้และการทำงาน'
-                      : 'เส้นทางการเรียนรู้')
-                : (hasExperience
-                      ? 'Learning and career journey'
-                      : 'Academic background'),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 24),
           for (var i = 0; i < profile.education.length; i++)
             _TimelineItem(
               period: profile.education[i].period,

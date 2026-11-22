@@ -31,6 +31,14 @@ class _ProjectsState extends State<_Projects> {
   }
 
   @override
+  void didUpdateWidget(covariant _Projects oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _updateFilterScroll();
+    });
+  }
+
+  @override
   void dispose() {
     _filterController.removeListener(_updateFilterScroll);
     _filterController.dispose();
@@ -82,8 +90,6 @@ class _ProjectsState extends State<_Projects> {
     return 'all';
   }
 
-  String _categoryLabel(String category) => category;
-
   int _categoryCount(String category) => widget.projects
       .where(
         (project) =>
@@ -109,9 +115,6 @@ class _ProjectsState extends State<_Projects> {
           SectionHeader(
             accentKey: widget.accentKey,
             title: widget.locale == AppLocale.th ? 'ผลงาน' : 'Projects',
-            subtitle: widget.locale == AppLocale.th
-                ? 'เลือกดูผลงานตามหมวดหมู่'
-                : 'Browse selected work',
           ),
           const SizedBox(height: 24),
           ValueListenableBuilder<String>(
@@ -124,80 +127,13 @@ class _ProjectsState extends State<_Projects> {
               return LayoutBuilder(
                 builder: (context, constraints) {
                   if (constraints.maxWidth < LayoutTokens.mobileBreakpoint) {
-                    final selectedLabel = currentSelection == 'all'
-                        ? '$allLabel (${widget.projects.length})'
-                        : '${_categoryLabel(currentSelection)} (${_categoryCount(currentSelection)})';
-                    return Container(
-                      height: 48,
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surface,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: Theme.of(context).colorScheme.outlineVariant,
-                        ),
-                      ),
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton<String>(
-                          value: currentSelection,
-                          isExpanded: true,
-                          icon: const Icon(Icons.keyboard_arrow_down),
-                          hint: Text(selectedLabel),
-                          selectedItemBuilder: (_) => [
-                            Text('$allLabel (${widget.projects.length})'),
-                            for (final category in categories)
-                              Text('$category (${_categoryCount(category)})'),
-                          ],
-                          items: [
-                            DropdownMenuItem(
-                              value: 'all',
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      '$allLabel (${widget.projects.length})',
-                                    ),
-                                  ),
-                                  if (currentSelection == 'all')
-                                    Icon(
-                                      Icons.check,
-                                      size: 18,
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.primary,
-                                    ),
-                                ],
-                              ),
-                            ),
-                            for (final category in categories)
-                              DropdownMenuItem(
-                                value: category,
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        '$category (${_categoryCount(category)})',
-                                      ),
-                                    ),
-                                    if (currentSelection == category)
-                                      Icon(
-                                        Icons.check,
-                                        size: 18,
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.primary,
-                                      ),
-                                  ],
-                                ),
-                              ),
-                          ],
-                          onChanged: (value) {
-                            if (value != null) {
-                              widget.state.selectedCategory.value = value;
-                            }
-                          },
-                        ),
-                      ),
+                    return _MobileCategoryDropdown(
+                      projects: widget.projects,
+                      categories: categories,
+                      selected: currentSelection,
+                      locale: widget.locale,
+                      onSelected: (value) =>
+                          widget.state.selectedCategory.value = value,
                     );
                   }
 
@@ -237,35 +173,43 @@ class _ProjectsState extends State<_Projects> {
                             ],
                             stops: const [0, .04, .96, 1],
                           ).createShader(bounds),
-                          child: SingleChildScrollView(
-                            controller: _filterController,
-                            scrollDirection: Axis.horizontal,
-                            physics: const ClampingScrollPhysics(),
-                            child: Row(
-                              children: [
-                                ChoiceChip(
-                                  label: Text(
-                                    '$allLabel (${widget.projects.length})',
-                                  ),
-                                  selected: currentSelection == 'all',
-                                  onSelected: (_) =>
-                                      widget.state.selectedCategory.value =
-                                          'all',
-                                ),
-                                const SizedBox(width: 8),
-                                for (final category in categories) ...[
+                          child: NotificationListener<ScrollMetricsNotification>(
+                            onNotification: (_) {
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                if (mounted) _updateFilterScroll();
+                              });
+                              return false;
+                            },
+                            child: SingleChildScrollView(
+                              controller: _filterController,
+                              scrollDirection: Axis.horizontal,
+                              physics: const ClampingScrollPhysics(),
+                              child: Row(
+                                children: [
                                   ChoiceChip(
                                     label: Text(
-                                      '$category (${_categoryCount(category)})',
+                                      '$allLabel (${widget.projects.length})',
                                     ),
-                                    selected: currentSelection == category,
+                                    selected: currentSelection == 'all',
                                     onSelected: (_) =>
                                         widget.state.selectedCategory.value =
-                                            category,
+                                            'all',
                                   ),
                                   const SizedBox(width: 8),
+                                  for (final category in categories) ...[
+                                    ChoiceChip(
+                                      label: Text(
+                                        '$category (${_categoryCount(category)})',
+                                      ),
+                                      selected: currentSelection == category,
+                                      onSelected: (_) =>
+                                          widget.state.selectedCategory.value =
+                                              category,
+                                    ),
+                                    const SizedBox(width: 8),
+                                  ],
                                 ],
-                              ],
+                              ),
                             ),
                           ),
                         ),

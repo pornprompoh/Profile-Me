@@ -39,6 +39,7 @@ part 'sections/about/about_skills_grid.dart';
 part 'sections/timeline/timeline_section.dart';
 part 'sections/projects/projects_section.dart';
 part 'sections/projects/project_card.dart';
+part 'sections/projects/mobile_category_dropdown.dart';
 part 'modals/project_modals.dart';
 part 'modals/image_lightbox_dialog.dart';
 part 'sections/footer/footer_section.dart';
