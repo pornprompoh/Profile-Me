@@ -20,6 +20,64 @@ class _Projects extends StatefulWidget {
 }
 
 class _ProjectsState extends State<_Projects> {
+  final ScrollController _filterController = ScrollController();
+  var _canScrollFilterLeft = false;
+  var _canScrollFilterRight = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _filterController.addListener(_updateFilterScroll);
+  }
+
+  @override
+  void didUpdateWidget(covariant _Projects oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _updateFilterScroll();
+    });
+  }
+
+  @override
+  void dispose() {
+    _filterController.removeListener(_updateFilterScroll);
+    _filterController.dispose();
+    super.dispose();
+  }
+
+  void _updateFilterScroll() {
+    if (!mounted) return;
+    final position = _filterController.positions.isEmpty
+        ? null
+        : _filterController.position;
+    if (position == null) return;
+    final left = position.pixels > 1;
+    final right = position.pixels < position.maxScrollExtent - 1;
+    if (left != _canScrollFilterLeft || right != _canScrollFilterRight) {
+      setState(() {
+        _canScrollFilterLeft = left;
+        _canScrollFilterRight = right;
+      });
+    }
+  }
+
+  void _scrollFilters(double offset) {
+    if (!_filterController.hasClients) return;
+    final target = (_filterController.offset + offset).clamp(
+      0.0,
+      _filterController.position.maxScrollExtent,
+    );
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _filterController.jumpTo(target);
+    } else {
+      _filterController.animateTo(
+        target,
+        duration: const Duration(milliseconds: 280),
+        curve: Curves.easeOutCubic,
+      );
+    }
+  }
+
   String _categoryInCurrentLocale(String selected) {
     if (selected == 'all') return selected;
     for (final project in widget.projects) {
@@ -31,6 +89,16 @@ class _ProjectsState extends State<_Projects> {
     }
     return 'all';
   }
+
+  int _categoryCount(String category) => widget.projects
+      .where(
+        (project) =>
+            (widget.locale == AppLocale.th
+                ? project.category.th
+                : project.category.en) ==
+            category,
+      )
+      .length;
 
   @override
   Widget build(BuildContext context) {
@@ -47,35 +115,121 @@ class _ProjectsState extends State<_Projects> {
           SectionHeader(
             accentKey: widget.accentKey,
             title: widget.locale == AppLocale.th ? 'ผลงาน' : 'Projects',
-            subtitle: widget.locale == AppLocale.th
-                ? 'เลือกดูผลงานตามหมวดหมู่'
-                : 'Browse selected work',
           ),
           const SizedBox(height: 24),
           ValueListenableBuilder<String>(
             valueListenable: widget.state.selectedCategory,
             builder: (context, selected, _) {
               final currentSelection = _categoryInCurrentLocale(selected);
-              return Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  ChoiceChip(
-                    label: Text(
-                      widget.locale == AppLocale.th ? 'ทั้งหมด' : 'All',
-                    ),
-                    selected: currentSelection == 'all',
-                    onSelected: (_) =>
-                        widget.state.selectedCategory.value = 'all',
-                  ),
-                  for (final category in categories)
-                    ChoiceChip(
-                      label: Text(category),
-                      selected: currentSelection == category,
-                      onSelected: (_) =>
-                          widget.state.selectedCategory.value = category,
-                    ),
-                ],
+              final allLabel = widget.locale == AppLocale.th
+                  ? 'ทั้งหมด'
+                  : 'All';
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  if (constraints.maxWidth < LayoutTokens.mobileBreakpoint) {
+                    return _MobileCategoryDropdown(
+                      projects: widget.projects,
+                      categories: categories,
+                      selected: currentSelection,
+                      locale: widget.locale,
+                      onSelected: (value) =>
+                          widget.state.selectedCategory.value = value,
+                    );
+                  }
+
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted) _updateFilterScroll();
+                  });
+                  return Row(
+                    children: [
+                      if (_canScrollFilterLeft)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 6),
+                          child: IconButton(
+                            tooltip: null,
+                            onPressed: () => _scrollFilters(-220),
+                            icon: const Icon(Icons.chevron_left),
+                            constraints: const BoxConstraints.tightFor(
+                              width: 36,
+                              height: 36,
+                            ),
+                          ),
+                        ),
+                      Expanded(
+                        child: ShaderMask(
+                          blendMode: BlendMode.dstIn,
+                          shaderCallback: (bounds) => LinearGradient(
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                            colors: [
+                              _canScrollFilterLeft
+                                  ? Colors.transparent
+                                  : Colors.white,
+                              Colors.white,
+                              Colors.white,
+                              _canScrollFilterRight
+                                  ? Colors.transparent
+                                  : Colors.white,
+                            ],
+                            stops: const [0, .04, .96, 1],
+                          ).createShader(bounds),
+                          child: NotificationListener<ScrollMetricsNotification>(
+                            onNotification: (_) {
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                if (mounted) _updateFilterScroll();
+                              });
+                              return false;
+                            },
+                            child: SingleChildScrollView(
+                              controller: _filterController,
+                              scrollDirection: Axis.horizontal,
+                              physics: const ClampingScrollPhysics(),
+                              child: Row(
+                                children: [
+                                  ChoiceChip(
+                                    label: Text(
+                                      '$allLabel (${widget.projects.length})',
+                                    ),
+                                    selected: currentSelection == 'all',
+                                    onSelected: (_) =>
+                                        widget.state.selectedCategory.value =
+                                            'all',
+                                  ),
+                                  const SizedBox(width: 8),
+                                  for (final category in categories) ...[
+                                    ChoiceChip(
+                                      label: Text(
+                                        '$category (${_categoryCount(category)})',
+                                      ),
+                                      selected: currentSelection == category,
+                                      onSelected: (_) =>
+                                          widget.state.selectedCategory.value =
+                                              category,
+                                    ),
+                                    const SizedBox(width: 8),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      if (_canScrollFilterRight)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 6),
+                          child: IconButton(
+                            tooltip: null,
+                            onPressed: () => _scrollFilters(220),
+                            icon: const Icon(Icons.chevron_right),
+                            constraints: const BoxConstraints.tightFor(
+                              width: 36,
+                              height: 36,
+                            ),
+                          ),
+                        ),
+                    ],
+                  );
+                },
               );
             },
           ),

@@ -34,7 +34,9 @@ class _ProjectCard extends StatelessWidget {
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(LayoutTokens.cardRadius),
-          side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
+          side: BorderSide(
+            color: AppTheme.cardBorder(Theme.of(context).brightness),
+          ),
         ),
         child: InkWell(
           onTap: () => showDialog<void>(

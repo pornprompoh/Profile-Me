@@ -86,7 +86,7 @@ class _ProjectModalState extends State<_ProjectModal> {
                                   itemBuilder: (context, i) => InkWell(
                                     onTap: () => showDialog<void>(
                                       context: context,
-                                      barrierDismissible: true,
+                                      barrierDismissible: false,
                                       builder: (_) => _Lightbox(
                                         images: images,
                                         initialIndex: i,

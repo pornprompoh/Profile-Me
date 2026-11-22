@@ -22,9 +22,6 @@ class _About extends StatelessWidget {
             SectionHeader(
               accentKey: accentKey,
               title: locale == AppLocale.th ? 'เกี่ยวกับฉัน' : 'About Me',
-              subtitle: locale == AppLocale.th
-                  ? 'ประวัติและจุดสนใจ'
-                  : 'Background and interests',
             ),
             const SizedBox(height: 24),
             if (isMobile)

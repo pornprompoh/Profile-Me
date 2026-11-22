@@ -15,6 +15,21 @@ class AppTheme {
   static Color navbarAccent(Brightness brightness) =>
       brightness == Brightness.dark ? darkAccent : primary;
 
+  static Color cardSurface(Brightness brightness) =>
+      brightness == Brightness.dark
+      ? AppColors.darkSurface
+      : AppColors.lightSurface;
+
+  static Color cardBorder(Brightness brightness) =>
+      brightness == Brightness.dark
+      ? AppColors.darkCardBorder
+      : AppColors.lightCardBorder;
+
+  static Color cardShadow(Brightness brightness) =>
+      brightness == Brightness.dark
+      ? AppColors.darkCardShadow
+      : AppColors.lightCardShadow;
+
   static ThemeData light() => ThemeData(
     useMaterial3: true,
     fontFamily: 'Sarabun',
@@ -36,6 +51,16 @@ class AppTheme {
         ),
     scaffoldBackgroundColor: AppColors.lightBackground,
     dividerColor: AppColors.lightBorder,
+    cardTheme: CardThemeData(
+      color: AppColors.lightSurface,
+      shadowColor: AppColors.lightCardShadow,
+      elevation: 2,
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+        side: const BorderSide(color: AppColors.lightCardBorder),
+      ),
+    ),
   );
 
   static ThemeData dark() => ThemeData(
@@ -59,5 +84,15 @@ class AppTheme {
         ),
     scaffoldBackgroundColor: AppColors.darkBackground,
     dividerColor: AppColors.darkBorder,
+    cardTheme: CardThemeData(
+      color: AppColors.darkSurface,
+      shadowColor: AppColors.darkCardShadow,
+      elevation: 2,
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+        side: const BorderSide(color: AppColors.darkCardBorder),
+      ),
+    ),
   );
 }

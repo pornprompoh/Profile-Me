@@ -45,7 +45,7 @@ class SectionContainer extends StatelessWidget {
 class SectionHeader extends StatelessWidget {
   const SectionHeader({
     required this.title,
-    required this.subtitle,
+    this.subtitle = '',
     this.accentKey,
     super.key,
   });
